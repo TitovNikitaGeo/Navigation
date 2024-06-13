@@ -7,9 +7,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    MyTimer = new QTimer(this);
-    connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
-    MyTimer->start(1000);
+    // MyTimer = new QTimer(this);
+    // connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
+    // MyTimer->start(1000);
 
 
 
@@ -48,12 +48,13 @@ void MainWindow::timeToCollectData()
 {
     for (FixedItem* item: Vault->ItemsVault) {
         if (item->connection != nullptr) {
-            // if (item->connection->lastRecievedNMEA.isEmpty()) {
-            //     qDebug() << "MW time to collect";
-            //     return;
-            // }
-            // item->newNmeaArived(item->getLastNmeaStr());
-            item->getLastNmeaStr();
+            if (!item->hasConnection) {
+                qDebug() << "MW time to collect";
+                return;
+            } else {
+                item->newNmeaArived(item->getLastNmeaStr());
+                item->getLastNmeaStr();
+            }
         }
     }
     qDebug()<<"timeToCollectData tic tac";
@@ -123,6 +124,7 @@ void MainWindow::on_AddItemtPushButton_clicked()
     if (ui->checkBox->isChecked()) {
         connectionCreator->show();
         newItem->connection = getConnection();
+        newItem->hasConnection = true;
         //получение указателя на соединение
     } else {
         newItem->connection = nullptr;
@@ -267,8 +269,8 @@ Connection* MainWindow::getConnection(){
     return lastCreatedConnection;
 }
 void MainWindow::handleConnection(Connection* newConnection){
-    lastCreatedConnection = newConnection;
 
+    lastCreatedConnection = newConnection;
     connectionCreator->hide();
 }
 ///костыль или архитектура? Вот в чем вопрос

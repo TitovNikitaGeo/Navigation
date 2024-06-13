@@ -47,9 +47,9 @@ void Connection::write_nmea_data(QByteArray nmea_data){
         } else if (data_condition == 1) {
             *datastream << nmea_data;
             lastRecievedNMEA = QString(nmea_data);
-            return;
+            // return;
             // nmeaParser.printNmeaData(nmeaParser.parseNmeaSentence(QString(nmea_data)));
-            // qDebug() << nmea_data << " to file" << filename;
+            qDebug() << nmea_data << " to file" << filename;
         } else {
             qDebug() << "BAD PACKAGE" << nmea_data;
             return;
@@ -118,10 +118,6 @@ int Connection::check_sum_nmea(QByteArray nmea_data)
     uint8_t receivedCS0 = nmea_data[nmea_data.length()-4];
     uint8_t receivedCS1 = nmea_data[nmea_data.length()-3];
     // Получение контрольной суммы из пакета
-    // qDebug() << "/////////////////////////////////";
-    // qDebug() << nmea_data;
-    // qDebug() << translatedByte1<<translatedByte2 <<" vs "<<receivedCS0<<receivedCS1;
-
 
     if(translatedByte1 == receivedCS0 && translatedByte2 == receivedCS1)
     // Сравнение контрольной суммы с полученной из пакета

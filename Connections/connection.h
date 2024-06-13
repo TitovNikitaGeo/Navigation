@@ -52,9 +52,10 @@ public:
     QTextStream* datastream = nullptr;
 
     QString lastRecievedNMEA = "still empty";
-private:
-    Ui::Connection *ui;
 
+private:
+
+    Ui::Connection *ui;
     NmeaParser nmeaParser;
 
 private slots:

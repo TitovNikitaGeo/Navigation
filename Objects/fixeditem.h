@@ -48,6 +48,7 @@ public:
 
     ///funcs for working with connections
     QString getLastNmeaStr();
+    bool hasConnection = false;
 
     Connection* connection = nullptr;
     NmeaParser parser;

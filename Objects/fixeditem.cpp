@@ -14,7 +14,7 @@ FixedItem::FixedItem(float x,float y,float z, QString name) :
 FixedItem::~FixedItem() {
     qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name;
     deletingWires();
-    delete connection;
+    if (hasConnection && connection != nullptr) delete connection;
 }
 
 

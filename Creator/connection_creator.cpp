@@ -6,7 +6,6 @@ Connection_creator::Connection_creator(QWidget *parent)
     , ui(new Ui::Connection_creator)
 {
     ui->setupUi(this);
-    // setAttribute(Qt::WA_DeleteOnClose);
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
 
 
@@ -80,6 +79,3 @@ Connection* Connection_creator::createConnection(){
 
 }
 
-// void Connection_creator::connectionCreated(Connection* newConnection){
-
-// }

@@ -34,9 +34,9 @@ Connection_com::Connection_com(QString COM_port, int ByteRate, QString filename)
 
 Connection_com::~Connection_com()
 {
-    SerialPort.close();
+    // SerialPort.close();
     file->close();
-    delete ui;
+    // delete ui;
 }
 
 
