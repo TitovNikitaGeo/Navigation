@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../../../Creator/connection_creator.h"
+#include "../../../ConnectionCreator/connection_creator.h"
 #include <QtCore/qmetatype.h>
 
 #include <QtCore/qtmochelpers.h>
@@ -36,11 +36,8 @@ namespace {
 struct qt_meta_stringdata_CLASSConnection_creatorENDCLASS_t {};
 constexpr auto qt_meta_stringdata_CLASSConnection_creatorENDCLASS = QtMocHelpers::stringData(
     "Connection_creator",
-    "connectionCreated",
-    "",
-    "Connection*",
-    "newConnection",
-    "on_pushButton_clicked"
+    "on_pushButton_clicked",
+    ""
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -53,21 +50,15 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSConnection_creatorENDCLASS[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       1,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
-
- // signals: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,   26,    2, 0x06,    1 /* Public */,
+       0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       5,    0,   29,    2, 0x08,    3 /* Private */,
-
- // signals: parameters
-    QMetaType::Void, 0x80000000 | 3,    4,
+       1,    0,   20,    2, 0x08,    1 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -84,9 +75,6 @@ Q_CONSTINIT const QMetaObject Connection_creator::staticMetaObject = { {
     qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSConnection_creatorENDCLASS_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<Connection_creator, std::true_type>,
-        // method 'connectionCreated'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<Connection *, std::false_type>,
         // method 'on_pushButton_clicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
@@ -99,31 +87,11 @@ void Connection_creator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, i
         auto *_t = static_cast<Connection_creator *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->connectionCreated((*reinterpret_cast< std::add_pointer_t<Connection*>>(_a[1]))); break;
-        case 1: _t->on_pushButton_clicked(); break;
+        case 0: _t->on_pushButton_clicked(); break;
         default: ;
         }
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        switch (_id) {
-        default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
-        case 0:
-            switch (*reinterpret_cast<int*>(_a[1])) {
-            default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
-            case 0:
-                *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType::fromType< Connection* >(); break;
-            }
-            break;
-        }
-    } else if (_c == QMetaObject::IndexOfMethod) {
-        int *result = reinterpret_cast<int *>(_a[0]);
-        {
-            using _t = void (Connection_creator::*)(Connection * );
-            if (_t _q_method = &Connection_creator::connectionCreated; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
-                *result = 0;
-                return;
-            }
-        }
     }
+    (void)_a;
 }
 
 const QMetaObject *Connection_creator::metaObject() const
@@ -145,21 +113,14 @@ int Connection_creator::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 1)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 1;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
-            qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        if (_id < 1)
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
+        _id -= 1;
     }
     return _id;
-}
-
-// SIGNAL 0
-void Connection_creator::connectionCreated(Connection * _t1)
-{
-    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
-    QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_WARNING_POP

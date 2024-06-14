@@ -12,7 +12,7 @@ INCLUDEPATH += ./Drawing
 INCLUDEPATH += ./Fabric
 INCLUDEPATH += ./Objects
 INCLUDEPATH += ./DataVault
-INCLUDEPATH += ./Creator
+INCLUDEPATH += ./ConnectionCreator
 INCLUDEPATH += ./Connections
 INCLUDEPATH += ./Parsers
 
@@ -21,6 +21,7 @@ SOURCES += \
     DataVault/itemsstorage.cpp \
     Fabric/fabric.cpp \
     Objects/fixeditem.cpp \
+    Objects/streamer.cpp \
     Objects/toweditem.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -30,17 +31,18 @@ SOURCES += \
     Connections/connection_net.cpp \
     Parsers/nmeaparser.cpp \
     Parsers/p190_creator.cpp \
-    Creator/connection_creator.cpp
+    ConnectionCreator/connection_creator.cpp
 
 HEADERS += \
     DataVault/itemsstorage.h \
     Fabric/fabric.h \
     Objects/fixeditem.h \
+    Objects/streamer.h \
     Objects/toweditem.h \
     mainwindow.h \
     Drawing/mygraphicview.h \
     Connections/connection.h \
-    Creator/connection_creator.h \
+    ConnectionCreator/connection_creator.h \
     Connections/connection_com.h \
     Connections/connection_net.h \
     Parsers/nmeaparser.h \
@@ -48,7 +50,7 @@ HEADERS += \
 
 FORMS += \
     mainwindow.ui \
-    Creator/connection_creator.ui \
+    ConnectionCreator/connection_creator.ui \
     Connections/connection.ui \
     Connections/connection_com.ui \
     Connections/connection_com.ui \

@@ -22,6 +22,7 @@ public:
     // void recieve_data(QByteArray data);
 
     QString filename;
+    QString getComPort();
 
 private:
     Ui::Connection_com *ui;

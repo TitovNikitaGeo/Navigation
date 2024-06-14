@@ -7,9 +7,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // MyTimer = new QTimer(this);
-    // connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
-    // MyTimer->start(1000);
+    MyTimer = new QTimer(this);
+    connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
+    MyTimer->start(1000);
 
 
 
@@ -40,23 +40,15 @@ MainWindow::MainWindow(QWidget *parent)
     ///ObjectsListSetUp
 
 
-    connectionCreator = new Connection_creator();
-    connect(connectionCreator, &Connection_creator::connectionCreated, this, &MainWindow::handleConnection);
+
+
 }
 
 void MainWindow::timeToCollectData()
 {
-    for (FixedItem* item: Vault->ItemsVault) {
-        if (item->connection != nullptr) {
-            if (!item->hasConnection) {
-                qDebug() << "MW time to collect";
-                return;
-            } else {
-                item->newNmeaArived(item->getLastNmeaStr());
-                item->getLastNmeaStr();
-            }
-        }
-    }
+    // for (FixedItem* item: Vault->ItemsVault) {
+    //     ;
+    // }
     qDebug()<<"timeToCollectData tic tac";
 
 }
@@ -66,7 +58,6 @@ MainWindow::~MainWindow()
     delete MyFabric;
     delete DrawingArea;
     delete Vault;
-    delete connectionCreator;
     delete ui;
 }
 
@@ -96,6 +87,12 @@ void MainWindow::on_AddItemtPushButton_clicked()
     ui->ItemNameLineEdit->setText(name);
     ///Creating New Obj
 
+    bool needConnection = false;
+
+    if (ui->checkBox->isChecked()) {
+        needConnection = true;
+    }
+
     FixedItem* newItem;
 
     if (ui->RBFixed->isChecked()) { ///getting params for fixed
@@ -115,20 +112,18 @@ void MainWindow::on_AddItemtPushButton_clicked()
             ui->ComboBoxWiredWith->currentText());//toWhoIsWired
         float wireLength = ui->WireLengthSpinBox->value();
         float angleToWired = 270; //change further if needed
-        //270 градусов = 4.71238898
         Fabric::TowedItemInfo NewItemInfo(twiw, wireLength, angleToWired, name);
         newItem = createTowedItem(NewItemInfo);
     }
 
     /// открываем окно создания соединений, если нужно
-    if (ui->checkBox->isChecked()) {
-        connectionCreator->show();
-        newItem->connection = getConnection();
-        newItem->hasConnection = true;
-        //получение указателя на соединение
-    } else {
-        newItem->connection = nullptr;
-    }
+
+        // connectionCreator->show(); // Показываем окно
+        // connectionCreator->setWindowModality(Qt::ApplicationModal);
+        // // Устанавливаем модальность окна
+        // connectionCreator->raise(); // Поднимаем окно на передний план
+        // connectionCreator->activateWindow();
+
 }
 
 
@@ -263,17 +258,6 @@ void MainWindow::drawLineToTowed(TowedItem* item) {
 
 
 
-///костыль или архитектура? Вот в чем вопрос
-Connection* MainWindow::getConnection(){
-     qDebug() << "MW get connection" << lastCreatedConnection->filename;
-    return lastCreatedConnection;
-}
-void MainWindow::handleConnection(Connection* newConnection){
-
-    lastCreatedConnection = newConnection;
-    connectionCreator->hide();
-}
-///костыль или архитектура? Вот в чем вопрос
 
 
 

@@ -11,6 +11,8 @@ Connection_Net::Connection_Net(QString IP, int port, QString filename) :
 {
 
     setAttribute(Qt::WA_DeleteOnClose);
+
+    create_file_for_nmea(this->filename); //создание файла
     this->lastRecievedNMEA = "empty net";
 
 
@@ -42,6 +44,11 @@ Connection_Net::~Connection_Net()
     socket->close();
     // delete ui;
     delete socket;
+}
+
+QString Connection_Net::getIP_port()
+{
+    return IP + QString::number(port);
 }
 
 

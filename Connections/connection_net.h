@@ -21,6 +21,8 @@ public:
 
 
     QString filename;
+    QString getIP_port();
+
 private:
 
     QTcpSocket* socket;

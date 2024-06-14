@@ -39,6 +39,11 @@ Connection_com::~Connection_com()
     // delete ui;
 }
 
+QString Connection_com::getComPort()
+{
+    return COM_port;
+}
+
 
 void Connection_com::ReadyRead() {
     QByteArray data = SerialPort.readAll();

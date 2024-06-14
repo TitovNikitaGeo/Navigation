@@ -29,13 +29,10 @@ public:
     ~MainWindow();
 
 
-
     FixedItem* createFixedItem(Fabric::FixedItemInfo NewItemInfo);
     FixedItem* createTowedItem(Fabric::TowedItemInfo NewItemInfo);
 
     QString GetNewDeviceName(QString name);
-
-    Connection* getConnection();
 
 
 private slots:
@@ -45,7 +42,6 @@ private slots:
     void on_RBFixed_clicked();
     void on_RBTowed_clicked();
 
-    void handleConnection(Connection* newConnection);
 
 private:
     void drawLineToTowed(TowedItem* item);
@@ -59,15 +55,12 @@ private:
     Fabric* MyFabric;
     ItemsStorage* Vault;
     QTableWidget* tableWithItems;
-    Connection_creator* connectionCreator;
+
     QTimer* MyTimer;
 
 
     int NumberOfRowsInTable = 0;
 
-    ///костыль или архитектура? Вот в чем вопрос
-    Connection* lastCreatedConnection;
-    ///костыль или архитектура? Вот в чем вопрос
 
 private slots:
     void timeToCollectData();
