@@ -3,31 +3,39 @@
 
 #include "toweditem.h"
 #include "fixeditem.h"
+// #include "buoy.h"
 #include <QObject>
 
 class Streamer : public QObject, public TowedItem
 {
     Q_OBJECT
     class Channel;
-    friend class Fabrick;
-    Streamer(QString name, FixedItem *towingPoint,
-             float angleToWired, float wireLength, uint NumChannels, float dCh);
+private:
+    friend class Fabric;
+    Streamer(QString name, FixedItem *towingPoint, float angleToWired, float wireLength, uint NumChannels, float dCh);
 
 
 public:
     explicit Streamer(QObject *parent = nullptr);
-
     void calcChansCoors();
+
+    void printChanCoor();
+    int checkStreamerCoordinates();
+
 private:
     uint NumChanels;
     float dCh;
     QVector<Channel*> ChannelsVector;
 
 
-// signals:
+    float endDepth;
+
+    // Buoy* endBuoy;
+
+    ///inner class for channels
     class Channel : public QObject, public TowedItem
     {
-        Q_OBJECT
+        // Q_OBJECT
     public:
         Channel(uint myNumber);
 
@@ -37,6 +45,8 @@ private:
     private:
         uint myNumber;
     };
+
+
 
 };
 

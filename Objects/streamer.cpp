@@ -27,8 +27,28 @@ void Streamer::calcChansCoors()
         ch->y_coor = this->y_coor + wireLength*sin(angle)*i;
         i++;
     }
+    ///depth calculation
+    // for (Channel* ch: ChannelsVector) {
+    //     ch->depth = this->depth + ((endBuoy->towingPointDepth - this->depth) / NumChanels)*i;
+    //     i++;
+    // }
+    ///add depth sensorss
+}
 
-    ///add depth sensors
+void Streamer::printChanCoor() //функция для дебага. выводит координаты ка
+{
+    int i = 0;
+    for (Channel* ch: ChannelsVector) {
+        qDebug() << "Chan "<<i<<"X "<<ch->x_coor<<"Y "<<ch->y_coor<<"Depth"<<ch->depth;
+        i++;
+    }
+}
+
+
+///TODO
+int Streamer::checkStreamerCoordinates()
+{
+    return 666;
 }
 
 

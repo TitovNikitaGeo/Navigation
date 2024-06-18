@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     MyTimer = new QTimer(this);
     connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
-    MyTimer->start(1000);
+    // MyTimer->start(1000);
 
 
 
@@ -22,10 +22,16 @@ MainWindow::MainWindow(QWidget *parent)
     tableWithItems = ui->ItemListTable;
     ///pointer to our list with item information
 
+
     ///Settings for MyGraphicView
-    DrawingArea = new MyGraphicView(this);
-    ui->verticalLayout->addWidget(DrawingArea);
+    DrawingAreaTopView = new MyGraphicView(this);
+    DrawingAreaSideView = new SideGraphicView(this);
+    ui->verticalLayout->addWidget(DrawingAreaTopView);
+    ui->verticalLayout->addWidget(DrawingAreaSideView);
+    DrawingAreaSideView->hide();
     ///Settings for MyGraphicView
+
+
 
     ///Fabric initialization
     MyFabric = new Fabric();
@@ -39,24 +45,27 @@ MainWindow::MainWindow(QWidget *parent)
     setUpObjectsTable();
     ///ObjectsListSetUp
 
-
-
-
 }
 
 void MainWindow::timeToCollectData()
 {
-    // for (FixedItem* item: Vault->ItemsVault) {
-    //     ;
-    // }
-    qDebug()<<"timeToCollectData tic tac";
+    for (FixedItem* item: Vault->ItemsVault) {
+        if (item == nullptr || item->connection == nullptr) {
+            item->hasConnection = false;
+        }
+        if (item->hasConnection) {
+            item->getLastNmeaStr();
+            // qDebug() << item->connection->lastRecievedNMEA << "MainWindow::timeToCollectData()";
+        }
+    }
+    // qDebug()<<"timeToCollectData tic tac";
 
 }
 
 MainWindow::~MainWindow()
 {
     delete MyFabric;
-    delete DrawingArea;
+    delete DrawingAreaTopView;
     delete Vault;
     delete ui;
 }
@@ -87,12 +96,6 @@ void MainWindow::on_AddItemtPushButton_clicked()
     ui->ItemNameLineEdit->setText(name);
     ///Creating New Obj
 
-    bool needConnection = false;
-
-    if (ui->checkBox->isChecked()) {
-        needConnection = true;
-    }
-
     FixedItem* newItem;
 
     if (ui->RBFixed->isChecked()) { ///getting params for fixed
@@ -115,14 +118,6 @@ void MainWindow::on_AddItemtPushButton_clicked()
         Fabric::TowedItemInfo NewItemInfo(twiw, wireLength, angleToWired, name);
         newItem = createTowedItem(NewItemInfo);
     }
-
-    /// открываем окно создания соединений, если нужно
-
-        // connectionCreator->show(); // Показываем окно
-        // connectionCreator->setWindowModality(Qt::ApplicationModal);
-        // // Устанавливаем модальность окна
-        // connectionCreator->raise(); // Поднимаем окно на передний план
-        // connectionCreator->activateWindow();
 
 }
 
@@ -168,11 +163,17 @@ void MainWindow::on_RBTowed_clicked()
 
 
 FixedItem* MainWindow::createFixedItem(Fabric::FixedItemInfo NewItemInfo) {
+    bool needConnection = false;
 
-    FixedItem* NewItem = MyFabric->CreateFixedItem(NewItemInfo);
+    if (ui->checkBox->isChecked()) {
+        needConnection = true;
+    }
+
+
+    FixedItem* NewItem = MyFabric->CreateItem(NewItemInfo, needConnection);
 
     ///Saving New Item
-    Vault->SaveFixedItem(NewItem);
+    Vault->SaveItem(NewItem);
     ///Saving New Item
 
     ///adding obj to table
@@ -184,18 +185,23 @@ FixedItem* MainWindow::createFixedItem(Fabric::FixedItemInfo NewItemInfo) {
     ///For now is only for fixed
 
     ///adding new object to our Drawing area
-    DrawingArea->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
     ///adding new object to our Drawing area
 
     return NewItem;
 }
 
 FixedItem* MainWindow::createTowedItem(Fabric::TowedItemInfo NewItemInfo) {
+    bool needConnection = false;
 
-    TowedItem* NewItem = MyFabric->CreateTowedItem(NewItemInfo);
+    if (ui->checkBox->isChecked()) {
+        needConnection = true;
+    }
+    TowedItem* NewItem = MyFabric->CreateItem(NewItemInfo, needConnection);
 
     ///Saving New Item
-    Vault->SaveFixedItem(NewItem);
+    Vault->SaveItem(NewItem);
     ///Saving New Item
 
 
@@ -208,7 +214,8 @@ FixedItem* MainWindow::createTowedItem(Fabric::TowedItemInfo NewItemInfo) {
     // ///For now is only for fixed
 
     ///adding new object to our Drawing area
-    DrawingArea->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
     drawLineToTowed(NewItem);
     ///adding new object to our Drawing area
 
@@ -252,23 +259,55 @@ QString MainWindow::GetNewDeviceName(QString name){
 
 void MainWindow::drawLineToTowed(TowedItem* item) {
     //рисует линию от буксируемого устройства к точке крепления
-    DrawingArea->drawLineToTowed(item->x, item->y,
+    DrawingAreaTopView->drawLineToTowed(item->x, item->y,
             item->towingPoint->x, item->towingPoint->y);
+    DrawingAreaSideView->drawLineToTowed(item->x, item->z,
+            item->towingPoint->x, item->towingPoint->z);
 }
 
 
 
 
+// void MainWindow::on_TopViewRB_toggled(bool checked)
+// {
+//     if (checked) {
+//         DrawingAreaTopView->hide();
+//         DrawingAreaSideView->show();
+//     } else {
+//         DrawingAreaTopView->hide();
+//         DrawingAreaSideView->show();
+//     }
+// }
 
 
+// void MainWindow::on_SideViewRB_toggled(bool checked)
+// {
+//     if (checked) {
+//         DrawingAreaTopView->hide();
+//         DrawingAreaSideView->show();
+//     } else {
+//         DrawingAreaTopView->hide();
+//         DrawingAreaSideView->show();
+//     }
+// }
 
 
+void MainWindow::on_TopViewRB_clicked()
+{
+    DrawingAreaTopView->show();
+    DrawingAreaSideView->hide();
+}
 
 
+void MainWindow::on_SideViewRB_clicked()
+{
+    DrawingAreaTopView->hide();
+    DrawingAreaSideView->show();
+}
 
 
-
-
-
-
+void MainWindow::on_pushButton_clicked(bool checked)
+{
+    MyTimer->start(1000);
+}
 

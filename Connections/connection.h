@@ -41,8 +41,8 @@ public:
 
     int check_double_package(QByteArray nmea_data);
 
-    long int NumberOfBrokenPackages;
-    long int NumberOfGoodPackages;
+    long int NumberOfAllPackages = 0;
+    long int NumberOfGoodPackages = 0;
     float PercentOfGoodPackages; //Процент качества приема
     ///Quality of data trasmition
 

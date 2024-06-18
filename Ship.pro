@@ -19,6 +19,7 @@ INCLUDEPATH += ./Parsers
 
 SOURCES += \
     DataVault/itemsstorage.cpp \
+    Drawing/sidegraphicview.cpp \
     Fabric/fabric.cpp \
     Objects/fixeditem.cpp \
     Objects/streamer.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
 
 HEADERS += \
     DataVault/itemsstorage.h \
+    Drawing/sidegraphicview.h \
     Fabric/fabric.h \
     Objects/fixeditem.h \
     Objects/streamer.h \

@@ -27,11 +27,8 @@ public:
     FixedItem* CreateItem(FixedItemInfo info, bool needConnect);
     TowedItem* CreateItem(TowedItemInfo info, bool needConnect);
     Streamer* CreateItem(StreamerInfo info);
-
-
-
-
     Connection* createConnection();
+
 
     int bindItemConnection(FixedItem* to, Connection* who);
 
@@ -68,8 +65,10 @@ public:
     };
 
 private:
-    Connection_creator connectionCreator;
+    Connection_creator* connectionCreator;
 
+private slots:
+    void connectionCreated();
 };
 
 #endif // FABRIC_H

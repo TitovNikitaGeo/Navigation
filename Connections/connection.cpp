@@ -6,7 +6,7 @@ Connection::Connection(QWidget *parent)
     , ui(new Ui::Connection)
 {
     ui->setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose); //to all successors
+    // setAttribute(Qt::WA_DeleteOnClose); //to all successors
 }
 
 Connection::~Connection() {
@@ -35,6 +35,7 @@ Connection::~Connection() {
 
 void Connection::write_nmea_data(QByteArray nmea_data){
     int data_condition;
+    ++NumberOfAllPackages;
     if (file  && datastream) {
         data_condition = check_nmea_data(nmea_data);
         if (data_condition == 2) { //possible double package
@@ -45,11 +46,10 @@ void Connection::write_nmea_data(QByteArray nmea_data){
             //
             return;
         } else if (data_condition == 1) {
+            ++NumberOfGoodPackages;
             *datastream << nmea_data;
             lastRecievedNMEA = QString(nmea_data);
-            // return;
-            // nmeaParser.printNmeaData(nmeaParser.parseNmeaSentence(QString(nmea_data)));
-            qDebug() << nmea_data << " to file" << filename;
+            //qDebug() << lastRecievedNMEA << " to file" << filename;
         } else {
             qDebug() << "BAD PACKAGE" << nmea_data;
             return;

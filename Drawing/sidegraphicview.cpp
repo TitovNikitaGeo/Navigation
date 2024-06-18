@@ -1,19 +1,17 @@
-#include "mygraphicview.h"
+#include "sidegraphicview.h"
 
-
-MyGraphicView::MyGraphicView(QWidget* parent)
+SideGraphicView::SideGraphicView(QWidget* parent)
 : QGraphicsView(parent), scene(new QGraphicsScene(this))
 {
     setScene(scene);
-    // this->rotate(90);
     drawShip();
     drawAxes();
     getSceneProperties();
     drawCenter();
-    // drawGrid();
 }
 
-MyGraphicView::~MyGraphicView(){
+SideGraphicView::~SideGraphicView()
+{
     for (auto i: VectorGraphicsTextVault){
         delete i;
     }
@@ -22,37 +20,50 @@ MyGraphicView::~MyGraphicView(){
     }
 }
 
+void SideGraphicView::drawLineToTowed(int x1, int z1, int x2, int z2) {
+    QGraphicsLineItem* line = new QGraphicsLineItem(x1, z1, x2, z2);
+    QPen pen;
+    pen.setColor(Qt::red);
+    pen.setStyle(Qt::DotLine);
+    line->setPen(pen);
+    scene->addItem(line);
+    VectorAllOtherGraphicsVault.append(line);
+}
 
 
-void MyGraphicView::addPoint(float x, float y, float z, QString name)
+void SideGraphicView::addPoint(float x, float y, float z, QString name)
 {
-    Q_UNUSED(z); //wow
+    Q_UNUSED(y); //wow
     QGraphicsEllipseItem *pointItem =
-        new QGraphicsEllipseItem(x-2.5, y-2.5, 5, 5);
+        new QGraphicsEllipseItem(x-2.5, z-2.5, 5, 5);
     pointItem->setBrush(QBrush(Qt::red));
     scene->addItem(pointItem);
     QGraphicsTextItem* newItemNameLabel = new QGraphicsTextItem(name);
-    newItemNameLabel->setPos(x,y);
+    newItemNameLabel->setPos(x,z);
     VectorGraphicsTextVault.append(newItemNameLabel);
 
     scene->addItem(newItemNameLabel);
 }
 
-void MyGraphicView::drawShip() {
+
+void SideGraphicView::drawShip() {
     ///get ship configuration
     QPolygonF fig;
-    fig << QPointF(-100, -40)
-        << QPointF(-100, 40)
-        << QPointF(110, 40)
-        << QPointF(150, 0)
-        << QPointF(110, -40);
+    fig << QPointF(-100, 20)
+        << QPointF(-100, -10)
+        << QPointF(-70, -10)
+        << QPointF(-70, -40)
+        << QPointF(-30, -40)
+        << QPointF(-30, -10)
+        << QPointF(110, -10)
+        << QPointF(100, 20);
     MyShip = new QGraphicsPolygonItem(fig);
     MyShip->setBrush(QBrush(Qt::blue));
     ///SHIP DRAWING
     scene->addItem(MyShip);
 }
 
-void MyGraphicView::drawCenter() {
+void SideGraphicView::drawCenter() {
     QGraphicsEllipseItem *pointItem =
         new QGraphicsEllipseItem(-2.5, -2.5, 5, 5);
     pointItem->setBrush(QBrush(Qt::green));
@@ -70,7 +81,7 @@ void MyGraphicView::drawCenter() {
     ///LABEL "SHIP CENTER"
 }
 
-void MyGraphicView::drawAxes()
+void SideGraphicView::drawAxes()
 {
     // Ось X
     QGraphicsLineItem* xAxis = new QGraphicsLineItem(-200, 0, 200, 0);
@@ -79,15 +90,15 @@ void MyGraphicView::drawAxes()
     xLabel->setPos(190, -30);
     scene->addItem(xLabel);
 
-    // Ось Y
-    QGraphicsLineItem* yAxis = new QGraphicsLineItem(0, -200, 0, 200);
-    scene->addItem(yAxis);
-    QGraphicsTextItem* yLabel = new QGraphicsTextItem("Y");
-    yLabel->setPos(20, 190);
-    scene->addItem(yLabel);
+    // Ось Z
+    QGraphicsLineItem* zAxis = new QGraphicsLineItem(0, -200, 0, 200);
+    scene->addItem(zAxis);
+    QGraphicsTextItem* zLabel = new QGraphicsTextItem("Z");
+    zLabel->setPos(20, 190);
+    scene->addItem(zLabel);
 
     VectorGraphicsTextVault.append(xLabel);
-    VectorGraphicsTextVault.append(yLabel);
+    VectorGraphicsTextVault.append(zLabel);
 
     int Step = 50;
     // Добавление отметок на оси X
@@ -120,43 +131,14 @@ void MyGraphicView::drawAxes()
 }
 
 
-void MyGraphicView::drawGrid(){ ///сделать нормально
-    // Horizontal lines
-    for (int i = bottom; i <= top; i += (top-bottom)/20)
-    {
-        QGraphicsLineItem* line = new QGraphicsLineItem(left, i, right, i);
-        scene->addItem(line);
-        VectorAllOtherGraphicsVault.append(line);
-    }
-
-    // Vertical lines
-    for (int i = left; i <= right; i += (right-left)/20)
-    {
-        QGraphicsLineItem* line = new QGraphicsLineItem(i, bottom, i, top);
-        scene->addItem(line);
-        VectorAllOtherGraphicsVault.append(line);
-    }
-}
-
-void MyGraphicView::getSceneProperties() {
+void SideGraphicView::getSceneProperties() {
     left = scene->sceneRect().left();
     right = scene->sceneRect().right();
     top = scene->sceneRect().top();
     bottom = scene->sceneRect().bottom();
 }
 
-void MyGraphicView::drawLineToTowed(int x1, int y1, int x2, int y2) {
-    QGraphicsLineItem* line = new QGraphicsLineItem(x1, y1, x2, y2);
-    QPen pen;
-    pen.setColor(Qt::red);
-    pen.setStyle(Qt::DotLine);
-    line->setPen(pen);
-    scene->addItem(line);
-    VectorAllOtherGraphicsVault.append(line);
-}
-
-
-void MyGraphicView::wheelEvent(QWheelEvent *event) {
+void SideGraphicView::wheelEvent(QWheelEvent *event) {
     const double scaleFactor = 1.15;
 
     if (event->angleDelta().y() > 0) {
@@ -169,7 +151,7 @@ void MyGraphicView::wheelEvent(QWheelEvent *event) {
 }
 
 
-void MyGraphicView::mousePressEvent(QMouseEvent *event)
+void SideGraphicView::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         isPanning = true;
@@ -184,7 +166,7 @@ void MyGraphicView::mousePressEvent(QMouseEvent *event)
     QGraphicsView::mousePressEvent(event);
 }
 
-void MyGraphicView::mouseMoveEvent(QMouseEvent *event)
+void SideGraphicView::mouseMoveEvent(QMouseEvent *event)
 {
     if (isPanning) {
         QPoint delta = event->pos() - lastMousePos;
@@ -195,7 +177,7 @@ void MyGraphicView::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void MyGraphicView::mouseReleaseEvent(QMouseEvent *event)
+void SideGraphicView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         isPanning = false;
@@ -203,6 +185,3 @@ void MyGraphicView::mouseReleaseEvent(QMouseEvent *event)
     }
     QGraphicsView::mouseReleaseEvent(event);
 }
-
-
-

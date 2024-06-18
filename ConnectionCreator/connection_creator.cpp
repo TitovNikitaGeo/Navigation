@@ -1,79 +1,92 @@
 #include "connection_creator.h"
 #include "ui_connection_creator.h"
 
+
+
 Connection_creator::Connection_creator(QWidget *parent)
-    : QMainWindow(parent)
+    : QDialog(parent)
     , ui(new Ui::Connection_creator)
 {
     ui->setupUi(this);
+
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
 
-
-    for (QSerialPortInfo port: ports) { //получаем список доступных COM портов
+    for (const QSerialPortInfo &port : ports) {
         ui->PortsAvailableComboBox->addItem(port.portName());
     }
 
-    //if no COM-ports are available
-    if (ports.empty() && ui->connection_types->currentIndex() == 1) {
-        // qDebug() << "No COM ports available";
+    if (ports.isEmpty() && ui->connection_types->currentIndex() == 1) {
         ui->Error_label_COM_tab->setStyleSheet("QLabel {color : red; }");
         ui->Error_label_COM_tab->setText("No COM ports available");
         ui->pushButton->setEnabled(false);
     }
+
+    // connect(ui->pushButton, &QPushButton::clicked, this, &Connection_creator::on_pushButton_clicked);
 }
 
 Connection_creator::~Connection_creator()
 {
-    qDebug() << "Connection_creator killed";
-    for (auto connection: Connection_vector) {
-        if (connection) delete connection;
-    }
-    delete ui;
+    qDebug() << "Connection_creator destroyed";
 
+    for (auto connection : Connection_vector) {
+        delete connection;
+    }
+
+    delete ui;
 }
 
-
-///QML black magic
 void Connection_creator::on_pushButton_clicked()
 {
     Connection* newConnection = createConnection();
-    Connection_vector.append(newConnection);
-    newConnection->show();
-    this->hide();
+    if (newConnection) {
+        Connection_vector.append(newConnection);
+        newConnection->show();
+
+    }
+    lastConnection = newConnection;
+    accept();
+    this->close();
 }
 
-Connection* Connection_creator::createConnection(){
-    ///choose the location in future if needed
-    QString fileName = QFileDialog::getSaveFileName(nullptr,
-                                                    "Save NMEA File",
-                                                    QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/tests_nmea",
-                                                    "NMEA Files (*.nmea);;All Files (*)",
-                                                    nullptr,
-                                                    QFileDialog::DontConfirmOverwrite);
-    if (fileName.isEmpty()) return nullptr;
-    if (!fileName.endsWith(".nmea", Qt::CaseInsensitive))
-    {
+Connection* Connection_creator::createConnection()
+{
+    QString fileName = QFileDialog::getSaveFileName(
+        nullptr,
+        "Save NMEA File",
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/tests_nmea",
+        "NMEA Files (*.nmea);;All Files (*)",
+        nullptr,
+        QFileDialog::DontConfirmOverwrite);
+
+    if (fileName.isEmpty()) {
+        return nullptr;
+    }
+
+    if (!fileName.endsWith(".nmea", Qt::CaseInsensitive)) {
         fileName += ".nmea";
     }
 
-    Connection* new_connection;
+    Connection* new_connection = nullptr;
 
-    if (ui->connection_types->currentIndex() == 0) { //connection TCP
+    if (ui->connection_types->currentIndex() == 0) { // TCP connection
         QString IP = ui->lineEdit->text();
         uint16_t port = ui->lineEdit_2->text().toInt();
-        qDebug() << "Connection created" << IP << port;
+        qDebug() << "TCP Connection created" << IP << port;
         new_connection = new Connection_Net(IP, port, fileName);
-    } else {
+    } else { // COM connection
         QString comport = ui->PortsAvailableComboBox->currentText();
-        qDebug() << comport;
-        qDebug() << ui->BRate_choose->currentText().toInt();
-
-        new_connection = new Connection_com(
-            comport, ui->BRate_choose->currentText().toInt(), fileName);
-        qDebug() << "Connection created" << comport  << ui->BRate_choose->currentText().toInt();
-        // serial.setPortName("COM"+QString::number(ui->COM_number_spin_box->value()));
+        qDebug() << "COM Port: " << comport;
+        qDebug() << "Baud Rate: " << ui->BRate_choose->currentText().toInt();
+        new_connection = new Connection_com(comport, ui->BRate_choose->currentText().toInt(), fileName);
+        qDebug() << "COM Connection created" << comport << ui->BRate_choose->currentText().toInt();
     }
-    return new_connection;
 
+    lastConnection = new_connection;
+
+    return new_connection;
 }
 
+Connection *Connection_creator::getLastConnection()
+{
+    return lastConnection;
+}

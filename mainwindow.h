@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "mygraphicview.h"
+#include "sidegraphicview.h"
 #include "fabric.h"
 #include "itemsstorage.h"
 #include "connection_creator.h"
@@ -34,24 +35,20 @@ public:
 
     QString GetNewDeviceName(QString name);
 
-
-private slots:
-    void on_DeleteItemPushButton_clicked();
-    void on_AddItemtPushButton_clicked();
-
-    void on_RBFixed_clicked();
-    void on_RBTowed_clicked();
-
-
 private:
     void drawLineToTowed(TowedItem* item);
     void addItemToObjectsList(FixedItem* newItem);
     void setUpObjectsTable();
 
 
+    ///TODO
+    void CreateShipItem();
+    ///TODO
+
     Ui::MainWindow *ui;
 
-    MyGraphicView *DrawingArea;
+    MyGraphicView *DrawingAreaTopView;
+    SideGraphicView *DrawingAreaSideView;
     Fabric* MyFabric;
     ItemsStorage* Vault;
     QTableWidget* tableWithItems;
@@ -63,9 +60,15 @@ private:
 
 
 private slots:
+    void on_DeleteItemPushButton_clicked();
+    void on_AddItemtPushButton_clicked();
+
+    void on_RBFixed_clicked();
+    void on_RBTowed_clicked();
     void timeToCollectData();
 
-    // QHash<QString, FixedItem*> ItemsHashMap;
-
+    void on_TopViewRB_clicked();
+    void on_SideViewRB_clicked();
+    void on_pushButton_clicked(bool checked);
 };
 #endif // MAINWINDOW_H

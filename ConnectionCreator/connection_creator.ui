@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Connection_creator</class>
- <widget class="QMainWindow" name="Connection_creator">
+ <widget class="QDialog" name="Connection_creator">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>257</width>
-    <height>222</height>
+    <height>198</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Connection_creator</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="centralwidget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>221</width>
+     <height>171</height>
+    </rect>
+   </property>
    <widget class="QTabWidget" name="connection_types">
     <property name="geometry">
      <rect>
@@ -193,23 +201,6 @@
     </property>
    </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>257</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuCreate_connections">
-    <property name="title">
-     <string>Create connections</string>
-    </property>
-   </widget>
-   <addaction name="menuCreate_connections"/>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

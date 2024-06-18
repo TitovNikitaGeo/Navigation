@@ -44,14 +44,12 @@ void FixedItem::lostWire(){
 QString FixedItem::getLastNmeaStr()
 {
     QString res = "empty";
-    // if (connection != nullptr) {
-    //     res = connection->lastRecievedNMEA;
-    // // // parser.printNmeaData(parser.parseNmeaSentence(res));
-    // // // return res;
-    // // // QString res = "123";
-    //     qDebug() << res;
-    // }
-    qDebug() << "FIXED GET LAST" << connection->filename;
+    if (connection != nullptr && hasConnection) {
+        res = connection->lastRecievedNMEA;
+        qDebug() <<"-----------------------";
+        qDebug() <<name;
+        parser.printNmeaData(parser.parseNmeaSentence(res));
+    }
     return res;
 }
 
