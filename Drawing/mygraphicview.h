@@ -43,7 +43,7 @@ public:
 
     ///Draw line for towed Item
     void drawLineToTowed(int x1, int y1, int x2, int y2);
-
+    void drawStreamer(int x1, int y1, int x2, int y2, uint n);
 private:
     void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);

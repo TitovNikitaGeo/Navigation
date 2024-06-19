@@ -13,20 +13,27 @@ class NmeaParser : public QObject
 {
     Q_OBJECT
 public:
-    struct NmeaData {
+    struct NmeaGGAData {
         QGeoCoordinate coordinate;
         QPointF coorUTM;
         QDateTime dateTime;
         float height;
     };
+    struct NmeaRMCData{
+        double azimuth;
+        double speed;
+    };
 
     explicit NmeaParser(QObject *parent = nullptr);
 
 
-    NmeaData parseNmeaSentence(const QString &nmeaSentence);
+    NmeaGGAData parseNmeaGGA(const QString &nmeaSentence);
+    NmeaRMCData parseNmeaRMC(const QString &nmeaSentence);
 
     QPointF GeoToUTM(const QGeoCoordinate &coordinate);
-    void printNmeaData(NmeaData data);
+
+    void printNmeaGGAData(NmeaGGAData data);
+    void printNmeaRMCData(NmeaRMCData data);
 
 private:
     double convertToDegrees(const QString &nmeaValue, const QString &direction);

@@ -45,20 +45,16 @@ MainWindow::MainWindow(QWidget *parent)
     setUpObjectsTable();
     ///ObjectsListSetUp
 
+    ///coordinator creation
+    coordinator = new Coordinator();
+    coordinator->Vault = this->Vault;
+    ///coordinator creation
 }
 
 void MainWindow::timeToCollectData()
 {
-    for (FixedItem* item: Vault->ItemsVault) {
-        if (item == nullptr || item->connection == nullptr) {
-            item->hasConnection = false;
-        }
-        if (item->hasConnection) {
-            item->getLastNmeaStr();
-            // qDebug() << item->connection->lastRecievedNMEA << "MainWindow::timeToCollectData()";
-        }
-    }
-    // qDebug()<<"timeToCollectData tic tac";
+    if (coordinator->calcCoors()) coordinator->printCoors();
+    qDebug()<<"__________________________ END TIC";
 
 }
 
@@ -74,16 +70,16 @@ MainWindow::~MainWindow()
 void MainWindow::on_DeleteItemPushButton_clicked()
 {
     int row = tableWithItems->currentRow();
+    if (tableWithItems->rowCount() == 0) {
+        QMessageBox msgBox;
+        msgBox.critical(this, "Error","Нечего удалять");
+        return;
+    }
     if (row == -1) row = tableWithItems->rowCount() - 1;
-
     QString deleteName = tableWithItems->item(row, 0)->text();
     if (row >= 0) {
         tableWithItems->removeRow(row);
         Vault->DeleteItem(deleteName);
-    } else {
-        QMessageBox msgBox;
-        msgBox.critical(this, "Error","Нечего удалять");
-        return;
     }
 }
 
@@ -106,17 +102,26 @@ void MainWindow::on_AddItemtPushButton_clicked()
         newItem = createFixedItem(NewItemInfo);
     }
     else if (ui->RBTowed->isChecked()) { ///getting params for towed
+
         if(ui->ComboBoxWiredWith->count() == 0) {
             QMessageBox msgBox;
             msgBox.critical(this, "Error","Нет точек крепления");
             return;
         }
+
         FixedItem* twiw = Vault->getItem(
             ui->ComboBoxWiredWith->currentText());//toWhoIsWired
         float wireLength = ui->WireLengthSpinBox->value();
         float angleToWired = 270; //change further if needed
+        QString itemType = ui->ComboBoxItemType->currentText();
         Fabric::TowedItemInfo NewItemInfo(twiw, wireLength, angleToWired, name);
-        newItem = createTowedItem(NewItemInfo);
+
+        if (itemType == "Streamer") {
+            Fabric::StreamerInfo StreamerItemInfo{NewItemInfo, 24, 2};
+            Streamer* newItem = createStreamerItem(StreamerItemInfo);
+        } else if (itemType == "Towed") {
+            newItem = createTowedItem(NewItemInfo);
+        }
     }
 
 }
@@ -165,7 +170,7 @@ void MainWindow::on_RBTowed_clicked()
 FixedItem* MainWindow::createFixedItem(Fabric::FixedItemInfo NewItemInfo) {
     bool needConnection = false;
 
-    if (ui->checkBox->isChecked()) {
+    if (ui->NeedConnectionCB->isChecked()) {
         needConnection = true;
     }
 
@@ -195,7 +200,7 @@ FixedItem* MainWindow::createFixedItem(Fabric::FixedItemInfo NewItemInfo) {
 FixedItem* MainWindow::createTowedItem(Fabric::TowedItemInfo NewItemInfo) {
     bool needConnection = false;
 
-    if (ui->checkBox->isChecked()) {
+    if (ui->NeedConnectionCB->isChecked()) {
         needConnection = true;
     }
     TowedItem* NewItem = MyFabric->CreateItem(NewItemInfo, needConnection);
@@ -222,6 +227,40 @@ FixedItem* MainWindow::createTowedItem(Fabric::TowedItemInfo NewItemInfo) {
 
     return NewItem;
 }
+
+Streamer* MainWindow::createStreamerItem(Fabric::StreamerInfo info)
+{
+    // QString name = info.towedInfo.name;
+    // FixedItem* twiw = info.towedInfo.toWhoIsWired;
+
+    // Streamer* NewItem = new Streamer();
+    Streamer* NewItem = MyFabric->CreateItem(info);
+
+    ///Saving New Item
+    Vault->SaveItem(NewItem);
+    ///Saving New Item
+
+    ///adding obj to table
+    addItemToObjectsList(NewItem);
+    ///adding obj to table
+
+    ///Drawing
+    /*drawLineToTowed(NewItem);
+    DrawingAreaSideView->drawStreamer(NewItem->x, NewItem->y,
+        NewItem->getChan(NewItem->getChanCount()-1)->x,
+        NewItem->getChan(NewItem->getChanCount()-1)->y,
+        NewItem->getChanCount());
+    DrawingAreaSideView->drawStreamer(NewItem->x, NewItem->z,
+        NewItem->getChan(NewItem->getChanCount()-1)->x,
+        NewItem->getChan(NewItem->getChanCount()-1)->z,
+        NewItem->getChanCount());
+    */
+
+    return NewItem;
+
+
+}
+
 
 void MainWindow::addItemToObjectsList(FixedItem* newItem) {
 
@@ -263,6 +302,16 @@ void MainWindow::drawLineToTowed(TowedItem* item) {
             item->towingPoint->x, item->towingPoint->y);
     DrawingAreaSideView->drawLineToTowed(item->x, item->z,
             item->towingPoint->x, item->towingPoint->z);
+}
+
+void MainWindow::drawStreamer(Streamer *item)
+{
+    DrawingAreaTopView->drawStreamer(item->x, item->y,
+        item->getChan(item->getChanCount())->x,
+        item->getChan(item->getChanCount())->y, item->getChanCount());
+    DrawingAreaSideView->drawStreamer(item->x, item->z,
+        item->getChan(item->getChanCount())->x,
+        item->getChan(item->getChanCount())->z,item->getChanCount());
 }
 
 
@@ -309,5 +358,19 @@ void MainWindow::on_SideViewRB_clicked()
 void MainWindow::on_pushButton_clicked(bool checked)
 {
     MyTimer->start(1000);
+}
+
+
+void MainWindow::on_ComboBoxItemType_textActivated(const QString &arg1)
+{
+    if (arg1 == "Streamer"){
+        ui->NeedConnectionCB->setChecked(false);
+        ui->NeedConnectionCB->setEnabled(false);
+    } else if(arg1 == "Buoy") {
+        ui->NeedConnectionCB->setChecked(true);
+        ui->NeedConnectionCB->setEnabled(false);
+    } else {
+        ui->NeedConnectionCB->setEnabled(true);
+    }
 }
 

@@ -6,11 +6,13 @@ Connection::Connection(QWidget *parent)
     , ui(new Ui::Connection)
 {
     ui->setupUi(this);
+    this->hide();
     // setAttribute(Qt::WA_DeleteOnClose); //to all successors
 }
 
 Connection::~Connection() {
     delete ui;
+    file->close();
 }
 
 // Connection::~Connection()
@@ -38,18 +40,14 @@ void Connection::write_nmea_data(QByteArray nmea_data){
     ++NumberOfAllPackages;
     if (file  && datastream) {
         data_condition = check_nmea_data(nmea_data);
-        if (data_condition == 2) { //possible double package
-            // qDebug() << nmea_data <<"DOUBLE DATA In write_nmea_data";
-            QStringList nmeaMessages = QString(nmea_data).split("\r\n",Qt::SkipEmptyParts);
-            write_nmea_data(nmeaMessages[0].append("\r\n").toUtf8()); //спросить, стоит ли так делать у Артема
-            write_nmea_data(nmeaMessages[1].append("\r\n").toUtf8()); //грязные мерзкие приемы
-            //
-            return;
-        } else if (data_condition == 1) {
+        if (data_condition == 1) {
             ++NumberOfGoodPackages;
             *datastream << nmea_data;
-            lastRecievedNMEA = QString(nmea_data);
+            // qDebug() <<nmea_data;
+            lastRecievedGGA = QString(nmea_data);
             //qDebug() << lastRecievedNMEA << " to file" << filename;
+        }else if(data_condition == 3){
+            lastRecievedRMC = QString(nmea_data);
         } else {
             qDebug() << "BAD PACKAGE" << nmea_data;
             return;
@@ -84,12 +82,21 @@ int Connection::check_nmea_data(QByteArray nmea_data) {
     if (nmea_data.indexOf("\r\n") == -1) return 0; ///not full package
     if (nmea_data.length() < 70) return 0; // possible package without all data
     if (nmea_data.length() > 87) return 2; // possible double data
+    QByteArray rmc = nmea_data.mid(3, 3);
+        if (rmc == "RMC") {
+            return 3;
+        }
     if (!check_sum_nmea(nmea_data)) return 0; //
-    /// TODO: check data format /// must be time and coordinates
     return res;
 }
 
 void Connection::recieve_data(QByteArray data) {
+    if (check_double_package(data)){
+        QStringList nmeaMessages = QString(data).split("\r\n",Qt::SkipEmptyParts);
+        write_nmea_data(nmeaMessages[0].append("\r\n").toUtf8());
+        write_nmea_data(nmeaMessages[1].append("\r\n").toUtf8());
+        return;
+    }
     write_nmea_data(data);
     ui->label->setText(data);
 }
@@ -134,9 +141,9 @@ int Connection::check_double_package(QByteArray nmea_data) {
     try{
         QStringList nmeaMessages = QString(nmea_data).split("\r\n",Qt::SkipEmptyParts);
         if (nmeaMessages.size() == 2) {
-            qDebug() << "DOUBLE DATA!";
-            QMessageBox box;
-            box.warning(nullptr,"DOUBLE DATA", "DOUBLE DATA");
+            // qDebug() << "DOUBLE DATA!";
+            // QMessageBox box;
+            // box.warning(nullptr,"DOUBLE DATA", "DOUBLE DATA");
             return 1;
         }
     }

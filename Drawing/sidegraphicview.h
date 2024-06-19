@@ -31,6 +31,8 @@ public:
 
     ///Draw line for towed Item
     void drawLineToTowed(int x1, int z1, int x2, int z2);
+    void drawStreamer(int x1, int y1, int x2, int y2, uint n);
+
 private:
     ///init drawing
     void drawShip();
@@ -49,9 +51,6 @@ private:
     float bottom;
     ///Drawing properties
 
-
-
-private:
     void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

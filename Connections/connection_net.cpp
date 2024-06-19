@@ -13,7 +13,7 @@ Connection_Net::Connection_Net(QString IP, int port, QString filename) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     create_file_for_nmea(this->filename); //создание файла
-    this->lastRecievedNMEA = "empty net";
+    this->lastRecievedGGA = "empty net";
 
 
     socket = new QTcpSocket(this);
@@ -48,7 +48,7 @@ Connection_Net::~Connection_Net()
 
 QString Connection_Net::getIP_port()
 {
-    return IP + QString::number(port);
+    return IP + " " + QString::number(port);
 }
 
 
@@ -61,7 +61,7 @@ void Connection_Net::ReadyRead()
 {
     QByteArray data = socket->readAll();
     ///TODO check that buffer is clear
-    if (check_nmea_data(data)) {
+    if (check_nmea_data(data)) { ///дублирование функционала
         recieve_data(data);
         // qDebug() << "GOOD DATA "<< data;
     } else {

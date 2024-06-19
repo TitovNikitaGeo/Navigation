@@ -29,7 +29,7 @@ Connection_com::Connection_com(QString COM_port, int ByteRate, QString filename)
     SerialPort.open(QIODevice::ReadOnly);
     connect(&SerialPort, &QSerialPort::readyRead, this,
             &Connection_com::ReadyRead);
-    this->lastRecievedNMEA = "empty com";
+    this->lastRecievedGGA = "empty com";
 }
 
 Connection_com::~Connection_com()

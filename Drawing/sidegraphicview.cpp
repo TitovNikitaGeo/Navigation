@@ -30,6 +30,26 @@ void SideGraphicView::drawLineToTowed(int x1, int z1, int x2, int z2) {
     VectorAllOtherGraphicsVault.append(line);
 }
 
+void SideGraphicView::drawStreamer(int x1, int z1, int x2, int z2, uint n)
+{
+    QGraphicsLineItem* line = new QGraphicsLineItem(x1, z1, x2, z2);
+    QPen pen;
+    pen.setColor(Qt::cyan);
+    pen.setStyle(Qt::DotLine);
+    float dx = (x2-x1)/(n-1);
+    float dz = (z2-z1)/(n-1);
+    for (float x = x1, z = z1; x <=x2 && z <= z2; x+=dx, z += dz) {
+        QGraphicsEllipseItem *pointItem =
+            new QGraphicsEllipseItem(x-0.5, z-0.5, 1, 1);
+        pointItem->setBrush(QBrush(Qt::magenta));
+        scene->addItem(pointItem);
+        VectorAllOtherGraphicsVault.append(pointItem);
+    }
+    line->setPen(pen);
+    scene->addItem(line);
+    VectorAllOtherGraphicsVault.append(line);
+}
+
 
 void SideGraphicView::addPoint(float x, float y, float z, QString name)
 {
@@ -41,7 +61,7 @@ void SideGraphicView::addPoint(float x, float y, float z, QString name)
     QGraphicsTextItem* newItemNameLabel = new QGraphicsTextItem(name);
     newItemNameLabel->setPos(x,z);
     VectorGraphicsTextVault.append(newItemNameLabel);
-
+    VectorAllOtherGraphicsVault.append(pointItem);
     scene->addItem(newItemNameLabel);
 }
 

@@ -7,8 +7,8 @@ NmeaParser::NmeaParser(QObject *parent)
 
 }
 
-NmeaParser::NmeaData NmeaParser::parseNmeaSentence(const QString &nmeaSentence) {
-    NmeaData data;
+NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) {
+    NmeaGGAData data;
 
     if (nmeaSentence.startsWith("$GPGGA") || nmeaSentence.startsWith("$GNGGA")) {
         QStringList parts = nmeaSentence.split(',');
@@ -37,8 +37,8 @@ NmeaParser::NmeaData NmeaParser::parseNmeaSentence(const QString &nmeaSentence) 
 
             data.coordinate = QGeoCoordinate(latitude, longitude);
 
-            qDebug()<<latitudeValue<<longitudeValue<<"_____________";
-            qDebug()<<data.coordinate.latitude()<<data.coordinate.longitude()<<"_____________";
+            // qDebug()<<latitudeValue<<longitudeValue<<"_____________";
+            // qDebug()<<data.coordinate.latitude()<<data.coordinate.longitude()<<"_____________";
 
             QPointF coorUTM= GeoToUTM(data.coordinate);
             data.coorUTM = coorUTM;
@@ -48,6 +48,43 @@ NmeaParser::NmeaData NmeaParser::parseNmeaSentence(const QString &nmeaSentence) 
     }
 
     return data;
+}
+
+NmeaParser::NmeaRMCData NmeaParser::parseNmeaRMC(const QString &nmeaSentence)
+{
+    NmeaRMCData rmcData {-1,-1};
+
+    // Проверяем, что строка начинается с "$GPRMC"
+    if (!nmeaSentence.startsWith("$GPRMC") && !nmeaSentence.startsWith("$GNRMC")) {
+        qDebug() << "Error: Invalid NMEA RMC string format.";
+        qDebug() << nmeaSentence;
+        return rmcData;
+    }
+
+    // Разбиваем строку по запятым
+    QStringList parts = nmeaSentence.split(',');
+    // qDebug() << "parseNmeaRMC" <<parts;
+
+    // Проверяем, что у нас достаточно частей для извлечения данных
+    if (parts.size() < 8) {
+        qDebug() << "Error: Insufficient data fields in NMEA RMC string.";
+        return rmcData;
+    }
+
+    // Извлекаем данные
+    bool azimuthOk, speedOk;
+    rmcData.azimuth = parts[8].toDouble(&azimuthOk); // Курс над землей
+    rmcData.speed = parts[7].toDouble(&speedOk);    // Скорость над землей в узлах
+
+    // Проверяем успешность извлечения данных
+    if (!azimuthOk || !speedOk) {
+        qDebug() << "Error: Failed to parse azimuth or speed from NMEA RMC string.";
+        rmcData.azimuth = -1;
+        rmcData.speed = -1;
+    }
+
+    return rmcData;
+
 }
 
 double NmeaParser::convertToDegrees(const QString &nmeaValue, const QString &direction) {
@@ -80,7 +117,7 @@ double NmeaParser::convertToDegrees(const QString &nmeaValue, const QString &dir
     return decimalDegrees;
 }
 
-void NmeaParser::printNmeaData(NmeaData data) {
+void NmeaParser::printNmeaGGAData(NmeaGGAData data) {
     if (data.coordinate.isValid()) {
         qDebug() << "Широта:" << data.coordinate.latitude();
         qDebug() << "Долгота:" << data.coordinate.longitude();
@@ -90,8 +127,19 @@ void NmeaParser::printNmeaData(NmeaData data) {
         // QPointF utmCoordinates = GeoToUTM(data.coordinate);
         qDebug() << "UTM Восток:" << data.coorUTM.x();
         qDebug() << "UTM Север:" << data.coorUTM.y();
+        qDebug() << "Высота над уровнем моря"<< data.height;
     } else {
-        qDebug() << "Некорректная строка NMEA";
+        qDebug() << "Некорректная строка NMEA GGA";
+    }
+}
+
+void NmeaParser::printNmeaRMCData(NmeaRMCData data)
+{
+    if (data.azimuth >= 0 && data.azimuth <= 360 && data.speed > 0) {
+        qDebug() << "Скорость" << data.speed;
+        qDebug() << "Направление" << data.azimuth;
+    } else {
+        qDebug() << "Некорректная строка NMEA RMC";
     }
 }
 

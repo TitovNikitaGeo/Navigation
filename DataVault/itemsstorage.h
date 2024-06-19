@@ -10,7 +10,7 @@ class ItemsStorage
 public:
     ItemsStorage();
 
-    void SaveFixedItem(FixedItem* NewItem);
+    void SaveItem(FixedItem* NewItem);
     FixedItem* getItem(QString name);
     void DeleteItem(QString Name);
 

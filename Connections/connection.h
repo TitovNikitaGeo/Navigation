@@ -51,7 +51,8 @@ public:
     QFile* file = nullptr;
     QTextStream* datastream = nullptr;
 
-    QString lastRecievedNMEA = "still empty";
+    QString lastRecievedGGA = "GGA empty";
+    QString lastRecievedRMC = "RMC empty";
 
 private:
 

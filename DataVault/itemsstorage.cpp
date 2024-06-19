@@ -13,7 +13,7 @@ ItemsStorage::~ItemsStorage() {
     }
 }
 
-void ItemsStorage::SaveFixedItem(FixedItem* NewItem){
+void ItemsStorage::SaveItem(FixedItem* NewItem){
     ItemsVault.append(NewItem);
     // qDebug() <<"I am in Vault "<<NewItem->itemType<<NewItem->name;
 

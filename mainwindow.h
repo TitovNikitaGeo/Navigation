@@ -5,7 +5,7 @@
 #include "sidegraphicview.h"
 #include "fabric.h"
 #include "itemsstorage.h"
-#include "connection_creator.h"
+#include "coordinator.h"
 
 #include <QMainWindow>
 #include <QListView>
@@ -32,11 +32,13 @@ public:
 
     FixedItem* createFixedItem(Fabric::FixedItemInfo NewItemInfo);
     FixedItem* createTowedItem(Fabric::TowedItemInfo NewItemInfo);
+    Streamer* createStreamerItem(Fabric::StreamerInfo NewItemInfo);
 
     QString GetNewDeviceName(QString name);
 
 private:
     void drawLineToTowed(TowedItem* item);
+    void drawStreamer(Streamer* item);
     void addItemToObjectsList(FixedItem* newItem);
     void setUpObjectsTable();
 
@@ -52,7 +54,7 @@ private:
     Fabric* MyFabric;
     ItemsStorage* Vault;
     QTableWidget* tableWithItems;
-
+    Coordinator* coordinator;
     QTimer* MyTimer;
 
 
@@ -70,5 +72,6 @@ private slots:
     void on_TopViewRB_clicked();
     void on_SideViewRB_clicked();
     void on_pushButton_clicked(bool checked);
+    void on_ComboBoxItemType_textActivated(const QString &arg1);
 };
 #endif // MAINWINDOW_H

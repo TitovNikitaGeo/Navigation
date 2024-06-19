@@ -10,7 +10,7 @@
 #include "nmeaparser.h"
 #include "connection.h"
 
-class FixedItem
+class FixedItem : public QObject
 {
 
 private:
@@ -35,7 +35,14 @@ public:
     /// for real coordinates
     float x_coor;
     float y_coor;
-    float depth;
+    float height;
+    double azimuthOfMovement;
+    void calcItemCoordinates();
+    NmeaParser::NmeaGGAData lastGGAData = {{0,0}, {0,0}, QDateTime(),0};
+    NmeaParser::NmeaRMCData lastRMCData = {0,0};
+
+
+    void printPos();
     /// for real coordinates
 
     QString name;
@@ -47,7 +54,9 @@ public:
     void lostWire();
 
     ///funcs for working with connections
-    QString getLastNmeaStr();
+    QString getLastGGA();
+    QString getLastRMC();
+
     bool hasConnection = false;
 
     Connection* connection = nullptr;

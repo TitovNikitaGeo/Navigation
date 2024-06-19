@@ -68,7 +68,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>-15</string>
+     <string>0</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -148,7 +148,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>-100</string>
+     <string>0</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="ItemNameLineEdit">
@@ -161,7 +161,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>A-Crane</string>
+     <string>Центр</string>
     </property>
    </widget>
    <widget class="QWidget" name="graphicsViewContainer" native="true">
@@ -340,7 +340,7 @@
      </property>
     </item>
    </widget>
-   <widget class="QCheckBox" name="checkBox">
+   <widget class="QCheckBox" name="NeedConnectionCB">
     <property name="geometry">
      <rect>
       <x>140</x>
@@ -418,7 +418,7 @@
    <zorder>ComboBoxWiredWith</zorder>
    <zorder>label_7</zorder>
    <zorder>ComboBoxItemType</zorder>
-   <zorder>checkBox</zorder>
+   <zorder>NeedConnectionCB</zorder>
    <zorder>verticalLayoutWidget_2</zorder>
    <zorder>pushButton</zorder>
   </widget>

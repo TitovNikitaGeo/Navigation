@@ -8,11 +8,16 @@ class TowedItem : public FixedItem
 {
 private:
     friend class Fabric;
+    friend class Streamer;
     TowedItem(QString name, FixedItem* towingPoint,
               float angleToWired, float wireLength);
 public:
     TowedItem();
     ~TowedItem();
+
+
+    void calcItemCoordinates();
+
 
     void printSelfInfo();
 
@@ -20,6 +25,10 @@ public:
     float angle; //Angle to ship Dir
     float wireLength;
 
+
+    ///funcs for working with connections
+    QString getLastGGA();
+    QString getLastRMC();
 
     QVector<FixedItem*> vectorOfConnections; // not used for now
     // QString name;

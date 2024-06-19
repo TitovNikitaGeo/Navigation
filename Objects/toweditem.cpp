@@ -9,7 +9,7 @@ TowedItem::TowedItem(QString Name,
 {
     this->name = Name;
 
-
+    this->towingPoint = towingPoint;
     itemType = "Towed";
     float angleInRadians = angle * M_PI/180;
     x = towingPoint->x + wireLength*sin(angleInRadians);
@@ -17,11 +17,9 @@ TowedItem::TowedItem(QString Name,
     z = towingPoint->z;
     qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
 
-
-    qDebug() << "adding this to "<<towingPoint->name;
+    qDebug() << name << " towed by "<<towingPoint->name;
     towingPoint->vectorOfConnected.append(this);
 
-    // printSelfInfo();
 }
 
 TowedItem::~TowedItem() {
@@ -29,9 +27,68 @@ TowedItem::~TowedItem() {
     delete this->connection;
 }
 
+void TowedItem::calcItemCoordinates()
+{
+    if (hasConnection && connection) {
+        x_coor = lastGGAData.coorUTM.rx();
+        y_coor = lastGGAData.coorUTM.ry();
+        height = lastGGAData.height;
+    } else if (towingPoint != nullptr){
+        azimuthOfMovement = towingPoint->azimuthOfMovement;
+        NmeaParser::NmeaGGAData coor = towingPoint->lastGGAData; //
+        double azRad = qDegreesToRadians(azimuthOfMovement);
+        ///ДОБАВИТЬ ВЫСОТУ БОРТА
+
+        if (towingPoint->itemType == "Buoy") {
+            height = towingPoint->height - 1;
+        } else if(towingPoint->itemType == "Fixed Item") {
+            height = towingPoint->height - 5;
+        } else {
+            height = towingPoint->height;
+        }
+        ///ДОБАВИТЬ ВЫСОТУ БОРТА
+
+
+        x_coor = towingPoint->x_coor + (y-towingPoint->y)*qCos(azRad) +
+                 (x-towingPoint->x)*qSin(azRad);
+        y_coor = towingPoint->y_coor - (y-towingPoint->y)*qSin(azRad) +
+                 (x-towingPoint->x)*qCos(azRad);
+
+    }
+}
+
 
 void TowedItem::printSelfInfo() {
     qDebug() <<"printSelfInfo "<<itemType<<x<<y<<z<<name;
+}
+
+QString TowedItem::getLastGGA()
+{
+    QString newGGA = "empty GGA";
+    if (connection != nullptr && hasConnection) {
+        newGGA = connection->lastRecievedGGA;
+        lastGGAData = parser.parseNmeaGGA(newGGA);
+        // parser.printNmeaGGAData(lastGGAData);
+    } else if(towingPoint != nullptr) {
+        newGGA = towingPoint->getLastGGA();
+        lastGGAData = towingPoint->lastGGAData;
+        // lastGGAData = parser.parseNmeaGGA(newGGA);
+    }
+    return newGGA;
+}
+
+QString TowedItem::getLastRMC()
+{
+    QString newRMC = "empty RMC";
+    if (connection != nullptr && hasConnection) {
+        newRMC = connection->lastRecievedRMC;
+        lastRMCData = parser.parseNmeaRMC(newRMC);
+        // parser.printNmeaRMCData(lastRMCData);
+    } else if(towingPoint != nullptr) {
+        newRMC = towingPoint->getLastRMC();
+        lastRMCData = towingPoint->lastRMCData;
+    }
+    return newRMC;
 }
 
 

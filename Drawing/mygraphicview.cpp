@@ -155,6 +155,26 @@ void MyGraphicView::drawLineToTowed(int x1, int y1, int x2, int y2) {
     VectorAllOtherGraphicsVault.append(line);
 }
 
+void MyGraphicView::drawStreamer(int x1, int y1, int x2, int y2, uint n)
+{
+    QGraphicsLineItem* line = new QGraphicsLineItem(x1, y1, x2, y2);
+    QPen pen;
+    pen.setColor(Qt::cyan);
+    pen.setStyle(Qt::DotLine);
+    float dx = (x2-x1)/(n-1);
+    float dy = (y2-y1)/(n-1);
+    for (float x = x1, y = y1; x <=x2 && y <= y2; x+=dx, y += dy) {
+        QGraphicsEllipseItem *pointItem =
+            new QGraphicsEllipseItem(x-0.5, y-0.5, 1, 1);
+        pointItem->setBrush(QBrush(Qt::magenta));
+        scene->addItem(pointItem);
+        VectorAllOtherGraphicsVault.append(pointItem);
+    }
+    line->setPen(pen);
+    scene->addItem(line);
+    VectorAllOtherGraphicsVault.append(line);
+}
+
 
 void MyGraphicView::wheelEvent(QWheelEvent *event) {
     const double scaleFactor = 1.15;

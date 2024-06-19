@@ -63,7 +63,7 @@ Connection* Fabric::createConnection()
 
 int Fabric::bindItemConnection(FixedItem *to, Connection *who)
 {
-    if (who) {
+    if (who && to) {
         to->connection = who;
         to->hasConnection = true;
         QString className = who->metaObject()->className();

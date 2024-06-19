@@ -3,10 +3,10 @@
 
 #include "toweditem.h"
 #include "fixeditem.h"
-// #include "buoy.h"
+#include "buoy.h"
 #include <QObject>
 
-class Streamer : public QObject, public TowedItem
+class Streamer : public TowedItem
 {
     Q_OBJECT
     class Channel;
@@ -19,9 +19,12 @@ public:
     explicit Streamer(QObject *parent = nullptr);
     void calcChansCoors();
 
-    void printChanCoor();
+    void printChansCoor();
+    void printPos();
     int checkStreamerCoordinates();
 
+    Channel* getChan(uint number);
+    uint getChanCount();
 private:
     uint NumChanels;
     float dCh;
@@ -29,11 +32,10 @@ private:
 
 
     float endDepth;
-
-    // Buoy* endBuoy;
+    Buoy* endBuoy;
 
     ///inner class for channels
-    class Channel : public QObject, public TowedItem
+    class Channel : public TowedItem
     {
         // Q_OBJECT
     public:
