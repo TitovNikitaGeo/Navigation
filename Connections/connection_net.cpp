@@ -71,10 +71,10 @@ void Connection_Net::ReadyRead()
 
 void Connection_Net::onDisconnected()
 {
-    qDebug() << "Disconnected from sender";
+    qDebug() << "Disconnected from sender" <<IP;
 }
 
 void Connection_Net::onError(QAbstractSocket::SocketError socketError)
 {
-    qDebug() << "Socket error:" << socket->errorString();
+    qDebug() << "Socket error:" << socketError;
 }

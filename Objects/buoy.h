@@ -8,10 +8,8 @@ class Buoy : public TowedItem
     Q_OBJECT
     friend class Fabric;
     Buoy(QString Name,
-         FixedItem* towingPoint, float angle,
+         FixedItem* towingPoint, float angleToWired,
          float wireLength,float AnthenaHeight, float towingDepth);
-
-
 public:
     Buoy();
 

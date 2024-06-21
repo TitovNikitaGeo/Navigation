@@ -12,7 +12,7 @@ class Streamer : public TowedItem
     class Channel;
 private:
     friend class Fabric;
-    Streamer(QString name, FixedItem *towingPoint, float angleToWired, float wireLength, uint NumChannels, float dCh);
+    Streamer(QString name, FixedItem *towingPoint, float angleToWired, float wireLength, uint NumChannels, QVector<float> chans);
 
 
 public:
@@ -27,12 +27,17 @@ public:
     uint getChanCount();
 private:
     uint NumChanels;
-    float dCh;
+    QVector<float> chans;
     QVector<Channel*> ChannelsVector;
 
 
     float endDepth;
     Buoy* endBuoy;
+
+    float l;
+    float h;
+    float dh;
+
 
     ///inner class for channels
     class Channel : public TowedItem

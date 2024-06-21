@@ -4,7 +4,7 @@ Streamer::Streamer(QObject *parent)
 {}
 
 Streamer::Streamer(QString Name, FixedItem *towingPoint,
-                   float angleToWired, float wireLength, uint NumChanels, float dCh)
+                   float angleToWired, float wireLength, uint NumChanels, QVector<float> chans)
     : TowedItem(Name, towingPoint, angleToWired, wireLength)
 {
     // this->name = Name;
@@ -12,33 +12,39 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
     // this->angle = angleToWired;
     // this->wireLength = wireLength;
     this->NumChanels = NumChanels;
-    this->dCh = dCh;
+    this->chans = chans;
     itemType = "Streamer";
 
+    if (NumChanels == 0 || chans.empty()) {
+        qDebug() << "Wrong streaner configuration";
+        return;
+    }
 
     for (uint i = 1; i <= NumChanels; i++) {
         Channel* chan = new Channel(i);
         ChannelsVector.append(chan);
     }
     calcChansCoors();
-    printSelfInfo();
+    // printSelfInfo();
 }
 
 void Streamer::calcChansCoors()
 {
-    int i = 0;
-    for (Channel* ch: ChannelsVector) {
-        ch->x_coor = this->x_coor + wireLength*sin(angle)*i;
-        ch->y_coor = this->y_coor + wireLength*sin(angle)*i;
-        ch->height = this->height -0.1*i;
-        i++;
+    float angleRad = angle*M_PI/180;
+    for(int i = 0; i < ChannelsVector.size(); i++) {
+        ChannelsVector[i]->x_coor = this->x_coor + chans[i]*qSin(angleRad);
+        ChannelsVector[i]->y_coor = this->y_coor + chans[i]*qCos(angleRad);
+
     }
-    ///depth calculation
-    // for (Channel* ch: ChannelsVector) {
-    //     ch->depth = this->depth + ((endBuoy->towingPointDepth - this->depth) / NumChanels)*i;
-    //     i++;
+
+    // l = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
+    //                (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5);
+    // h = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height;
+    // dh = h/l;
+
+    // for(int i = 0; i < ChannelsVector.size(); i++) {
+    //     ChannelsVector[i]->height = this->height + chans[i]* dh;
     // }
-    ///add depth sensorss
 }
 
 void Streamer::printChansCoor() //функция для дебага. выводит координаты ка

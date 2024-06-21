@@ -22,6 +22,11 @@ int Coordinator::calcCoors()
 
         for (FixedItem* item: Vault->ItemsVault) { //я вызываю метод предка
             TowedItem* tmp = dynamic_cast<TowedItem*>(item);
+
+            ///настроить систему рассчета координат для фиксированных
+            if (item->itemType == "Fixed") continue;
+            ///настроить систему рассчета координат для фиксированных
+
             QString className = QString(item->metaObject()->className());
             if (!(item->hasConnection)){
                 tmp->getLastGGA();

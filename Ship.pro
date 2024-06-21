@@ -18,10 +18,11 @@ INCLUDEPATH += ./Parsers
 
 
 SOURCES += \
-    ConnectionCreator/streamerdialog.cpp \
     DataVault/itemsstorage.cpp \
     Drawing/sidegraphicview.cpp \
+    Fabric/buoydialog.cpp \
     Fabric/fabric.cpp \
+    Fabric/streamerdialog.cpp \
     Objects/buoy.cpp \
     Objects/fixeditem.cpp \
     Objects/streamer.cpp \
@@ -38,10 +39,12 @@ SOURCES += \
     ConnectionCreator/connection_creator.cpp
 
 HEADERS += \
-    ConnectionCreator/streamerdialog.h \
     DataVault/itemsstorage.h \
+    DataVault/structures.h \
     Drawing/sidegraphicview.h \
+    Fabric/buoydialog.h \
     Fabric/fabric.h \
+    Fabric/streamerdialog.h \
     Objects/buoy.h \
     Objects/fixeditem.h \
     Objects/streamer.h \
@@ -57,7 +60,6 @@ HEADERS += \
     Parsers/p190_creator.h
 
 FORMS += \
-    ConnectionCreator/streamerdialog.ui \
     mainwindow.ui \
     ConnectionCreator/connection_creator.ui \
     Connections/connection.ui \

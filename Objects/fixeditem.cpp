@@ -7,7 +7,7 @@ FixedItem::FixedItem() {}
 FixedItem::FixedItem(float x,float y,float z, QString name) :
     x(x), y(y), z(z), name(name)
 {
-    itemType = "Fixed Item";
+    itemType = "Fixed";
     qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
 
 }

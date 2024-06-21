@@ -9,6 +9,7 @@ class TowedItem : public FixedItem
 private:
     friend class Fabric;
     friend class Streamer;
+    friend class Buoy;
     TowedItem(QString name, FixedItem* towingPoint,
               float angleToWired, float wireLength);
 public:

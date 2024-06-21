@@ -41,11 +41,40 @@ TowedItem* Fabric::CreateItem(TowedItemInfo info, bool needConnect)
 
 Streamer* Fabric::CreateItem(StreamerInfo info)
 {
+
+    ///streamer params dialog
+    StreamerDialog dialog;
+    dialog.exec();
+    info.chans = dialog.chans;
+    info.numOfChannels = dialog.numOfChannels;
+    ///streamer params dialog
+
+
     Streamer* streamer = new Streamer(info.towedInfo.name,
         info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
-        info.towedInfo.wireLength, info.numOfChannels, info.dCh);
+        info.towedInfo.wireLength, info.numOfChannels, info.chans);
 
     return streamer;
+}
+
+Buoy* Fabric::CreateItem(BuoyInfo info)
+{
+    BuoyDialog dialog(this->MyVault);
+    if (dialog.exec() == QDialog::Accepted) {
+        info.towingDepth = dialog.TowingDepth;
+        info.AnthenaHeight = dialog.AnthenaHeight;
+        Buoy* newBuoy = new Buoy(info.towedInfo.name,
+            info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
+            info.towedInfo.wireLength, info.AnthenaHeight, info.towingDepth);
+        Connection* con = createConnection();
+        if (bindItemConnection(newBuoy, con)){
+            qDebug() << "Fabric::CreateItem";
+        }
+        dialog.selectedStreamer->endBuoy = newBuoy;
+        return newBuoy;
+    } else {
+        return nullptr;
+    }
 }
 
 Connection* Fabric::createConnection()
@@ -80,6 +109,11 @@ int Fabric::bindItemConnection(FixedItem *to, Connection *who)
     } else{
         return 0;
     }
+}
+
+void Fabric::setMyVault(ItemsStorage *MyVault)
+{
+    this->MyVault = MyVault;
 }
 
 

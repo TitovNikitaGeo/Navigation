@@ -30,9 +30,9 @@ public:
     ~MainWindow();
 
 
-    FixedItem* createFixedItem(Fabric::FixedItemInfo NewItemInfo);
-    FixedItem* createTowedItem(Fabric::TowedItemInfo NewItemInfo);
-    Streamer* createStreamerItem(Fabric::StreamerInfo NewItemInfo);
+    FixedItem* createFixedItem(FixedItemInfo NewItemInfo);
+    FixedItem* createTowedItem(TowedItemInfo NewItemInfo);
+    Streamer* createStreamerItem(StreamerInfo NewItemInfo);
 
     QString GetNewDeviceName(QString name);
 

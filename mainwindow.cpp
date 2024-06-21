@@ -92,14 +92,15 @@ void MainWindow::on_AddItemtPushButton_clicked()
     ui->ItemNameLineEdit->setText(name);
     ///Creating New Obj
 
-    FixedItem* newItem;
+    // FixedItem* newItem;
 
     if (ui->RBFixed->isChecked()) { ///getting params for fixed
         float x = ui->XLineEdit->text().toFloat();
         float y = ui->YLineEdit->text().toFloat();
         float z = ui->ZLineEdit->text().toFloat();
-        Fabric::FixedItemInfo NewItemInfo(x,y,z,name);
-        newItem = createFixedItem(NewItemInfo);
+        FixedItemInfo FixedItemInfo(x,y,z,name);
+        //newItem =
+        createFixedItem(FixedItemInfo);
     }
     else if (ui->RBTowed->isChecked()) { ///getting params for towed
 
@@ -114,13 +115,19 @@ void MainWindow::on_AddItemtPushButton_clicked()
         float wireLength = ui->WireLengthSpinBox->value();
         float angleToWired = 270; //change further if needed
         QString itemType = ui->ComboBoxItemType->currentText();
-        Fabric::TowedItemInfo NewItemInfo(twiw, wireLength, angleToWired, name);
+        TowedItemInfo TowedItemInfo(twiw, wireLength, angleToWired, name);
 
         if (itemType == "Streamer") {
-            Fabric::StreamerInfo StreamerItemInfo{NewItemInfo, 24, 2};
-            Streamer* newItem = createStreamerItem(StreamerItemInfo);
+            StreamerInfo StreamerItemInfo{TowedItemInfo, 0, {0}};
+            // Streamer* newItem =
+            createStreamerItem(StreamerItemInfo);
+        } else if (itemType == "Buoy") {
+            MyFabric->setMyVault(Vault);
+            BuoyInfo BuoyItemInfo{TowedItemInfo, 0,0};
+            MyFabric->CreateBuoyItem(BuoyItemInfo);
         } else if (itemType == "Towed") {
-            newItem = createTowedItem(NewItemInfo);
+            //newItem =
+            createTowedItem(TowedItemInfo);
         }
     }
 
@@ -167,7 +174,7 @@ void MainWindow::on_RBTowed_clicked()
 }
 
 
-FixedItem* MainWindow::createFixedItem(Fabric::FixedItemInfo NewItemInfo) {
+FixedItem* MainWindow::createFixedItem(FixedItemInfo NewItemInfo) {
     bool needConnection = false;
 
     if (ui->NeedConnectionCB->isChecked()) {
@@ -197,7 +204,7 @@ FixedItem* MainWindow::createFixedItem(Fabric::FixedItemInfo NewItemInfo) {
     return NewItem;
 }
 
-FixedItem* MainWindow::createTowedItem(Fabric::TowedItemInfo NewItemInfo) {
+FixedItem* MainWindow::createTowedItem(TowedItemInfo NewItemInfo) {
     bool needConnection = false;
 
     if (ui->NeedConnectionCB->isChecked()) {
@@ -214,9 +221,9 @@ FixedItem* MainWindow::createTowedItem(Fabric::TowedItemInfo NewItemInfo) {
     addItemToObjectsList(NewItem);
     ///adding obj to table
 
-    // ///For now is only for fixed
-    // ui->ComboBoxWiredWith->addItem(NewItem->name);
-    // ///For now is only for fixed
+    ///For now is only for fixed
+    ui->ComboBoxWiredWith->addItem(NewItem->name);
+    ///For now is only for fixed
 
     ///adding new object to our Drawing area
     DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
@@ -228,7 +235,7 @@ FixedItem* MainWindow::createTowedItem(Fabric::TowedItemInfo NewItemInfo) {
     return NewItem;
 }
 
-Streamer* MainWindow::createStreamerItem(Fabric::StreamerInfo info)
+Streamer* MainWindow::createStreamerItem(StreamerInfo info)
 {
     // QString name = info.towedInfo.name;
     // FixedItem* twiw = info.towedInfo.toWhoIsWired;
@@ -357,7 +364,11 @@ void MainWindow::on_SideViewRB_clicked()
 
 void MainWindow::on_pushButton_clicked(bool checked)
 {
-    MyTimer->start(1000);
+    if (!checked) {
+        MyTimer->start(1000);
+    } else {
+        MyTimer->stop();
+    }
 }
 
 

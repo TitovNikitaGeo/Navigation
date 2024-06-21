@@ -29,10 +29,15 @@ Connection_creator::~Connection_creator()
     qDebug() << "Connection_creator destroyed";
 
     for (auto connection : Connection_vector) {
-        delete connection;
+        try{
+            delete connection;
+            delete ui;
+        } catch (const std::exception &e) {
+            qDebug() << e.what();
+        }
     }
 
-    delete ui;
+
 }
 
 void Connection_creator::on_pushButton_clicked()

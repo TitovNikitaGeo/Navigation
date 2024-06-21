@@ -1,7 +1,8 @@
 #ifndef OBJECTSVAULT_H
 #define OBJECTSVAULT_H
 
-#include "fabric.h"
+#include "structures.h"
+
 #include <QVector>
 #include <QFile>
 
