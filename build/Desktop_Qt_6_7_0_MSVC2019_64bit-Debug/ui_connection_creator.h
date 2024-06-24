@@ -10,16 +10,12 @@
 #define UI_CONNECTION_CREATOR_H
 
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QWidget>
 
@@ -42,17 +38,15 @@ public:
     QComboBox *PortsAvailableComboBox;
     QLabel *Error_label_COM_tab;
     QPushButton *pushButton;
-    QMenuBar *menubar;
-    QMenu *menuCreate_connections;
-    QStatusBar *statusbar;
 
-    void setupUi(QMainWindow *Connection_creator)
+    void setupUi(QDialog *Connection_creator)
     {
         if (Connection_creator->objectName().isEmpty())
             Connection_creator->setObjectName("Connection_creator");
-        Connection_creator->resize(257, 222);
+        Connection_creator->resize(257, 198);
         centralwidget = new QWidget(Connection_creator);
         centralwidget->setObjectName("centralwidget");
+        centralwidget->setGeometry(QRect(10, 10, 221, 171));
         connection_types = new QTabWidget(centralwidget);
         connection_types->setObjectName("connection_types");
         connection_types->setGeometry(QRect(0, 0, 221, 131));
@@ -97,18 +91,6 @@ public:
         pushButton = new QPushButton(centralwidget);
         pushButton->setObjectName("pushButton");
         pushButton->setGeometry(QRect(10, 140, 211, 31));
-        Connection_creator->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(Connection_creator);
-        menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 257, 21));
-        menuCreate_connections = new QMenu(menubar);
-        menuCreate_connections->setObjectName("menuCreate_connections");
-        Connection_creator->setMenuBar(menubar);
-        statusbar = new QStatusBar(Connection_creator);
-        statusbar->setObjectName("statusbar");
-        Connection_creator->setStatusBar(statusbar);
-
-        menubar->addAction(menuCreate_connections->menuAction());
 
         retranslateUi(Connection_creator);
 
@@ -119,12 +101,12 @@ public:
         QMetaObject::connectSlotsByName(Connection_creator);
     } // setupUi
 
-    void retranslateUi(QMainWindow *Connection_creator)
+    void retranslateUi(QDialog *Connection_creator)
     {
         Connection_creator->setWindowTitle(QCoreApplication::translate("Connection_creator", "Connection_creator", nullptr));
         label_2->setText(QCoreApplication::translate("Connection_creator", "Port", nullptr));
-        lineEdit_2->setText(QCoreApplication::translate("Connection_creator", "9001", nullptr));
-        lineEdit->setText(QCoreApplication::translate("Connection_creator", "192.168.0.17", nullptr));
+        lineEdit_2->setText(QCoreApplication::translate("Connection_creator", "1001", nullptr));
+        lineEdit->setText(QCoreApplication::translate("Connection_creator", "127.0.0.1", nullptr));
         label->setText(QCoreApplication::translate("Connection_creator", "IP", nullptr));
         connection_types->setTabText(connection_types->indexOf(IP), QCoreApplication::translate("Connection_creator", "IP", nullptr));
         Com_Label->setText(QCoreApplication::translate("Connection_creator", "COM", nullptr));
@@ -139,7 +121,6 @@ public:
         Error_label_COM_tab->setText(QString());
         connection_types->setTabText(connection_types->indexOf(COM), QCoreApplication::translate("Connection_creator", "COM", nullptr));
         pushButton->setText(QCoreApplication::translate("Connection_creator", "Create connection", nullptr));
-        menuCreate_connections->setTitle(QCoreApplication::translate("Connection_creator", "Create connections", nullptr));
     } // retranslateUi
 
 };

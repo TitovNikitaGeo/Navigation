@@ -70,7 +70,7 @@ Buoy* Fabric::CreateItem(BuoyInfo info)
         if (bindItemConnection(newBuoy, con)){
             qDebug() << "Fabric::CreateItem";
         }
-        dialog.selectedStreamer->endBuoy = newBuoy;
+        dialog.selectedStreamer->endBuoy = newBuoy; ///привязываем буй к косе
         return newBuoy;
     } else {
         return nullptr;

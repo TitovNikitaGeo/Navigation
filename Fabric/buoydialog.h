@@ -20,7 +20,7 @@ public:
     BuoyDialog(ItemsStorage* vault);
     double AnthenaHeight;
     double TowingDepth;
-
+    Streamer* selectedStreamer;
 private:
     ItemsStorage* MyVault;
 
@@ -29,7 +29,7 @@ private:
     QDoubleSpinBox *spinBox2;
 
     QString selectedStreamerName;
-    Streamer* selectedStreamer;
+
 
 
 private slots:

@@ -53,7 +53,12 @@ public:
     QComboBox *ComboBoxWiredWith;
     QLabel *label_7;
     QComboBox *ComboBoxItemType;
-    QCheckBox *checkBox;
+    QCheckBox *NeedConnectionCB;
+    QWidget *verticalLayoutWidget_2;
+    QVBoxLayout *verticalLayout_2;
+    QRadioButton *TopViewRB;
+    QRadioButton *SideViewRB;
+    QPushButton *pushButton;
     QMenuBar *menubar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -147,10 +152,30 @@ public:
         ComboBoxItemType->addItem(QString());
         ComboBoxItemType->setObjectName("ComboBoxItemType");
         ComboBoxItemType->setGeometry(QRect(140, 210, 131, 24));
-        checkBox = new QCheckBox(centralwidget);
-        checkBox->setObjectName("checkBox");
-        checkBox->setGeometry(QRect(170, 120, 101, 22));
-        checkBox->setChecked(true);
+        NeedConnectionCB = new QCheckBox(centralwidget);
+        NeedConnectionCB->setObjectName("NeedConnectionCB");
+        NeedConnectionCB->setGeometry(QRect(140, 120, 101, 22));
+        NeedConnectionCB->setChecked(true);
+        verticalLayoutWidget_2 = new QWidget(centralwidget);
+        verticalLayoutWidget_2->setObjectName("verticalLayoutWidget_2");
+        verticalLayoutWidget_2->setGeometry(QRect(280, 0, 61, 80));
+        verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
+        verticalLayout_2->setObjectName("verticalLayout_2");
+        verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+        TopViewRB = new QRadioButton(verticalLayoutWidget_2);
+        TopViewRB->setObjectName("TopViewRB");
+        TopViewRB->setChecked(true);
+
+        verticalLayout_2->addWidget(TopViewRB);
+
+        SideViewRB = new QRadioButton(verticalLayoutWidget_2);
+        SideViewRB->setObjectName("SideViewRB");
+
+        verticalLayout_2->addWidget(SideViewRB);
+
+        pushButton = new QPushButton(centralwidget);
+        pushButton->setObjectName("pushButton");
+        pushButton->setGeometry(QRect(280, 470, 41, 24));
         MainWindow->setCentralWidget(centralwidget);
         RBFixed->raise();
         label_4->raise();
@@ -172,7 +197,9 @@ public:
         ComboBoxWiredWith->raise();
         label_7->raise();
         ComboBoxItemType->raise();
-        checkBox->raise();
+        NeedConnectionCB->raise();
+        verticalLayoutWidget_2->raise();
+        pushButton->raise();
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
         menubar->setGeometry(QRect(0, 0, 896, 21));
@@ -189,13 +216,13 @@ public:
         label_4->setText(QCoreApplication::translate("MainWindow", "Y", nullptr));
         AddItemtPushButton->setText(QCoreApplication::translate("MainWindow", "Add Item", nullptr));
         YLineEdit->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
-        ZLineEdit->setText(QCoreApplication::translate("MainWindow", "-10", nullptr));
+        ZLineEdit->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "Item Name", nullptr));
         DeleteItemPushButton->setText(QCoreApplication::translate("MainWindow", "Delete Item", nullptr));
         label_5->setText(QCoreApplication::translate("MainWindow", "Z", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "X", nullptr));
-        XLineEdit->setText(QCoreApplication::translate("MainWindow", "-100", nullptr));
-        ItemNameLineEdit->setText(QCoreApplication::translate("MainWindow", "A-Crane", nullptr));
+        XLineEdit->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        ItemNameLineEdit->setText(QCoreApplication::translate("MainWindow", "\320\246\320\265\320\275\321\202\321\200", nullptr));
         RBFixed->setText(QCoreApplication::translate("MainWindow", "Fixed", nullptr));
         RBTowed->setText(QCoreApplication::translate("MainWindow", "Towed", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Wire Length", nullptr));
@@ -206,7 +233,10 @@ public:
         ComboBoxItemType->setItemText(2, QCoreApplication::translate("MainWindow", "Buoy", nullptr));
         ComboBoxItemType->setItemText(3, QCoreApplication::translate("MainWindow", "Streamer", nullptr));
 
-        checkBox->setText(QCoreApplication::translate("MainWindow", "Connection", nullptr));
+        NeedConnectionCB->setText(QCoreApplication::translate("MainWindow", "Connection", nullptr));
+        TopViewRB->setText(QCoreApplication::translate("MainWindow", "Top", nullptr));
+        SideViewRB->setText(QCoreApplication::translate("MainWindow", "Side", nullptr));
+        pushButton->setText(QCoreApplication::translate("MainWindow", "GO", nullptr));
     } // retranslateUi
 
 };

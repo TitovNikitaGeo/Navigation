@@ -36,6 +36,7 @@ public:
     int bindItemConnection(FixedItem* to, Connection* who);
 
 
+    void setMyVault(ItemsStorage* MyVault);
 
 private:
     Connection_creator* connectionCreator;

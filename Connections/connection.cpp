@@ -7,6 +7,11 @@ Connection::Connection(QWidget *parent)
 {
     ui->setupUi(this);
     this->hide();
+    iter = packetsRecieved.begin();
+
+    // for (int i = 0; i < 100; i++) {
+    //     packetsRecieved.push_front(true);
+    // }
     // setAttribute(Qt::WA_DeleteOnClose); //to all successors
 }
 
@@ -37,11 +42,10 @@ Connection::~Connection() {
 
 void Connection::write_nmea_data(QByteArray nmea_data){
     int data_condition;
-    ++NumberOfAllPackages;
     if (file  && datastream) {
         data_condition = check_nmea_data(nmea_data);
         if (data_condition == 1) {
-            ++NumberOfGoodPackages;
+
             *datastream << nmea_data;
             // qDebug() <<nmea_data;
             lastRecievedGGA = QString(nmea_data);
@@ -49,6 +53,9 @@ void Connection::write_nmea_data(QByteArray nmea_data){
         }else if(data_condition == 3){
             lastRecievedRMC = QString(nmea_data);
         } else {
+
+            calcQuality(false);
+
             qDebug() << "BAD PACKAGE" << nmea_data;
             return;
         }
@@ -152,6 +159,40 @@ int Connection::check_double_package(QByteArray nmea_data) {
         return 0;
     }
     return 0;
+}
+
+float Connection::calcQuality(bool recieved)
+{
+    if (packetsRecieved.size() < calcWindow) {
+        packetsRecieved.push_front(recieved);
+        currentQuality += (1.0/calcWindow) * recieved;
+    }
+
+    if (iter != packetsRecieved.end()) { //переход на начало
+        //list если достигли последнего элемента
+        iter++;
+    } else {
+        iter = packetsRecieved.begin(); //переход на следующий элемент
+    }
+
+    currentQuality -= (1/calcWindow) * *iter; //отнимаем самое старое измерение
+    currentQuality += (1/calcWindow) * recieved; //прибавляем новое
+    *iter = recieved;
+
+    if (currentQuality > border) {
+        ui->label_2->setText("GOOD");
+        QPalette palette = ui->label_2->palette();
+        palette.setColor(QPalette::Window, Qt::green);
+        ui->label_2->setAutoFillBackground(true);
+        ui->label_2->setPalette(palette);
+    } else {
+        ui->label_2->setText("BAD");
+        QPalette palette = ui->label_2->palette();
+        palette.setColor(QPalette::Window, Qt::red);
+        ui->label_2->setAutoFillBackground(true);
+        ui->label_2->setPalette(palette);
+    }
+    return currentQuality;
 }
 
 

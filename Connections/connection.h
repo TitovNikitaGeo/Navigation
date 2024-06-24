@@ -12,6 +12,7 @@
 #include <QSerialPort>
 #include <QMessageBox>
 #include <QException>
+#include <QList>
 
 #include "nmeaparser.h"
 
@@ -41,9 +42,15 @@ public:
 
     int check_double_package(QByteArray nmea_data);
 
-    long int NumberOfAllPackages = 0;
-    long int NumberOfGoodPackages = 0;
-    float PercentOfGoodPackages; //Процент качества приема
+    //счетчик качества
+    uint calcWindow = 20; // размер окна для подсчета качества
+    float border = 0.85;
+    QList<bool> packetsRecieved;
+    QList<bool>::iterator iter;
+    float currentQuality = 0;
+    float calcQuality(bool recieved);
+    //счетчик качества
+
     ///Quality of data trasmition
 
 
