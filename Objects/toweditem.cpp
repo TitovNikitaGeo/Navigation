@@ -1,4 +1,5 @@
 #include "toweditem.h"
+#include "buoy.h"
 
 TowedItem::TowedItem() {}
 
@@ -35,14 +36,14 @@ void TowedItem::calcItemCoordinates()
         height = lastGGAData.height;
     } else if (towingPoint != nullptr){
         azimuthOfMovement = towingPoint->azimuthOfMovement;
-        NmeaParser::NmeaGGAData coor = towingPoint->lastGGAData; //
         double azRad = qDegreesToRadians(azimuthOfMovement);
-        ///ДОБАВИТЬ ВЫСОТУ БОРТА
 
+        ///ДОБАВИТЬ ВЫСОТУ БОРТА
         if (towingPoint->itemType == "Buoy") {
-            height = towingPoint->height - 1;
+            Buoy* tmp = dynamic_cast<Buoy*>(towingPoint);
+            height = tmp->height - tmp->AnthenaHeight - tmp->towingDepth;
         } else if(towingPoint->itemType == "Fixed Item") {
-            height = towingPoint->height - 5;
+            height = towingPoint->height - 5; //высота борта захардкожена
         } else {
             height = towingPoint->height;
         }

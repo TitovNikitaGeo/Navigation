@@ -163,6 +163,7 @@ int Connection::check_double_package(QByteArray nmea_data) {
 
 float Connection::calcQuality(bool recieved)
 {
+    return 1;
     if (packetsRecieved.size() < calcWindow) {
         packetsRecieved.push_front(recieved);
         currentQuality += (1.0/calcWindow) * recieved;
@@ -175,8 +176,8 @@ float Connection::calcQuality(bool recieved)
         iter = packetsRecieved.begin(); //переход на следующий элемент
     }
 
-    currentQuality -= (1/calcWindow) * *iter; //отнимаем самое старое измерение
-    currentQuality += (1/calcWindow) * recieved; //прибавляем новое
+    if (*iter) currentQuality -= (1/calcWindow) ; //отнимаем самое старое измерение
+    if (recieved) currentQuality += (1/calcWindow); //прибавляем новое
     *iter = recieved;
 
     if (currentQuality > border) {
@@ -192,6 +193,7 @@ float Connection::calcQuality(bool recieved)
         ui->label_2->setAutoFillBackground(true);
         ui->label_2->setPalette(palette);
     }
+
     return currentQuality;
 }
 

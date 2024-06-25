@@ -71,16 +71,16 @@ void StreamerDialog::onFinishButtonClicked()
         float dCh = multiChannelComboBoxDistance->currentText().toFloat(&ok);
         if (ok) {
             for (uint i = 0; i < numOfChannels; i++) {
-                chans.push_front(i*dCh);
+                chans.append(i*dCh);
             }
         } else { //1&2
             dCh = 1;
             for (uint i = 0; i < 24; i++) {
-                chans.push_front(i*dCh);
+                chans.append(i*dCh);
             }
             dCh = 2;
             for (uint i = 0; i < 24; i++) {
-                chans.push_front(i*dCh);
+                chans.append(chans[23]+i*dCh);
             }
         }
     } else{ //HRStreamer-1
@@ -89,7 +89,7 @@ void StreamerDialog::onFinishButtonClicked()
         case 0:
             numOfChannels = 2;
             for (uint i = 0; i < numOfChannels; i++) {
-                chans.push_front(i*dCh);
+                chans.append(i*dCh);
             }
             qDebug() << "1x8";
         case 1:

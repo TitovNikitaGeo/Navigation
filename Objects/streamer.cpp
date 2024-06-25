@@ -1,4 +1,5 @@
 #include "streamer.h"
+#include "functions.h"
 
 Streamer::Streamer(QObject *parent)
 {}
@@ -24,27 +25,28 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
         Channel* chan = new Channel(i);
         ChannelsVector.append(chan);
     }
-    calcChansCoors();
+    // calcChansCoors();
     // printSelfInfo();
 }
 
 void Streamer::calcChansCoors()
 {
-    float angleRad = angle*M_PI/180;
+    float azRad = azimuthOfMovement*M_PI/180;
     for(int i = 0; i < ChannelsVector.size(); i++) {
-        ChannelsVector[i]->x_coor = this->x_coor + chans[i]*qSin(angleRad);
-        ChannelsVector[i]->y_coor = this->y_coor + chans[i]*qCos(angleRad);
-
+        ChannelsVector[i]->x_coor = this->x_coor - chans[i]*qSin(azRad);
+        ChannelsVector[i]->y_coor = this->y_coor - chans[i]*qCos(azRad);
+        ChannelsVector[i]->height = this->height;
     }
 
-    // l = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
-    //                (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5);
-    // h = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height;
-    // dh = h/l;
-
-    // for(int i = 0; i < ChannelsVector.size(); i++) {
-    //     ChannelsVector[i]->height = this->height + chans[i]* dh;
-    // }
+    if (endBuoy != nullptr) {
+        l = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
+                       (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5);
+        h = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height;
+        dh = h/l;
+        for(int i = 0; i < ChannelsVector.size(); i++) {
+            ChannelsVector[i]->height = this->height + chans[i]* dh;
+        }
+    }
 }
 
 void Streamer::printChansCoor() //функция для дебага. выводит координаты ка
@@ -85,7 +87,7 @@ Streamer::Channel* Streamer::getChan(uint number)
     } else if(number > NumChanels) {
         return ChannelsVector.at(ChannelsVector.size() - 1);
     } else {
-        return ChannelsVector.at(number);
+        return ChannelsVector.at(number-1);
     }
 }
 
@@ -94,11 +96,17 @@ uint Streamer::getChanCount()
     return this->NumChanels;
 }
 
-
-
-
-
 Streamer::Channel::Channel(uint myNumber)
 {
     this->myNumber = myNumber;
+}
+
+
+
+QString Streamer::Channel::getUTMPos()
+{
+    QString res;
+    res += floatToQString(myNumber, 2, 0) + " " + floatToQString(x_coor, 7,1)
+        + floatToQString(y_coor, 7,1) + floatToQString(height, 2,1);
+    return res;
 }

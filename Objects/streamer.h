@@ -4,6 +4,7 @@
 #include "toweditem.h"
 #include "fixeditem.h"
 #include "buoy.h"
+
 #include <QObject>
 
 class Streamer : public TowedItem
@@ -46,7 +47,7 @@ private:
     public:
         Channel(uint myNumber);
 
-        void setCoordinates(float x, float y, float z);
+        QString getUTMPos();
 
 
     private:

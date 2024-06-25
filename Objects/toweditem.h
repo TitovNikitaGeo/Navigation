@@ -6,6 +6,7 @@
 
 class TowedItem : public FixedItem
 {
+Q_OBJECT
 private:
     friend class Fabric;
     friend class Streamer;

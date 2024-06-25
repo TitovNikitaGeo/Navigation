@@ -12,19 +12,15 @@
 
 class FixedItem : public QObject
 {
-
+Q_OBJECT
 private:
     friend class Fabric;
+    friend class Coordinator;
     FixedItem(float x,float y,float z, QString name);
 
 public:
     FixedItem();
     ~FixedItem();
-
-    void set_coor();
-    void set_x(float x);
-    void set_y(float y);
-    void set_z(float z);
 
     ///for scheme
     float x;
@@ -66,6 +62,8 @@ public:
 public slots:
 
     void newNmeaArived(QString msg);
+protected:
+    FixedItem* ItemForCalculations;
 };
 
 #endif // FIXEDITEM_H

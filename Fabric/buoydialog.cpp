@@ -13,7 +13,7 @@ BuoyDialog::BuoyDialog(ItemsStorage* vault) : MyVault(vault) {
     mainLayout->addLayout(comboBoxLayout);
 
     for (const auto &item : vault->ItemsVault) {
-        if (item->name == "Streamer") {
+        if (QString(item->metaObject()->className()) ==  "Streamer") {
             comboBox->addItem(item->name);
         }
     }

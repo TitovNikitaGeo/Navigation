@@ -49,11 +49,21 @@ MainWindow::MainWindow(QWidget *parent)
     coordinator = new Coordinator();
     coordinator->Vault = this->Vault;
     ///coordinator creation
+
+    ///p190Creator
+    p190Creator = new P190_creator();
+    p190Creator->setItemStoragePtr(Vault);
+    p190Creator->setFileName(QString("test.p190"));
+    ///p190Creator
 }
 
 void MainWindow::timeToCollectData()
 {
-    if (coordinator->calcCoors()) coordinator->printCoors();
+    if (coordinator->calcCoors()) {
+        coordinator->printCoors();
+        p190Creator->createStreamerData();
+        p190Creator->createMainInfoBlock();
+    }
     qDebug()<<"__________________________ END TIC";
 
 }
@@ -321,33 +331,6 @@ void MainWindow::drawStreamer(Streamer *item)
         item->getChan(item->getChanCount())->z,item->getChanCount());
 }
 
-
-
-
-// void MainWindow::on_TopViewRB_toggled(bool checked)
-// {
-//     if (checked) {
-//         DrawingAreaTopView->hide();
-//         DrawingAreaSideView->show();
-//     } else {
-//         DrawingAreaTopView->hide();
-//         DrawingAreaSideView->show();
-//     }
-// }
-
-
-// void MainWindow::on_SideViewRB_toggled(bool checked)
-// {
-//     if (checked) {
-//         DrawingAreaTopView->hide();
-//         DrawingAreaSideView->show();
-//     } else {
-//         DrawingAreaTopView->hide();
-//         DrawingAreaSideView->show();
-//     }
-// }
-
-
 void MainWindow::on_TopViewRB_clicked()
 {
     DrawingAreaTopView->show();
@@ -365,6 +348,7 @@ void MainWindow::on_SideViewRB_clicked()
 void MainWindow::on_pushButton_clicked(bool checked)
 {
     if (!checked) {
+        coordinator->wireFixedItems();
         MyTimer->start(1000);
     } else {
         MyTimer->stop();
@@ -382,6 +366,28 @@ void MainWindow::on_ComboBoxItemType_textActivated(const QString &arg1)
         ui->NeedConnectionCB->setEnabled(false);
     } else {
         ui->NeedConnectionCB->setEnabled(true);
+    }
+}
+
+
+void MainWindow::on_ComboBoxItemType_activated(int index)
+{
+    switch(index) {
+    case 0:
+        ui->ItemNameLineEdit->setText("");
+        break;
+    case 1:
+        ui->ItemNameLineEdit->setText("");
+        break;
+    case 2:
+        ui->ItemNameLineEdit->setText("Buoy");
+        break;
+    case 3:
+        ui->ItemNameLineEdit->setText("Streamer");
+        break;
+    default:
+        ui->ItemNameLineEdit->setText("");
+        break;
     }
 }
 

@@ -1,8 +1,8 @@
 #include <QString>
 
 #include "fixeditem.h"
-#include "toweditem.h"
 #include "streamer.h"
+#include "toweditem.h"
 #include "buoy.h"
 
 #ifndef STRUCTURES_H
@@ -45,5 +45,6 @@ struct BuoyInfo{
     float AnthenaHeight;
     float towingDepth;
 };
+
 
 #endif

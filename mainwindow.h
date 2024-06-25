@@ -6,6 +6,7 @@
 #include "fabric.h"
 #include "itemsstorage.h"
 #include "coordinator.h"
+#include "p190_creator.h"
 
 #include <QMainWindow>
 #include <QListView>
@@ -49,6 +50,7 @@ private:
 
     Ui::MainWindow *ui;
 
+    P190_creator* p190Creator;
     MyGraphicView *DrawingAreaTopView;
     SideGraphicView *DrawingAreaSideView;
     Fabric* MyFabric;
@@ -73,5 +75,6 @@ private slots:
     void on_SideViewRB_clicked();
     void on_pushButton_clicked(bool checked);
     void on_ComboBoxItemType_textActivated(const QString &arg1);
+    void on_ComboBoxItemType_activated(int index);
 };
 #endif // MAINWINDOW_H

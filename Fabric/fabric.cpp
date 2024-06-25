@@ -13,7 +13,12 @@ FixedItem* Fabric::CreateFixedItem(FixedItemInfo info) {
 
 TowedItem* Fabric::CreateTowedItem(TowedItemInfo info) {
     return new TowedItem(
-        info.name, info.toWhoIsWired, info.angleToWired, info.wireLength);;
+        info.name, info.toWhoIsWired, info.angleToWired, info.wireLength);
+}
+
+Buoy* Fabric::CreateBuoyItem(BuoyInfo info)
+{
+    return CreateItem(info);
 }
 
 FixedItem* Fabric::CreateItem(FixedItemInfo info, bool needConnect)
@@ -56,6 +61,8 @@ Streamer* Fabric::CreateItem(StreamerInfo info)
 
     return streamer;
 }
+
+
 
 Buoy* Fabric::CreateItem(BuoyInfo info)
 {

@@ -13,7 +13,7 @@ public:
     int calcCoors();
     int printCoors();
     ItemsStorage* Vault;
-
+    bool wireFixedItems();
 signals:
 };
 

@@ -12,6 +12,7 @@
 #include <QMessageBox>
 
 #include "itemsstorage.h"
+#include "streamer.h"
 
 class BuoyDialog : public QDialog
 {

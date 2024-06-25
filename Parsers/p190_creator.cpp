@@ -1,5 +1,6 @@
 #include "p190_creator.h"
 
+
 P190_creator::P190_creator(QObject *parent)
     : QObject{parent}
 {}
@@ -46,37 +47,73 @@ void P190_creator::writeToFile(QStringList data) {
     }
 }
 
-QStringList P190_creator::createRecieverData() {
+void P190_creator::setFileName(QString fileName)
+{
+    this->fileName = fileName;
+}
+
+QStringList P190_creator::createStreamerData() {
     QStringList res;
-    for (FixedItem* item: items) {
-        if (item->itemType == "Streamer") { //fuck
-            ;
+    QString tmp;
+    for (FixedItem* item: MyVault->ItemsVault) {
+        if (QString(item->metaObject()->className()) == "Streamer") {
+            Streamer* strm = dynamic_cast<Streamer*>(item);
+            for (uint i = 0; i < strm->getChanCount(); ++i) {
+                if (i % 3 == 0) {
+                    if (!tmp.isEmpty()) {
+                        res.append(tmp + "1");
+                    }
+                    tmp = "R  ";
+                }
+                tmp += strm->getChan(i+1)->getUTMPos(); // в массиве от 0 до 23
+                tmp += " "; //каналы от 1 до 24
+            }
+            if (!tmp.isEmpty()) {
+                res.append(tmp + "1");
+            }
         }
+    }
+    qDebug() << "P190";
+    for (QString i: res) {
+        qDebug() << i ;
     }
     return res;
 }
 
 QStringList P190_creator::createMainInfoBlock() {
     QStringList res;
-    for (FixedItem* item: items) {
-        if (item->itemType == "Source") {
+    QString tmp;
+    for (FixedItem* item: MyVault->ItemsVault) {
+        if (QString(item->metaObject()->className()) == "Source") {
             ;
-        } else if(item->itemType == "Ship Center") {
-            ;
+        } else if(QString(item->metaObject()->className()) == "FixedItem") {
+            if (item->x == 0 && item->y == 0 && item->z == 0) {
+                QDateTime dt = item->lastGGAData.dateTime;
+                tmp = "V" +  lineName + "   " + QString::number(pointNumber) +
+                    QString::number(item->lastGGAData.coordinate.latitude())+"N"+
+                    QString::number(item->lastGGAData.coordinate.longitude())+"E "+
+                    // floatToQString(item->x_coor, 7,1) + floatToQString(item->y_coor, 8,1) +
+                    // " " + floatToQString(item->z, 2,1) + QString::number(dt.date().toJulianDay()) +
+                    QString::number(dt.time().hour())+QString::number(dt.time().minute()) +
+                      QString::number(dt.time().second());
+            }
         } else if(item->itemType == "Buoy"){
             ;
         }
         continue;
+    }
+    qDebug() << "P190";
+    for (QString i: res) {
+        qDebug() << i ;
     }
     return res;
 }
 
 
 
-
-void P190_creator::updateItemsList(FixedItem* newItem) {
-    items.append(newItem);
-    // connect(this, itemsGiveMeData(), newItem, SLOT());
+void P190_creator::setItemStoragePtr(ItemsStorage *Vault)
+{
+    this->MyVault = Vault;
 }
 
 

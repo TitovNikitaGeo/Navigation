@@ -44,7 +44,7 @@ public:
 
     //счетчик качества
     uint calcWindow = 20; // размер окна для подсчета качества
-    float border = 0.85;
+    float border = (float)0.85;
     QList<bool> packetsRecieved;
     QList<bool>::iterator iter;
     float currentQuality = 0;

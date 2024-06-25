@@ -8,9 +8,6 @@ int Coordinator::calcCoors()
 {
     try {
         for (FixedItem* item: Vault->ItemsVault) {
-            if (item == nullptr || item->connection == nullptr) {
-                item->hasConnection = false;
-            }
             if (item->hasConnection) {
                 //сначала те, что имеют точное положение
                 item->getLastGGA();
@@ -21,20 +18,17 @@ int Coordinator::calcCoors()
         }
 
         for (FixedItem* item: Vault->ItemsVault) { //я вызываю метод предка
-            TowedItem* tmp = dynamic_cast<TowedItem*>(item);
-
-            ///настроить систему рассчета координат для фиксированных
-            if (item->itemType == "Fixed") continue;
-            ///настроить систему рассчета координат для фиксированных
-
+            if (item->hasConnection) continue;
             QString className = QString(item->metaObject()->className());
-            if (!(item->hasConnection)){
-                tmp->getLastGGA();
-                tmp->getLastRMC();
-                tmp->calcItemCoordinates();
-            }
             if (className == "Streamer") {
+                dynamic_cast<Streamer*>(item)->calcItemCoordinates();
                 dynamic_cast<Streamer*>(item)->calcChansCoors();
+            } else if(className == "FixedItem") {
+                item->calcItemCoordinates();
+            } else if (className == "TowedItem") {
+                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
+            } else {
+                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             }
         }
     } catch (std::exception& e) {
@@ -60,4 +54,34 @@ int Coordinator::printCoors()
         return 0;
     }
     return 1;
+}
+
+bool Coordinator::wireFixedItems()
+{
+    FixedItem* ItemWithConnection = nullptr;
+    QString className;
+    for (FixedItem* item: Vault->ItemsVault){
+        className = QString(item->metaObject()->className());
+        if (className == "FixedItem") {
+            if (item->hasConnection && item->connection != nullptr) {
+                ItemWithConnection = item;
+                break;
+            }
+        }
+    }
+    if (ItemWithConnection == nullptr) {
+        return false;
+    } else {
+        for (FixedItem* item: Vault->ItemsVault){
+            if(item->hasConnection) continue;
+            className = QString(item->metaObject()->className());
+            if (className == "FixedItem") {
+                if (!item->hasConnection) {
+                    qDebug() << item->name << " wired to " << ItemWithConnection->name;
+                    item->ItemForCalculations = ItemWithConnection;
+                }
+            }
+        }
+    }
+    return true;
 }

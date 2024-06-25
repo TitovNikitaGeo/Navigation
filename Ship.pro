@@ -50,6 +50,7 @@ HEADERS += \
     Objects/streamer.h \
     Objects/toweditem.h \
     Parsers/coordinator.h \
+    Parsers/functions.h \
     mainwindow.h \
     Drawing/mygraphicview.h \
     Connections/connection.h \

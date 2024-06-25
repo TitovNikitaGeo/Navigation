@@ -10,8 +10,9 @@
 #include <QDebug>
 #include <QVector>
 
-#include "nmeaparser.h"
-#include "fixeditem.h"
+#include "itemsstorage.h"
+#include "streamer.h"
+// #include "functions.h"
 
 
 
@@ -23,7 +24,8 @@ public:
     explicit P190_creator(QObject *parent = nullptr);
 
     ///creating P190 data
-    QStringList createRecieverData();
+    void extracted(QStringList &res);
+    QStringList createStreamerData();
     QStringList createMainInfoBlock();
     QStringList createHeader();
 
@@ -32,7 +34,8 @@ public:
     void writeToFile(QStringList);
 
     void setFileName(QString fileName);
-    void updateItemsList(FixedItem* newItem);
+
+    void setItemStoragePtr(ItemsStorage* Vault);
 private:
 
     QStringList currentStreamerData;
@@ -41,9 +44,10 @@ private:
     QString fileName;
     QFile* outputFile;
     QTextStream* outputStream;
+    ItemsStorage* MyVault;
 
-    QVector<FixedItem*> items;
-
+    QString lineName = "AA10AA070707";
+    uint pointNumber = 1000;
 
 signals:
 

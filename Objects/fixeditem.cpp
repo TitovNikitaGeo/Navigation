@@ -1,6 +1,5 @@
 #include "fixeditem.h"
 
-#define myqDebug() qDebug() << fixed << qSetRealNumberPrecision(2)
 
 FixedItem::FixedItem() {}
 
@@ -15,20 +14,11 @@ FixedItem::FixedItem(float x,float y,float z, QString name) :
 FixedItem::~FixedItem() {
     qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name;
     deletingWires();
-    if (hasConnection && connection != nullptr) delete connection;
-}
-
-
-void FixedItem::set_x(float x) {
-    this->x = x;
-}
-
-void FixedItem::set_y(float y) {
-    this->y = y;
-}
-
-void FixedItem::set_z(float z) {
-    this->z = z;
+    try{
+        if (hasConnection && connection != nullptr) delete connection;
+    } catch (std::exception ex){
+        qDebug() <<ex.what();
+    }
 }
 
 void FixedItem::calcItemCoordinates()
@@ -39,7 +29,18 @@ void FixedItem::calcItemCoordinates()
         height = lastGGAData.height;
         azimuthOfMovement = lastRMCData.azimuth;
     } else {
-        return;
+        if (ItemForCalculations == nullptr) {
+            return;
+        } else {
+            azimuthOfMovement = ItemForCalculations->azimuthOfMovement;
+            // NmeaParser::NmeaGGAData coor = ItemForCalculations->lastGGAData;
+            double azRad = qDegreesToRadians(azimuthOfMovement);
+            x_coor = ItemForCalculations->x_coor + (y-ItemForCalculations->y)*qCos(azRad) +
+                     (x-ItemForCalculations->x)*qSin(azRad);
+            y_coor = ItemForCalculations->y_coor - (y-ItemForCalculations->y)*qSin(azRad) +
+                     (x-ItemForCalculations->x)*qCos(azRad);
+            height = ItemForCalculations->height - (z - ItemForCalculations->z);
+        }
     }
 }
 

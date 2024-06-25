@@ -20,6 +20,7 @@ class Ui_Connection
 {
 public:
     QLabel *label;
+    QLabel *label_2;
 
     void setupUi(QWidget *Connection)
     {
@@ -29,6 +30,9 @@ public:
         label = new QLabel(Connection);
         label->setObjectName("label");
         label->setGeometry(QRect(20, 40, 601, 71));
+        label_2 = new QLabel(Connection);
+        label_2->setObjectName("label_2");
+        label_2->setGeometry(QRect(300, 110, 49, 16));
 
         retranslateUi(Connection);
 
@@ -39,6 +43,7 @@ public:
     {
         Connection->setWindowTitle(QCoreApplication::translate("Connection", "Form", nullptr));
         label->setText(QCoreApplication::translate("Connection", "EMPTY", nullptr));
+        label_2->setText(QString());
     } // retranslateUi
 
 };
