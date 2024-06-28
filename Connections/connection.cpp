@@ -7,11 +7,10 @@ Connection::Connection(QWidget *parent)
 {
     ui->setupUi(this);
     this->hide();
-    iter = packetsRecieved.begin();
 
-    // for (int i = 0; i < 100; i++) {
-    //     packetsRecieved.push_front(true);
-    // }
+
+    packetsRecieved.reserve(calcWindow);
+    iter = packetsRecieved.end();
     // setAttribute(Qt::WA_DeleteOnClose); //to all successors
 }
 
@@ -45,17 +44,13 @@ void Connection::write_nmea_data(QByteArray nmea_data){
     if (file  && datastream) {
         data_condition = check_nmea_data(nmea_data);
         if (data_condition == 1) {
-
+            // calcQuality(true);
             *datastream << nmea_data;
-            // qDebug() <<nmea_data;
             lastRecievedGGA = QString(nmea_data);
-            //qDebug() << lastRecievedNMEA << " to file" << filename;
         }else if(data_condition == 3){
             lastRecievedRMC = QString(nmea_data);
         } else {
-
-            calcQuality(false);
-
+            // calcQuality(false);
             qDebug() << "BAD PACKAGE" << nmea_data;
             return;
         }
@@ -85,15 +80,28 @@ void Connection::create_file_for_nmea(QString filename){
 
 int Connection::check_nmea_data(QByteArray nmea_data) {
     int res = 1;
-    if (nmea_data[0] != '$') return 0; //WTF data (not our package)
-    if (nmea_data.indexOf("\r\n") == -1) return 0; ///not full package
-    if (nmea_data.length() < 70) return 0; // possible package without all data
-    if (nmea_data.length() > 87) return 2; // possible double data
+    if (nmea_data.length() < 70){
+        qDebug() << "too short check_nmea_data";
+        return 0; // possible package without all data
+    }
+    if (nmea_data[0] != '$') {  //WTF data (not our package)
+        qDebug() << "NOT $ check_nmea_data";
+        return 0;
+    }
+    if (nmea_data.indexOf("\r\n") == -1) {
+        qDebug() << "NOT \r\n check_nmea_data";
+        return 0; ///not full package
+    }
+    if (!check_sum_nmea(nmea_data)) {
+        qDebug() << "checksum wrong check_nmea_data";
+        return 0; //
+    }
+    if (nmea_data.length() > 89) return 2; // possible double data
     QByteArray rmc = nmea_data.mid(3, 3);
-        if (rmc == "RMC") {
-            return 3;
-        }
-    if (!check_sum_nmea(nmea_data)) return 0; //
+    if (rmc == "RMC") {
+        return 3;
+    }
+
     return res;
 }
 
@@ -133,6 +141,7 @@ int Connection::check_sum_nmea(QByteArray nmea_data)
     uint8_t receivedCS1 = nmea_data[nmea_data.length()-3];
     // Получение контрольной суммы из пакета
 
+    qDebug() << QChar(translatedByte1)<<QChar(translatedByte2) <<"VS"<<QChar(receivedCS0) << QChar(receivedCS1);
     if(translatedByte1 == receivedCS0 && translatedByte2 == receivedCS1)
     // Сравнение контрольной суммы с полученной из пакета
     {
@@ -161,24 +170,41 @@ int Connection::check_double_package(QByteArray nmea_data) {
     return 0;
 }
 
-float Connection::calcQuality(bool recieved)
-{
-    return 1;
+float Connection::calcQuality(bool recieved) {
+    // Наполнение 20
     if (packetsRecieved.size() < calcWindow) {
         packetsRecieved.push_front(recieved);
-        currentQuality += (1.0/calcWindow) * recieved;
+        if (recieved) {
+            currentQuality += (1.0 / calcWindow);
+        } else {
+            ;// currentQuality -= (1.0 / calcWindow);
+        }
+        // qDebug() <<"filling " << recieved <<currentQuality<< packetsRecieved.size();
+        if (packetsRecieved.size() == 20) iter = packetsRecieved.begin();
+        return currentQuality * packetsRecieved.size() / calcWindow;
     }
 
-    if (iter != packetsRecieved.end()) { //переход на начало
-        //list если достигли последнего элемента
-        iter++;
-    } else {
-        iter = packetsRecieved.begin(); //переход на следующий элемент
+    // Наполнение 20
+
+    // Пересчет качества
+
+    if (*iter) {
+        // qDebug() << *iter << "rise" << currentQuality;
+        currentQuality = currentQuality - (1.0 / calcWindow); // Отнимаем самое старое измерение
+    }
+    if (recieved) {
+        // qDebug() << *iter << "fall" <<currentQuality;
+        currentQuality += (1.0 / calcWindow); // Прибавляем новое
     }
 
-    if (*iter) currentQuality -= (1/calcWindow) ; //отнимаем самое старое измерение
-    if (recieved) currentQuality += (1/calcWindow); //прибавляем новое
+    // qDebug() << recieved << currentQuality;
     *iter = recieved;
+
+    if (iter == packetsRecieved.end()) {
+        iter = packetsRecieved.begin(); // Переход на начало списка, если достигли конца
+    } else {
+        iter++;
+    }
 
     if (currentQuality > border) {
         ui->label_2->setText("GOOD");

@@ -18,6 +18,7 @@ INCLUDEPATH += ./Parsers
 
 
 SOURCES += \
+    DataVault/itemsloader.cpp \
     DataVault/itemsstorage.cpp \
     Drawing/sidegraphicview.cpp \
     Fabric/buoydialog.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
     ConnectionCreator/connection_creator.cpp
 
 HEADERS += \
+    DataVault/itemsloader.h \
     DataVault/itemsstorage.h \
     DataVault/structures.h \
     Drawing/sidegraphicview.h \

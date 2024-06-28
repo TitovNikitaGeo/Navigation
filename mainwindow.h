@@ -34,6 +34,7 @@ public:
     FixedItem* createFixedItem(FixedItemInfo NewItemInfo);
     FixedItem* createTowedItem(TowedItemInfo NewItemInfo);
     Streamer* createStreamerItem(StreamerInfo NewItemInfo);
+    Buoy* createBuoyItem(BuoyInfo BuoyItemInfo);
 
     QString GetNewDeviceName(QString name);
 

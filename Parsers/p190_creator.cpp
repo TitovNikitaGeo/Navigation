@@ -5,16 +5,25 @@ P190_creator::P190_creator(QObject *parent)
     : QObject{parent}
 {}
 
-void P190_creator::createP190File() {
-    outputFile = new QFile(fileName);
-    if (outputFile->open(QIODevice::Append)) {
-        outputStream = new QTextStream(outputFile);
-        writeToFile(createHeader());
-    } else {
-        QMessageBox box;
-        box.critical(nullptr, "Error", "File not created");
+QStringList P190_creator::createShotBlock()
+{
+    QStringList res;
+    static int shotNum = 0; //номер выстрела
+    QStringList mainBlock = createMainInfoBlock();
+    QStringList streamerBlock = createStreamerBlock();
+    qDebug() << "P190";
+    for (QString l: mainBlock) {
+        qDebug() << l;
     }
+    for (QString l: streamerBlock) {
+        qDebug() << l;
+    }
+    res.append(mainBlock);
+    res.append(streamerBlock);
+    return res;
 }
+
+
 
 ///STUB. DO NOT OPEN
 QStringList P190_creator::createHeader() {
@@ -35,15 +44,26 @@ QStringList P190_creator::createHeader() {
                        "H0600 POS. PROC. CONTRACTOR     GEODEVICE                                       ",
                        "H0700 POS./ COMPUTER SYSTEM     C-NAV                                           ",
                        "H0800 SHOTPOINT POSITION        EIVA NAVIPAC 3.10.5                             "};
+}
+
+void P190_creator::createP190File() {
+    outputFile = new QFile(fileName);
+    outputFile->open(QIODevice::Append);
+    outputStream = new QTextStream(outputFile);
+    QStringList list = createHeader();
+    for (QString l:list) {
+        *outputStream << l;
+    }
 };
 
 
 void P190_creator::writeToFile(QStringList data) {
     for (QString str: data) {
-        if (str.length() > 82){    //
+        if (str.length() > 82 ){    //
             qDebug() << "too big string";
+        } else {
+            (*outputStream) << str;
         }
-        (*outputStream) << str;
     }
 }
 
@@ -52,7 +72,7 @@ void P190_creator::setFileName(QString fileName)
     this->fileName = fileName;
 }
 
-QStringList P190_creator::createStreamerData() {
+QStringList P190_creator::createStreamerBlock() {
     QStringList res;
     QString tmp;
     for (FixedItem* item: MyVault->ItemsVault) {
@@ -61,7 +81,7 @@ QStringList P190_creator::createStreamerData() {
             for (uint i = 0; i < strm->getChanCount(); ++i) {
                 if (i % 3 == 0) {
                     if (!tmp.isEmpty()) {
-                        res.append(tmp + "1");
+                        res.append(tmp.append("1"));
                     }
                     tmp = "R  ";
                 }
@@ -73,39 +93,53 @@ QStringList P190_creator::createStreamerData() {
             }
         }
     }
-    qDebug() << "P190";
-    for (QString i: res) {
-        qDebug() << i ;
-    }
+    // qDebug() << "P190";
+    // for (QString i: res) {
+    //     qDebug() << i ;
+    // }
     return res;
 }
+
+
+
 
 QStringList P190_creator::createMainInfoBlock() {
     QStringList res;
     QString tmp;
+    static uint pointNumber = 1;
     for (FixedItem* item: MyVault->ItemsVault) {
         if (QString(item->metaObject()->className()) == "Source") {
             ;
         } else if(QString(item->metaObject()->className()) == "FixedItem") {
             if (item->x == 0 && item->y == 0 && item->z == 0) {
                 QDateTime dt = item->lastGGAData.dateTime;
-                tmp = "V" +  lineName + "   " + QString::number(pointNumber) +
+                tmp = "V" +  lineName + " " + QString::number(pointNumber) +
                     QString::number(item->lastGGAData.coordinate.latitude())+"N"+
                     QString::number(item->lastGGAData.coordinate.longitude())+"E "+
-                    // floatToQString(item->x_coor, 7,1) + floatToQString(item->y_coor, 8,1) +
-                    // " " + floatToQString(item->z, 2,1) + QString::number(dt.date().toJulianDay()) +
+                    floatToQString(item->x_coor, 7,2) + floatToQString(item->y_coor, 8,2) +
+                    " " + floatToQString(item->z, 2,1) + QString::number(dt.date().toJulianDay()) +
                     QString::number(dt.time().hour())+QString::number(dt.time().minute()) +
                       QString::number(dt.time().second());
+                res.append(tmp);
             }
-        } else if(item->itemType == "Buoy"){
-            ;
+
+        } else if(QString(item->metaObject()->className()) == "Buoy"){
+            QDateTime dt = item->lastGGAData.dateTime;
+            tmp = "T" +  lineName + " " + QString::number(pointNumber) +
+                  QString::number(item->lastGGAData.coordinate.latitude())+"N"+
+                  QString::number(item->lastGGAData.coordinate.longitude())+"E "+
+                  floatToQString(item->x_coor, 7,2) + floatToQString(item->y_coor, 8,2) +
+                  " " + floatToQString(item->z, 2,1) + QString::number(dt.date().toJulianDay()) +
+                  QString::number(dt.time().hour())+QString::number(dt.time().minute()) +
+                  QString::number(dt.time().second());
+            res.append(tmp);
         }
-        continue;
     }
-    qDebug() << "P190";
-    for (QString i: res) {
-        qDebug() << i ;
-    }
+    ++pointNumber;
+    // qDebug() << "P190";
+    // for (QString i: res) {
+    //     qDebug() << i ;
+    // }
     return res;
 }
 
@@ -114,6 +148,11 @@ QStringList P190_creator::createMainInfoBlock() {
 void P190_creator::setItemStoragePtr(ItemsStorage *Vault)
 {
     this->MyVault = Vault;
+}
+
+void P190_creator::setLineName(const QString &newLineName)
+{
+    lineName = newLineName;
 }
 
 

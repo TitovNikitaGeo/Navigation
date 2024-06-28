@@ -96,6 +96,11 @@ uint Streamer::getChanCount()
     return this->NumChanels;
 }
 
+QVector<float> Streamer::getChans() const
+{
+    return chans;
+}
+
 Streamer::Channel::Channel(uint myNumber)
 {
     this->myNumber = myNumber;

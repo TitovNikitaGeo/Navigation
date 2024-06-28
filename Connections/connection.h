@@ -45,12 +45,13 @@ public:
     //счетчик качества
     uint calcWindow = 20; // размер окна для подсчета качества
     float border = (float)0.85;
-    QList<bool> packetsRecieved;
-    QList<bool>::iterator iter;
-    float currentQuality = 0;
+    QVector<bool> packetsRecieved;
+
+
     float calcQuality(bool recieved);
     //счетчик качества
-
+    float currentQuality = 0;
+    QVector<bool>::iterator iter;
     ///Quality of data trasmition
 
 
@@ -64,7 +65,7 @@ public:
 private:
 
     Ui::Connection *ui;
-    NmeaParser nmeaParser;
+    static NmeaParser nmeaParser;
 
 private slots:
     virtual void ReadyRead(); //slot for getting signal

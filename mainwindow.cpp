@@ -61,8 +61,7 @@ void MainWindow::timeToCollectData()
 {
     if (coordinator->calcCoors()) {
         coordinator->printCoors();
-        p190Creator->createStreamerData();
-        p190Creator->createMainInfoBlock();
+        p190Creator->createShotBlock();
     }
     qDebug()<<"__________________________ END TIC";
 
@@ -134,7 +133,7 @@ void MainWindow::on_AddItemtPushButton_clicked()
         } else if (itemType == "Buoy") {
             MyFabric->setMyVault(Vault);
             BuoyInfo BuoyItemInfo{TowedItemInfo, 0,0};
-            MyFabric->CreateBuoyItem(BuoyItemInfo);
+            createBuoyItem(BuoyItemInfo);
         } else if (itemType == "Towed") {
             //newItem =
             createTowedItem(TowedItemInfo);
@@ -231,9 +230,8 @@ FixedItem* MainWindow::createTowedItem(TowedItemInfo NewItemInfo) {
     addItemToObjectsList(NewItem);
     ///adding obj to table
 
-    ///For now is only for fixed
+    ///adding ability to wire any towed item with it
     ui->ComboBoxWiredWith->addItem(NewItem->name);
-    ///For now is only for fixed
 
     ///adding new object to our Drawing area
     DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
@@ -261,8 +259,11 @@ Streamer* MainWindow::createStreamerItem(StreamerInfo info)
     addItemToObjectsList(NewItem);
     ///adding obj to table
 
+    ///adding ability to wire any towed item with it
+    ui->ComboBoxWiredWith->addItem(NewItem->name);
+
     ///Drawing
-    /*drawLineToTowed(NewItem);
+    drawLineToTowed(NewItem);
     DrawingAreaSideView->drawStreamer(NewItem->x, NewItem->y,
         NewItem->getChan(NewItem->getChanCount()-1)->x,
         NewItem->getChan(NewItem->getChanCount()-1)->y,
@@ -271,11 +272,30 @@ Streamer* MainWindow::createStreamerItem(StreamerInfo info)
         NewItem->getChan(NewItem->getChanCount()-1)->x,
         NewItem->getChan(NewItem->getChanCount()-1)->z,
         NewItem->getChanCount());
-    */
+
 
     return NewItem;
 
 
+}
+
+Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
+{
+    Buoy* NewItem = MyFabric->CreateBuoyItem(BuoyItemInfo);
+
+    ///Saving New Item
+    Vault->SaveItem(NewItem);
+    ///Saving New Item
+
+    ///adding obj to table
+    addItemToObjectsList(NewItem);
+    ///adding obj to table
+
+    ///adding ability to wire any towed item with it
+    ui->ComboBoxWiredWith->addItem(NewItem->name);
+
+    drawLineToTowed(NewItem);
+    return NewItem;
 }
 
 
@@ -375,6 +395,7 @@ void MainWindow::on_ComboBoxItemType_activated(int index)
     switch(index) {
     case 0:
         ui->ItemNameLineEdit->setText("");
+        ui->NeedConnectionCB->setChecked(false);
         break;
     case 1:
         ui->ItemNameLineEdit->setText("");

@@ -20,6 +20,7 @@ Connection_creator::Connection_creator(QWidget *parent)
         ui->Error_label_COM_tab->setText("No COM ports available");
         ui->pushButton->setEnabled(false);
     }
+    ui->BRate_choose->setCurrentIndex(1);
 
     // connect(ui->pushButton, &QPushButton::clicked, this, &Connection_creator::on_pushButton_clicked);
 }

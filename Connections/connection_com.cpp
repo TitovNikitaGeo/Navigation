@@ -7,7 +7,7 @@ Connection_com::Connection_com() : ui(new Ui::Connection_com)
 }
 
 Connection_com::Connection_com(QString COM_port, int ByteRate, QString filename)
-    : ui(new Ui::Connection_com), filename(filename), COM_port(COM_port),
+    : filename(filename), ui(new Ui::Connection_com), COM_port(COM_port),
     ByteRate(ByteRate)
 
 {
@@ -44,14 +44,35 @@ QString Connection_com::getComPort()
     return COM_port;
 }
 
+int Connection_com::getByteRate() const
+{
+    return ByteRate;
+}
+
 
 void Connection_com::ReadyRead() {
-    QByteArray data = SerialPort.readAll();
-    if (check_nmea_data(data)) {
-        recieve_data(data);
+    DataBuffer.append(SerialPort.readAll());
+    int index;
+    if ((index = DataBuffer.indexOf('\n')) != -1) {
+        data = DataBuffer.left(index + 1);
+        DataBuffer.remove(0, index + 1);
     } else {
-        SerialPort.clear();
+        data = DataBuffer + data;
+        qDebug() << data << "Data" <<DataBuffer;
+        // return;
+        if (check_nmea_data(data)) {
+            recieve_data(data);
+            calcQuality(true);
+            qDebug() << "GOOD DATA "<< data;
+        } else {
+            calcQuality(false);
+            qDebug() << "BAD DATA "<< data;
+            SerialPort.clear();
+        }
+        data.clear();
+        DataBuffer.clear();
     }
+    qDebug() <<"_____________";
 }
 
 

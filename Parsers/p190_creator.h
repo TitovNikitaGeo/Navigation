@@ -12,7 +12,7 @@
 
 #include "itemsstorage.h"
 #include "streamer.h"
-// #include "functions.h"
+#include "functions.h"
 
 
 
@@ -24,8 +24,8 @@ public:
     explicit P190_creator(QObject *parent = nullptr);
 
     ///creating P190 data
-    void extracted(QStringList &res);
-    QStringList createStreamerData();
+    QStringList createShotBlock();
+    QStringList createStreamerBlock();
     QStringList createMainInfoBlock();
     QStringList createHeader();
 
@@ -34,21 +34,18 @@ public:
     void writeToFile(QStringList);
 
     void setFileName(QString fileName);
-
     void setItemStoragePtr(ItemsStorage* Vault);
+    void setLineName(const QString &newLineName);
+
 private:
-
-    QStringList currentStreamerData;
-
 
     QString fileName;
     QFile* outputFile;
     QTextStream* outputStream;
     ItemsStorage* MyVault;
 
-    QString lineName = "AA10AA070707";
-    uint pointNumber = 1000;
-
+    QString lineName = "AA10AA070707"; 
+    // QString floatToQString(float value, int totalLength, int decimalPlaces);
 signals:
 
 };

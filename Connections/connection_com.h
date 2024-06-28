@@ -24,9 +24,13 @@ public:
     QString filename;
     QString getComPort();
 
+    int getByteRate() const;
+
 private:
     Ui::Connection_com *ui;
     QSerialPort SerialPort;
+    QByteArray DataBuffer;
+    QByteArray data;
     QString COM_port;
     int ByteRate;
 

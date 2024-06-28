@@ -23,6 +23,8 @@ public:
     QString filename;
     QString getIP_port();
 
+    int getPort() const;
+
 private:
 
     QTcpSocket* socket;

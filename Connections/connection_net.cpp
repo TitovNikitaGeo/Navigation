@@ -31,11 +31,6 @@ Connection_Net::Connection_Net(QString IP, int port, QString filename) :
 
 }
 
-// void Connection_Net::recieve_data(QByteArray data) {
-//     write_nmea_data(data);
-//     ui->label->setText(data);
-// }
-
 
 
 Connection_Net::~Connection_Net()
@@ -51,6 +46,11 @@ QString Connection_Net::getIP_port()
     return IP + " " + QString::number(port);
 }
 
+int Connection_Net::getPort() const
+{
+    return port;
+}
+
 
 void Connection_Net::onConnected()
 {
@@ -63,8 +63,10 @@ void Connection_Net::ReadyRead()
     ///TODO check that buffer is clear
     if (check_nmea_data(data)) { ///дублирование функционала
         recieve_data(data);
+        calcQuality(true);
         // qDebug() << "GOOD DATA "<< data;
     } else {
+        calcQuality(false);
         // qDebug() << "BAD DATA "<< data;
     }
 }

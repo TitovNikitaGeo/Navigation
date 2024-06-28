@@ -3,7 +3,7 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-QString floatToQString(float value, int totalLength, int decimalPlaces) {
+static QString floatToQString(float value, int totalLength, int decimalPlaces) {
     QString str = QString::number(value, 'f', decimalPlaces);
 
     // Если строка длиннее необходимого, обрезаем ее

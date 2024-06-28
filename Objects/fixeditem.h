@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QDebug>
 #include <QObject>
+#include <QScopedPointer>
 
 #include "nmeaparser.h"
 #include "connection.h"
@@ -55,7 +56,7 @@ public:
 
     bool hasConnection = false;
 
-    Connection* connection = nullptr;
+    Connection* connection;
     NmeaParser parser;
     QVector<FixedItem*> vectorOfConnected;
 

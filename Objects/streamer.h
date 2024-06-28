@@ -26,6 +26,8 @@ public:
 
     Channel* getChan(uint number);
     uint getChanCount();
+    QVector<float> getChans() const;
+
 private:
     uint NumChanels;
     QVector<float> chans;
