@@ -28,21 +28,27 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
 void Streamer::calcChansCoors()
 {
     float azRad = azimuthOfMovement*M_PI/180;
-    for(int i = 0; i < ChannelsVector.size(); i++) {
-        ChannelsVector[i]->x_coor = this->x_coor - chans[i]*qSin(azRad);
-        ChannelsVector[i]->y_coor = this->y_coor - chans[i]*qCos(azRad);
-        ChannelsVector[i]->height = this->height;
-    }
-
     if (endBuoy != nullptr) {
         l = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
-                       (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5);
+                 (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5);
         h = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height;
         dh = h/l;
+
+        float realAz = qAtan((x_coor - endBuoy->x_coor)/(y_coor - endBuoy->y_coor));
+
+
         for(int i = 0; i < ChannelsVector.size(); i++) {
             ChannelsVector[i]->height = this->height + chans[i]* dh;
+            ChannelsVector[i]->x_coor = this->x_coor - (l/endBuoy->wireLength)*chans[i]*qSin(realAz);
+            ChannelsVector[i]->y_coor = this->y_coor - (l/endBuoy->wireLength)*chans[i]*qCos(realAz);
+        }
+    } else {
+        for(int i = 0; i < ChannelsVector.size(); i++) {
+            ChannelsVector[i]->x_coor = this->x_coor - chans[i]*qSin(azRad);
+            ChannelsVector[i]->y_coor = this->y_coor - chans[i]*qCos(azRad);
         }
     }
+
 }
 
 void Streamer::printChansCoor() //функция для дебага. выводит координаты ка
@@ -100,6 +106,16 @@ QVector<float> Streamer::getChans() const
 void Streamer::setTotalLength(float newTotalLength)
 {
     totalLength = newTotalLength;
+}
+
+void Streamer::setEndBuoy(Buoy *newEndBuoy)
+{
+    endBuoy = newEndBuoy;
+}
+
+float Streamer::getTotalLength() const
+{
+    return totalLength;
 }
 
 Streamer::Channel::Channel(uint myNumber)

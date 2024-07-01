@@ -30,10 +30,15 @@ public:
 
     void setTotalLength(float newTotalLength);
 
+    void setEndBuoy(Buoy *newEndBuoy);
+
+    float getTotalLength() const;
+
 private:
     uint NumChanels;
     QVector<float> chans;
     QVector<Channel*> ChannelsVector;
+
     float totalLength;
 
     float endDepth;

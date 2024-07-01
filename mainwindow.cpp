@@ -282,6 +282,13 @@ Streamer* MainWindow::createStreamerItem(StreamerInfo info)
 Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
 {
     Buoy* NewItem = MyFabric->CreateBuoyItem(BuoyItemInfo);
+    if (QString(BuoyItemInfo.towedInfo.toWhoIsWired->metaObject()->className()) == "Streamer") {
+        dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->setEndBuoy(NewItem);
+        NewItem->wireLength += dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->getTotalLength();
+    }
+    //тут мы проверяем, что если буй привязан к косе, то коса->концевой буй* = новый созданный объект
+    //а потом увеличиваем дистанцию буксировки на длину косы
+
 
     ///Saving New Item
     Vault->SaveItem(NewItem);
@@ -382,8 +389,8 @@ void MainWindow::on_ComboBoxItemType_textActivated(const QString &arg1)
         ui->NeedConnectionCB->setChecked(false);
         ui->NeedConnectionCB->setEnabled(false);
     } else if(arg1 == "Buoy") {
-        ui->NeedConnectionCB->setChecked(true);
-        ui->NeedConnectionCB->setEnabled(false);
+        // ui->NeedConnectionCB->setChecked(true);
+        // ui->NeedConnectionCB->setEnabled(false);
     } else {
         ui->NeedConnectionCB->setEnabled(true);
     }

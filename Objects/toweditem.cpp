@@ -41,7 +41,11 @@ void TowedItem::calcItemCoordinates()
         ///ДОБАВИТЬ ВЫСОТУ БОРТА
         if (towingPoint->itemType == "Buoy") {
             Buoy* tmp = dynamic_cast<Buoy*>(towingPoint);
-            height = tmp->height - tmp->AnthenaHeight - tmp->towingDepth;
+            if (tmp-> hasConnection) {
+                height = tmp->height - tmp->AnthenaHeight - tmp->towingDepth;
+            } else {
+                height = tmp->height - tmp->towingDepth;
+            }
         } else if(towingPoint->itemType == "Fixed Item") {
             height = towingPoint->height - 5; //высота борта захардкожена
         } else {
@@ -54,7 +58,9 @@ void TowedItem::calcItemCoordinates()
                  (x-towingPoint->x)*qSin(azRad);
         y_coor = towingPoint->y_coor - (y-towingPoint->y)*qSin(azRad) +
                  (x-towingPoint->x)*qCos(azRad);
-
+    } else {
+        qDebug() << "TowedItem::calcItemCoordinates";
+        qDebug() << "Если вы здесь, то буквируемое утройство оторвалось";
     }
 }
 
