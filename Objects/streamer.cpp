@@ -8,10 +8,6 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
                    float angleToWired, float wireLength, uint NumChanels, QVector<float> chans)
     : TowedItem(Name, towingPoint, angleToWired, wireLength)
 {
-    // this->name = Name;
-    // this->towingPoint = towingPoint;
-    // this->angle = angleToWired;
-    // this->wireLength = wireLength;
     this->NumChanels = NumChanels;
     this->chans = chans;
     itemType = "Streamer";
@@ -99,6 +95,11 @@ uint Streamer::getChanCount()
 QVector<float> Streamer::getChans() const
 {
     return chans;
+}
+
+void Streamer::setTotalLength(float newTotalLength)
+{
+    totalLength = newTotalLength;
 }
 
 Streamer::Channel::Channel(uint myNumber)

@@ -96,3 +96,15 @@ Connection *Connection_creator::getLastConnection()
 {
     return lastConnection;
 }
+
+void Connection_creator::on_connection_types_currentChanged(int index)
+{
+    if (index == 0) {
+        ui->pushButton->setEnabled(true);
+    } else {
+        if (ui->PortsAvailableComboBox->count() == 0) {
+            ui->pushButton->setEnabled(false);
+        }
+    }
+}
+

@@ -8,6 +8,10 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QDoubleSpinBox>
+#include <QFileDialog>
+#include <QMessageBox>
+
 
 // #include "itemsstorage.h"
 
@@ -22,10 +26,19 @@ public:
     QString retrunValue = "";
     uint numOfChannels = 0;
     QVector<float> chans = {};
+    float elasticSectionLength = 12.5;
+    float totalLength;
+
+    float leadingDamperLength;
+    float endDamperLength;
+    void saveToCSV();
 
 
 private:
+    QDoubleSpinBox *elasticSectionLengthSpinBox;
     QPushButton *finishButton;
+    QPushButton* loadCSVButton;
+    QPushButton* saveCSVButton;
     QTabWidget *tabWidget;
     QWidget *singleChannelTab;
     QWidget *multiChannelTab;
@@ -33,7 +46,11 @@ private:
     QComboBox *singleChannelComboBox;
     QComboBox *multiChannelComboBoxChannels;
     QComboBox *multiChannelComboBoxDistance;
+
+    void createChansValues();
 private slots:
+    void loadCSVFile();
+    void readCSV(const QString& filePath);
     void onFinishButtonClicked();
 };
 

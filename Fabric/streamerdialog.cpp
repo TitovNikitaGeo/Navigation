@@ -1,10 +1,11 @@
 #include "streamerdialog.h"
 
-StreamerDialog::StreamerDialog(QWidget* parent) {
-    setFixedSize(250, 192);
+StreamerDialog::StreamerDialog(QWidget* parent)
+    : QDialog(parent), elasticSectionLength(12.5) {
+    setFixedSize(400, 300);
     tabWidget = new QTabWidget(this);
 
-    // Вкладка Одноканальная
+    // Single Channel Tab
     singleChannelTab = new QWidget(this);
     singleChannelComboBox = new QComboBox(singleChannelTab);
     singleChannelComboBox->addItems({
@@ -17,12 +18,11 @@ StreamerDialog::StreamerDialog(QWidget* parent) {
 
     QVBoxLayout *singleChannelLayout = new QVBoxLayout(singleChannelTab);
     singleChannelLayout->addWidget(singleChannelComboBox);
-    singleChannelLayout->addStretch(1);  // Отступ снизу
+    singleChannelLayout->addStretch(1);  // Bottom spacing
     singleChannelTab->setLayout(singleChannelLayout);
 
-    // Вкладка Многоканальная
+    // Multi Channel Tab
     multiChannelTab = new QWidget(this);
-
     QLabel *channelsLabel = new QLabel("Количество каналов", multiChannelTab);
     multiChannelComboBoxChannels = new QComboBox(multiChannelTab);
     multiChannelComboBoxChannels->addItems({"24", "48"});
@@ -32,19 +32,19 @@ StreamerDialog::StreamerDialog(QWidget* parent) {
     multiChannelComboBoxDistance->addItems({"1", "2", "3.125"});
 
     QVBoxLayout *multiChannelLayout = new QVBoxLayout(multiChannelTab);
-    multiChannelLayout->addWidget(distanceLabel);
-    multiChannelLayout->addWidget(multiChannelComboBoxDistance);
     multiChannelLayout->addWidget(channelsLabel);
     multiChannelLayout->addWidget(multiChannelComboBoxChannels);
-    multiChannelLayout->addStretch(1);  // Отступ снизу
+    multiChannelLayout->addWidget(distanceLabel);
+    multiChannelLayout->addWidget(multiChannelComboBoxDistance);
+    multiChannelLayout->addStretch(1);  // Bottom spacing
     multiChannelTab->setLayout(multiChannelLayout);
 
-    // Дополнительный вариант для многоканальной вкладки
+    // Additional option for multi-channel tab
     connect(multiChannelComboBoxChannels, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index){
         multiChannelComboBoxDistance->clear();
-        if (index == 1) { // 48 каналов выбрано
+        if (index == 1) { // 48 channels selected
             multiChannelComboBoxDistance->addItems({"1", "2", "1&2", "3.125"});
-        } else { // 24 канала выбрано
+        } else { // 24 channels selected
             multiChannelComboBoxDistance->addItems({"1", "2", "3.125"});
         }
     });
@@ -52,17 +52,142 @@ StreamerDialog::StreamerDialog(QWidget* parent) {
     tabWidget->addTab(singleChannelTab, "Одноканальная");
     tabWidget->addTab(multiChannelTab, "Многоканальная");
 
+    // New Elastic Section Length SpinBox and Label
+    QLabel *elasticSectionLengthLabel = new QLabel("Elastic Section Length", this);
+    elasticSectionLengthSpinBox = new QDoubleSpinBox(this);
+    elasticSectionLengthSpinBox->setRange(0.0, 25.0);
+    elasticSectionLengthSpinBox->setDecimals(1);
+    elasticSectionLengthSpinBox->setValue(12.5);
+    connect(elasticSectionLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {
+        elasticSectionLength = value;
+    });
+
+    // Load CSV Button
+    loadCSVButton = new QPushButton("Load CSV", this);
+    connect(loadCSVButton, &QPushButton::clicked, this, &StreamerDialog::loadCSVFile);
+
+    // Save CSV Button
+    saveCSVButton = new QPushButton("Save CSV", this);
+    connect(saveCSVButton, &QPushButton::clicked, this, &StreamerDialog::saveToCSV);
+
     finishButton = new QPushButton("Finish", this);
     connect(finishButton, &QPushButton::clicked, this, &StreamerDialog::onFinishButtonClicked);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(tabWidget);
+    mainLayout->addWidget(elasticSectionLengthLabel);
+    mainLayout->addWidget(elasticSectionLengthSpinBox);
+    mainLayout->addWidget(loadCSVButton);
+    mainLayout->addWidget(saveCSVButton);
     mainLayout->addWidget(finishButton);
-    mainLayout->setAlignment(finishButton, Qt::AlignRight); // Выравнивание кнопки вправо
+    mainLayout->setAlignment(finishButton, Qt::AlignRight); // Align finish button to the right
     setLayout(mainLayout);
 }
 
 void StreamerDialog::onFinishButtonClicked()
+{
+    qDebug() << "StreamerDialog::onFinishButtonClicked";
+    createChansValues();
+    elasticSectionLength = elasticSectionLengthSpinBox->value();
+    leadingDamperLength = elasticSectionLength;
+    endDamperLength = elasticSectionLength;
+    totalLength = leadingDamperLength + endDamperLength + chans.last() - chans.first();
+    accept();
+}
+
+void StreamerDialog::loadCSVFile() {
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Open CSV File"), "", tr("CSV Files (*.csv)"));
+    if (!filePath.isEmpty()) {
+        readCSV(filePath);
+    } else {
+        QMessageBox::warning(this, tr("Error"), tr("File Is Empty"));
+        return;
+    }
+}
+
+void StreamerDialog::readCSV(const QString& filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(this, tr("Error"), tr("Cannot open file"));
+        return;
+    }
+
+    QTextStream in(&file);
+    chans.clear();
+    numOfChannels = 0;
+    float leadingDamperLength = 0.0;
+    float endDamperLength = 0.0;
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList fields = line.split(';');
+        bool ok;
+        if (fields.size() != 2) continue; // Skip lines with unexpected number of fields
+
+        if (fields[0] == "leading damper section length (m)") {
+            leadingDamperLength = fields[1].toFloat();
+        } else if (fields[0] == "end damper section length (m)") {
+            endDamperLength = fields[1].toFloat();
+        } else if (fields[0] == "Channels count") {
+            numOfChannels = fields[1].toInt();
+        } else if (fields[0].toInt(&ok) > 0 && ok) { // Assume first field is channel number
+            chans.append(fields[1].toFloat());
+        }
+    }
+
+    if (!chans.isEmpty()) {
+        totalLength = leadingDamperLength + endDamperLength + chans.last() - chans.first();
+        QMessageBox::information(this, tr("Success"), tr("CSV file loaded successfully."));
+    } else {
+        QMessageBox::warning(this, tr("Error"), tr("CSV file is empty or invalid."));
+    }
+    accept();
+}
+
+void StreamerDialog::saveToCSV() {
+    // Generate file name
+    QString baseFileName;
+    if (tabWidget->currentIndex() == 0) {
+        baseFileName = singleChannelComboBox->currentText() + ".csv";
+    } else {
+        baseFileName = QString("HRStreamer_%1_%2.csv").arg(numOfChannels).arg(chans.isEmpty() ? 0 : chans[0]);
+    }
+    QFile file(baseFileName);
+    int suffix = 1;
+    createChansValues();
+    // Check if file already exists and add suffix if necessary
+    while (file.exists()) {
+        baseFileName = QString("%1_new%2.csv").arg(baseFileName.left(baseFileName.lastIndexOf('.'))).arg(suffix);
+        file.setFileName(baseFileName);
+        ++suffix;
+    }
+    // Open file for writing
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, tr("Error"), tr("Cannot create file"));
+        return;
+    }
+
+    QTextStream out(&file);
+
+    // Write headers and values to the file
+    out << "leading damper section length (m);" << leadingDamperLength << "\n";
+    out << "end damper section length (m);" << endDamperLength << "\n";
+    out << "Channel spacing (m);" << (chans.size() > 1 ? chans[1] - chans[0] : 0) << "\n";
+    out << "Channels count;" << numOfChannels << "\n";
+    out << "Leading buoy towing depth (m),0.5\n";
+    out << "End buoy towing depth (m);1.5\n";
+    out << "Distance to end buoy (m);3\n\n";
+    out << "Channel number;offset from leading buoy\n";
+
+    for (int i = 0; i < chans.size(); ++i) {
+        out << i + 1 << ";" << chans[i] << "\n";
+    }
+
+    file.close();
+    QMessageBox::information(this, tr("Success"), tr("CSV file saved successfully."));
+}
+
+void StreamerDialog::createChansValues()
 {
     chans.clear();//на случай если несколько раз окно вызываем
     if (tabWidget->currentIndex() == 1) { //multichannel streamer
@@ -71,12 +196,12 @@ void StreamerDialog::onFinishButtonClicked()
         float dCh = multiChannelComboBoxDistance->currentText().toFloat(&ok);
         if (ok) {
             for (uint i = 0; i < numOfChannels; i++) {
-                chans.append(i*dCh);
+                chans.append(elasticSectionLength+i*dCh);
             }
         } else { //1&2
             dCh = 1;
             for (uint i = 0; i < 24; i++) {
-                chans.append(i*dCh);
+                chans.append(elasticSectionLength+i*dCh);
             }
             dCh = 2;
             for (uint i = 0; i < 24; i++) {
@@ -84,29 +209,50 @@ void StreamerDialog::onFinishButtonClicked()
             }
         }
     } else{ //HRStreamer-1
-        float dCh = 0.2;
+        // float dCh = 0.2;
         switch(singleChannelComboBox->currentIndex()){
         case 0:
             numOfChannels = 2;
-            for (uint i = 0; i < numOfChannels; i++) {
-                chans.append(i*dCh);
-            }
+            chans[0] = leadingDamperLength;
+            chans[1] = chans[0] + 0.8;
             qDebug() << "1x8";
+            break;
         case 1:
             numOfChannels = 3;
+            chans[0] = leadingDamperLength;
+            chans[1] = chans[0] + 0.8;
+            chans[2] = chans[1] + 1.6;
             qDebug() << "1x16";
+            break;
         case 2:
-            numOfChannels = 4;
+            numOfChannels = 3;
+            chans[0] = leadingDamperLength;
+            chans[1] = chans[0] + 0.8;
+            chans[2] = chans[1] + 2.4;
             qDebug() << "1x24";
+            break;
         case 3:
-            numOfChannels = 5;
+            numOfChannels = 4;
+            chans[0] = leadingDamperLength;
+            chans[1] = chans[0] + 0.8;
+            chans[2] = chans[1] + 2.4;
+            chans[3] = chans[2] + 4;
             qDebug() << "1x48";
+            break;
         case 4:
-            numOfChannels = 6;
+            numOfChannels = 5;
+            chans[0] = leadingDamperLength;
+            chans[1] = chans[0] + 0.8;
+            chans[2] = chans[1] + 2.4;
+            chans[3] = chans[2] + 4;
+            chans[4] = chans[3] + 7.2;
             qDebug() << "1x96";
+            break;
+        default:
+            break;
         }
+
+
+
     }
-
-    accept();
 }
-

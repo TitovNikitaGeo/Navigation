@@ -28,11 +28,13 @@ public:
     uint getChanCount();
     QVector<float> getChans() const;
 
+    void setTotalLength(float newTotalLength);
+
 private:
     uint NumChanels;
     QVector<float> chans;
     QVector<Channel*> ChannelsVector;
-
+    float totalLength;
 
     float endDepth;
     Buoy* endBuoy;

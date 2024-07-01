@@ -27,7 +27,9 @@ FixedItem* Fabric::CreateItem(FixedItemInfo info, bool needConnect)
     FixedItem* item =   CreateFixedItem(info);
     if (needConnect) {
         Connection* con = createConnection();
-        bindItemConnection(item, con);
+        if (con != nullptr) {
+            bindItemConnection(item, con);
+        }
     }
 
     return item;
@@ -49,17 +51,21 @@ Streamer* Fabric::CreateItem(StreamerInfo info)
 
     ///streamer params dialog
     StreamerDialog dialog;
-    dialog.exec();
-    info.chans = dialog.chans;
-    info.numOfChannels = dialog.numOfChannels;
-    ///streamer params dialog
+    if (dialog.exec() == QDialog::Accepted){
+
+        info.chans = dialog.chans;
+        info.numOfChannels = dialog.numOfChannels;
+        ///streamer params dialog
 
 
-    Streamer* streamer = new Streamer(info.towedInfo.name,
-        info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
-        info.towedInfo.wireLength, info.numOfChannels, info.chans);
-
+        Streamer* streamer = new Streamer(info.towedInfo.name,
+            info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
+            info.towedInfo.wireLength, info.numOfChannels, info.chans);
     return streamer;
+    } else{
+        return nullptr;
+    }
+
 }
 
 
@@ -88,11 +94,15 @@ Connection* Fabric::createConnection()
 {
     Connection* res = nullptr;
     if (connectionCreator->exec() == QDialog::Accepted){
-        qDebug() << "Fabric::createConnection()";
+        qDebug() << "Fabric::createConnection() Accepted";
+        connectionCreator->close();
+        res = connectionCreator->getLastConnection();
+        return res;
+    } else {
+        qDebug() << "Fabric::createConnection() Rejected";
+        return nullptr;
     }
-    connectionCreator->close();
-    res = connectionCreator->getLastConnection();
-    return res;
+
 }
 
 

@@ -51,28 +51,31 @@ int Connection_com::getByteRate() const
 
 
 void Connection_com::ReadyRead() {
-    DataBuffer.append(SerialPort.readAll());
+    data.append(SerialPort.readAll());
     int index;
-    if ((index = DataBuffer.indexOf('\n')) != -1) {
-        data = DataBuffer.left(index + 1);
-        DataBuffer.remove(0, index + 1);
+    if ((index = data.indexOf('\n')) == -1) {
+        ;
     } else {
-        data = DataBuffer + data;
-        qDebug() << data << "Data" <<DataBuffer;
+        // data = DataBuffer + data;
+        QByteArray mainPart = data.left(index + 1);  // включая '\r\n'
+        QByteArray removedPart = data.mid(index + 1); // после '\r\n'
+        data = mainPart;
+        // qDebug() << data << "Data"; // <<DataBuffer;
         // return;
         if (check_nmea_data(data)) {
             recieve_data(data);
             calcQuality(true);
-            qDebug() << "GOOD DATA "<< data;
+            // qDebug() << "GOOD DATA "<< data;
         } else {
             calcQuality(false);
-            qDebug() << "BAD DATA "<< data;
+            // qDebug() << "BAD DATA "<< data;
             SerialPort.clear();
         }
         data.clear();
-        DataBuffer.clear();
+        data = removedPart;
+        // DataBuffer.clear();
     }
-    qDebug() <<"_____________";
+    // qDebug() <<"_____________";
 }
 
 

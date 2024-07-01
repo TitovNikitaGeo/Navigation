@@ -41,6 +41,7 @@ Connection::~Connection() {
 
 void Connection::write_nmea_data(QByteArray nmea_data){
     int data_condition;
+    qDebug() << "write_nmea_data" << nmea_data;
     if (file  && datastream) {
         data_condition = check_nmea_data(nmea_data);
         if (data_condition == 1) {
@@ -141,7 +142,7 @@ int Connection::check_sum_nmea(QByteArray nmea_data)
     uint8_t receivedCS1 = nmea_data[nmea_data.length()-3];
     // Получение контрольной суммы из пакета
 
-    qDebug() << QChar(translatedByte1)<<QChar(translatedByte2) <<"VS"<<QChar(receivedCS0) << QChar(receivedCS1);
+    //qDebug() << QChar(translatedByte1)<<QChar(translatedByte2) <<"VS"<<QChar(receivedCS0) << QChar(receivedCS1);
     if(translatedByte1 == receivedCS0 && translatedByte2 == receivedCS1)
     // Сравнение контрольной суммы с полученной из пакета
     {

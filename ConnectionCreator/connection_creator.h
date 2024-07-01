@@ -72,6 +72,8 @@ public:
 private slots:
     void on_pushButton_clicked();
 
+    void on_connection_types_currentChanged(int index);
+
 signals:
     void connectionCreated();
 

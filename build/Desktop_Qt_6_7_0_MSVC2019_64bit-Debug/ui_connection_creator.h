@@ -94,7 +94,7 @@ public:
 
         retranslateUi(Connection_creator);
 
-        connection_types->setCurrentIndex(1);
+        connection_types->setCurrentIndex(0);
         BRate_choose->setCurrentIndex(3);
 
 
