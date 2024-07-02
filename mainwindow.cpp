@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
     // MyTimer->start(1000);
 
-
+    //privet peivet
 
     ///Just for init settings of widgets
     emit on_RBFixed_clicked();
