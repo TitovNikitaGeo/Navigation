@@ -15,6 +15,9 @@ public:
     ItemsStorage* Vault;
     bool wireFixedItems();
 signals:
+
+public slots:
+    void boardDepthChanged(double boardHeight);
 };
 
 #endif // COORDINATOR_H

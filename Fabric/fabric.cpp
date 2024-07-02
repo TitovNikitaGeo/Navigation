@@ -16,9 +16,9 @@ TowedItem* Fabric::CreateTowedItem(TowedItemInfo info) {
         info.name, info.toWhoIsWired, info.angleToWired, info.wireLength);
 }
 
-Buoy* Fabric::CreateBuoyItem(BuoyInfo info)
+Buoy* Fabric::CreateBuoyItem(BuoyInfo info, bool needConnection)
 {
-    return CreateItem(info);
+    return CreateItem(info, needConnection);
 }
 
 FixedItem* Fabric::CreateItem(FixedItemInfo info, bool needConnect)
@@ -70,20 +70,22 @@ Streamer* Fabric::CreateItem(StreamerInfo info)
 
 
 
-Buoy* Fabric::CreateItem(BuoyInfo info)
+Buoy* Fabric::CreateItem(BuoyInfo info, bool needConnection)
 {
-    BuoyDialog dialog(this->MyVault);
+    BuoyDialog dialog(this->MyVault, needConnection);
     if (dialog.exec() == QDialog::Accepted) {
         info.towingDepth = dialog.TowingDepth;
         info.AnthenaHeight = dialog.AnthenaHeight;
         Buoy* newBuoy = new Buoy(info.towedInfo.name,
             info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
             info.towedInfo.wireLength, info.AnthenaHeight, info.towingDepth);
-        Connection* con = createConnection();
-        if (bindItemConnection(newBuoy, con)){
-            qDebug() << "Fabric::CreateItem";
+        if (needConnection) {
+            Connection* con = createConnection();
+            if (bindItemConnection(newBuoy, con)){
+                qDebug() << "Fabric::CreateItem";
+            }
+            dialog.selectedStreamer->endBuoy = newBuoy; ///привязываем буй к косе
         }
-        dialog.selectedStreamer->endBuoy = newBuoy; ///привязываем буй к косе
         return newBuoy;
     } else {
         return nullptr;

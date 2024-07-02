@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     // MyTimer->start(1000);
 
 
+
     ///Just for init settings of widgets
     emit on_RBFixed_clicked();
     ///Just for init settings of widgets
@@ -54,19 +55,13 @@ MainWindow::MainWindow(QWidget *parent)
     p190Creator->setItemStoragePtr(Vault);
     p190Creator->setFileName(QString("test.p190"));
     ///p190Creator
-
-
-    ///for boardHeight setting
-    connect(ui->boardHeightSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-            coordinator,&Coordinator::boardDepthChanged);
-
 }
 
 void MainWindow::timeToCollectData()
 {
     if (coordinator->calcCoors()) {
         coordinator->printCoors();
-        // p190Creator->createShotBlock();
+        p190Creator->createShotBlock();
     }
     qDebug()<<"__________________________ END TIC";
 
@@ -115,8 +110,9 @@ void MainWindow::on_AddItemtPushButton_clicked()
         FixedItemInfo FixedItemInfo(x,y,z,name);
         //newItem =
         createFixedItem(FixedItemInfo);
-    } else if (ui->RBTowed->isChecked()) {
-        ///getting params for towed
+    }
+    else if (ui->RBTowed->isChecked()) { ///getting params for towed
+
         if(ui->ComboBoxWiredWith->count() == 0) {
             QMessageBox msgBox;
             msgBox.critical(this, "Error","Нет точек крепления");
@@ -129,18 +125,18 @@ void MainWindow::on_AddItemtPushButton_clicked()
         float angleToWired = 270; //change further if needed
         QString itemType = ui->ComboBoxItemType->currentText();
         TowedItemInfo TowedItemInfo(twiw, wireLength, angleToWired, name);
-        TowedItem* towedItem;
+
         if (itemType == "Streamer") {
             StreamerInfo StreamerItemInfo{TowedItemInfo, 0, {0}};
             // Streamer* newItem =
-            towedItem = createStreamerItem(StreamerItemInfo);
+            createStreamerItem(StreamerItemInfo);
         } else if (itemType == "Buoy") {
             MyFabric->setMyVault(Vault);
             BuoyInfo BuoyItemInfo{TowedItemInfo, 0,0};
-            towedItem = createBuoyItem(BuoyItemInfo);
+            createBuoyItem(BuoyItemInfo);
         } else if (itemType == "Towed") {
             //newItem =
-            towedItem = createTowedItem(TowedItemInfo);
+            createTowedItem(TowedItemInfo);
         }
     }
 
@@ -217,7 +213,7 @@ FixedItem* MainWindow::createFixedItem(FixedItemInfo NewItemInfo) {
     return NewItem;
 }
 
-TowedItem* MainWindow::createTowedItem(TowedItemInfo NewItemInfo) {
+FixedItem* MainWindow::createTowedItem(TowedItemInfo NewItemInfo) {
     bool needConnection = false;
 
     if (ui->NeedConnectionCB->isChecked()) {
@@ -285,12 +281,7 @@ Streamer* MainWindow::createStreamerItem(StreamerInfo info)
 
 Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
 {
-    bool needConnection = false;
-    if (ui->NeedConnectionCB->isChecked()) {
-        needConnection = true;
-    }
-
-    Buoy* NewItem = MyFabric->CreateBuoyItem(BuoyItemInfo, needConnection);
+    Buoy* NewItem = MyFabric->CreateBuoyItem(BuoyItemInfo);
     if (QString(BuoyItemInfo.towedInfo.toWhoIsWired->metaObject()->className()) == "Streamer") {
         dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->setEndBuoy(NewItem);
         NewItem->wireLength += dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->getTotalLength();
@@ -391,38 +382,46 @@ void MainWindow::on_pushButton_clicked(bool checked)
     }
 }
 
+
+void MainWindow::on_ComboBoxItemType_textActivated(const QString &arg1)
+{
+    if (arg1 == "Streamer"){
+        ui->NeedConnectionCB->setChecked(false);
+        ui->NeedConnectionCB->setEnabled(false);
+    } else if(arg1 == "Buoy") {
+        // ui->NeedConnectionCB->setChecked(true);
+        // ui->NeedConnectionCB->setEnabled(false);
+    } else {
+        ui->NeedConnectionCB->setEnabled(true);
+    }
+}
+
+
 void MainWindow::on_ComboBoxItemType_activated(int index)
 {
     switch(index) {
     case 0:
         ui->ItemNameLineEdit->setText("");
         ui->NeedConnectionCB->setChecked(false);
-        ui->NeedConnectionCB->setEnabled(true);
         break;
     case 1:
         ui->ItemNameLineEdit->setText("");
-        ui->NeedConnectionCB->setEnabled(true);
         break;
     case 2:
         ui->ItemNameLineEdit->setText("Buoy");
-        ui->NeedConnectionCB->setChecked(false);
-        ui->NeedConnectionCB->setEnabled(true);
         break;
     case 3:
         ui->ItemNameLineEdit->setText("Streamer");
-        ui->NeedConnectionCB->setChecked(false);
-        ui->NeedConnectionCB->setEnabled(false);
         break;
     default:
         ui->ItemNameLineEdit->setText("");
-        ui->NeedConnectionCB->setEnabled(true);
         break;
     }
 }
 
 
-void MainWindow::on_doubleSpinBox_valueChanged(double boardHeight) //изменяет высоты борта в полях буксируемых объектов
+void MainWindow::on_doubleSpinBox_valueChanged(double arg1)
 {
-    emit coordinator->boardDepthChanged(boardHeight);
+
 }
 

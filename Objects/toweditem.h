@@ -35,7 +35,10 @@ public:
     QVector<FixedItem*> vectorOfConnections; // not used for now
     // QString name;
     // QString itemType;
+    void setBoardHeight(float newBoardHeight);
 
+protected:
+    float boardHeight = 0;
 
 
 };

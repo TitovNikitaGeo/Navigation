@@ -85,3 +85,20 @@ bool Coordinator::wireFixedItems()
     }
     return true;
 }
+
+void Coordinator::boardDepthChanged(double boardHeight)
+{
+    for (FixedItem* item: Vault->ItemsVault) {
+        if (QString(item->metaObject()->className()) != "Fixed Item" && !item->hasConnection
+            && QString(item->metaObject()->className()) != "Streamer") {
+            TowedItem* towedItem = dynamic_cast<TowedItem*>(item);
+            towedItem->setBoardHeight(boardHeight);
+        } else if (QString(item->metaObject()->className()) == "Streamer" &&
+                   QString(dynamic_cast<TowedItem*>(item)->towingPoint->metaObject()->className()) == "FixedItem"){
+            //если коса буксируется не от буя, а то фиксированного объекта на судне
+            // item->height = dynamic_cast<TowedItem*>(item)->towingPoint->height - boardHeight;
+            dynamic_cast<Streamer*>(item)->setBoardHeight(boardHeight);
+        }
+    }
+    qDebug() << "Coordinator::boardDepthChanged to" << boardHeight;
+}

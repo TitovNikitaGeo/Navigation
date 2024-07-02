@@ -1,20 +1,22 @@
 #include "buoydialog.h"
 
-BuoyDialog::BuoyDialog(ItemsStorage* vault) : MyVault(vault) {
+BuoyDialog::BuoyDialog(ItemsStorage* vault, bool needConnection) : MyVault(vault), needConnection(needConnection) {
     setWindowTitle("BuoyDialog");
-
+    ///если без соединения, то к косе не привязан, т.е. он не концевой
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     QHBoxLayout *comboBoxLayout = new QHBoxLayout();
-    QLabel *comboBoxLabel = new QLabel("Streamer Items:");
-    comboBox = new QComboBox();
-    comboBoxLayout->addWidget(comboBoxLabel);
-    comboBoxLayout->addWidget(comboBox);
-    mainLayout->addLayout(comboBoxLayout);
 
-    for (const auto &item : vault->ItemsVault) {
-        if (QString(item->metaObject()->className()) ==  "Streamer") {
-            comboBox->addItem(item->name);
+    if (needConnection){
+        QLabel *comboBoxLabel = new QLabel("Streamer Items:");
+        comboBox = new QComboBox();
+        comboBoxLayout->addWidget(comboBoxLabel);
+        comboBoxLayout->addWidget(comboBox);
+        mainLayout->addLayout(comboBoxLayout);
+        for (const auto &item : vault->ItemsVault) {
+            if (QString(item->metaObject()->className()) ==  "Streamer") {
+                comboBox->addItem(item->name);
+            }
         }
     }
 
@@ -46,19 +48,14 @@ BuoyDialog::BuoyDialog(ItemsStorage* vault) : MyVault(vault) {
 
 
 void BuoyDialog::onSetButtonClicked() {
-    if (comboBox->count() == 0) {
-        reject();
-    } else {
-        selectedStreamerName = comboBox->currentText();
-        if (!selectedStreamerName.isEmpty()) {
-            selectedStreamer = qobject_cast<Streamer*>(MyVault->getItem(selectedStreamerName));
-            qDebug() << "This Buoy connected to streamer " << selectedStreamerName;
+    if (needConnection) {
+        if (comboBox->count() == 0) {
+            reject();
         } else {
-            qDebug() << "This Buoy doesn't connected to streamer";
-            selectedStreamer = nullptr;
+            selectedStreamer = qobject_cast<Streamer*>(MyVault->getItem(selectedStreamerName));
         }
-        AnthenaHeight = spinBox1->value();
-        TowingDepth = spinBox2->value();
-        accept();
     }
+    AnthenaHeight = spinBox1->value();
+    TowingDepth = spinBox2->value();
+    accept();
 }

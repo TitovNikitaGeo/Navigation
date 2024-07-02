@@ -38,7 +38,6 @@ void TowedItem::calcItemCoordinates()
         azimuthOfMovement = towingPoint->azimuthOfMovement;
         double azRad = qDegreesToRadians(azimuthOfMovement);
 
-        ///ДОБАВИТЬ ВЫСОТУ БОРТА
         if (towingPoint->itemType == "Buoy") {
             Buoy* tmp = dynamic_cast<Buoy*>(towingPoint);
             if (tmp-> hasConnection) {
@@ -47,11 +46,10 @@ void TowedItem::calcItemCoordinates()
                 height = tmp->height - tmp->towingDepth;
             }
         } else if(towingPoint->itemType == "Fixed Item") {
-            height = towingPoint->height - 5; //высота борта захардкожена
+            height = towingPoint->height - boardHeight; //высота борта больше не захардкожена
         } else {
             height = towingPoint->height;
         }
-        ///ДОБАВИТЬ ВЫСОТУ БОРТА
 
 
         x_coor = towingPoint->x_coor + (y-towingPoint->y)*qCos(azRad) +
@@ -61,6 +59,8 @@ void TowedItem::calcItemCoordinates()
     } else {
         qDebug() << "TowedItem::calcItemCoordinates";
         qDebug() << "Если вы здесь, то буквируемое утройство оторвалось";
+        qDebug() << "Или вы где-то ошиблись...";
+        qDebug() << "...Например, в выборе софта";
     }
 }
 
@@ -96,6 +96,11 @@ QString TowedItem::getLastRMC()
         lastRMCData = towingPoint->lastRMCData;
     }
     return newRMC;
+}
+
+void TowedItem::setBoardHeight(float newBoardHeight)
+{
+    boardHeight = newBoardHeight;
 }
 
 

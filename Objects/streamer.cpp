@@ -30,11 +30,12 @@ void Streamer::calcChansCoors()
     float azRad = azimuthOfMovement*M_PI/180;
     if (endBuoy != nullptr) {
         l = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
-                 (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5);
-        h = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height;
+                 (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5); //real length of streamer
+        h = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height; //difference of height
+        //of streamer begin and streamer end
         dh = h/l;
 
-        float realAz = qAtan((x_coor - endBuoy->x_coor)/(y_coor - endBuoy->y_coor));
+        float realAz = qAtan((x_coor - endBuoy->x_coor)/(y_coor - endBuoy->y_coor)); //азимут от начала косы до буя
 
 
         for(int i = 0; i < ChannelsVector.size(); i++) {

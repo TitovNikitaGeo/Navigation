@@ -32,7 +32,7 @@ public:
 
 
     FixedItem* createFixedItem(FixedItemInfo NewItemInfo);
-    FixedItem* createTowedItem(TowedItemInfo NewItemInfo);
+    TowedItem* createTowedItem(TowedItemInfo NewItemInfo);
     Streamer* createStreamerItem(StreamerInfo NewItemInfo);
     Buoy* createBuoyItem(BuoyInfo BuoyItemInfo);
 
@@ -75,7 +75,7 @@ private slots:
     void on_TopViewRB_clicked();
     void on_SideViewRB_clicked();
     void on_pushButton_clicked(bool checked);
-    void on_ComboBoxItemType_textActivated(const QString &arg1);
     void on_ComboBoxItemType_activated(int index);
+    void on_doubleSpinBox_valueChanged(double arg1);
 };
 #endif // MAINWINDOW_H
