@@ -29,19 +29,18 @@ void Streamer::calcChansCoors()
 {
     float azRad = azimuthOfMovement*M_PI/180;
     if (endBuoy != nullptr) {
-        l = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
+        realLen = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
                  (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5); //real length of streamer
-        h = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height; //difference of height
+        heightDifference = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height; //difference of height
         //of streamer begin and streamer end
-        dh = h/l;
+        dh = heightDifference/realLen;
 
         float realAz = qAtan((x_coor - endBuoy->x_coor)/(y_coor - endBuoy->y_coor)); //азимут от начала косы до буя
-
-
+        float distanceCalcCoef = realLen > totalLength? 1.0: realLen/endBuoy->wireLength;
         for(int i = 0; i < ChannelsVector.size(); i++) {
             ChannelsVector[i]->height = this->height + chans[i]* dh;
-            ChannelsVector[i]->x_coor = this->x_coor - (l/endBuoy->wireLength)*chans[i]*qSin(realAz);
-            ChannelsVector[i]->y_coor = this->y_coor - (l/endBuoy->wireLength)*chans[i]*qCos(realAz);
+            ChannelsVector[i]->x_coor = this->x_coor - (distanceCalcCoef)*chans[i]*qSin(realAz);
+            ChannelsVector[i]->y_coor = this->y_coor - (distanceCalcCoef)*chans[i]*qCos(realAz);
         }
     } else {
         for(int i = 0; i < ChannelsVector.size(); i++) {
