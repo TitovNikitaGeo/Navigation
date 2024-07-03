@@ -52,12 +52,12 @@ MainWindow::MainWindow(QWidget *parent)
     ///p190Creator
     p190Creator = new P190_creator();
     p190Creator->setItemStoragePtr(Vault);
-    // p190Creator->setFileName(QString("test.p190"));
+
     ///p190Creator
 
 
     ///for boardHeight setting
-    connect(ui->boardHeightSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->boardHeightSpinBox, &QDoubleSpinBox::valueChanged,
             coordinator,&Coordinator::boardDepthChanged);
 
 }
@@ -381,15 +381,6 @@ void MainWindow::on_SideViewRB_clicked()
 }
 
 
-void MainWindow::on_pushButton_clicked(bool checked)
-{
-    if (!checked) {
-        coordinator->wireFixedItems();
-        MyTimer->start(1000);
-    } else {
-        MyTimer->stop();
-    }
-}
 
 void MainWindow::on_ComboBoxItemType_activated(int index)
 {
@@ -424,5 +415,23 @@ void MainWindow::on_ComboBoxItemType_activated(int index)
 void MainWindow::on_doubleSpinBox_valueChanged(double boardHeight) //изменяет высоты борта в полях буксируемых объектов
 {
     emit coordinator->boardDepthChanged(boardHeight);
+}
+
+
+
+
+void MainWindow::on_pushButton_clicked()
+{
+    static int timerRunsFlag = 0;
+    if (!timerRunsFlag) {
+        timerRunsFlag = 1;
+        coordinator->wireFixedItems();
+        p190Creator->createP190File();
+        MyTimer->start(1000);
+        // qDebug() << "start";
+    } else {
+        timerRunsFlag = 0;
+        MyTimer->stop();
+    }
 }
 

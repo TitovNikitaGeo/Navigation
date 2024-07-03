@@ -49,8 +49,22 @@ QStringList P190_creator::createHeader() {
 }
 
 void P190_creator::createP190File() {
-    if (outputFile->isOpen()) return;
-    outputFile = new QFile(fileName);
+    if (outputFile == nullptr) return;
+    QString dirPath = "~/Documents/Ship";
+    QDir dir(dirPath);
+    // Check if the directory already exists
+    if (!dir.exists()) {
+        // If the directory does not exist, create it
+        if (dir.mkpath(dirPath)) {
+            qDebug() << "Directory created successfully.";
+        } else {
+            qDebug() << "Failed to create directory.";
+        }
+    } else {
+        qDebug() << "Directory already exists.";
+    }
+
+    outputFile = new QFile(dirPath + "/" + fileName);
     outputFile->open(QIODevice::Append);
     outputStream = new QTextStream(outputFile);
     QStringList list = createHeader();
@@ -61,15 +75,16 @@ void P190_creator::createP190File() {
 
 
 void P190_creator::writeToFile(QStringList data) {
-    for (QString str: data) {
-        if (str.length() > 82 ){    //
-            qDebug() << "too big string" << data;
-        } else {
-            (*outputStream) << str;
+    if (outputFile->isOpen()){
+        for (QString str: data) {
+            if (str.length() > 82 ){    //
+                qDebug() << "too big string" << data;
+            } else {
+                (*outputStream) << str;
+            }
         }
     }
 }
-
 
 QStringList P190_creator::createStreamerBlock() {
     QStringList res;

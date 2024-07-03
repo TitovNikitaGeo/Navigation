@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QVector>
+#include <QDir>
 
 #include "itemsstorage.h"
 #include "streamer.h"
