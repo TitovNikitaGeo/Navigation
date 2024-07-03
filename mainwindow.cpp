@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     ///p190Creator
     p190Creator = new P190_creator();
     p190Creator->setItemStoragePtr(Vault);
-    p190Creator->setFileName(QString("test.p190"));
+    // p190Creator->setFileName(QString("test.p190"));
     ///p190Creator
 
 

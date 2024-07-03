@@ -33,9 +33,10 @@ public:
     void writeP190Block(); /// writing streamer and reciever blocks
     void writeToFile(QStringList);
 
-    void setFileName(QString fileName);
     void setItemStoragePtr(ItemsStorage* Vault);
     void setLineName(const QString &newLineName);
+
+    QString createFileName();
 
 private:
 

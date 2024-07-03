@@ -3,7 +3,9 @@
 
 P190_creator::P190_creator(QObject *parent)
     : QObject{parent}
-{}
+{
+
+}
 
 QStringList P190_creator::createShotBlock()
 {
@@ -47,6 +49,7 @@ QStringList P190_creator::createHeader() {
 }
 
 void P190_creator::createP190File() {
+    if (outputFile->isOpen()) return;
     outputFile = new QFile(fileName);
     outputFile->open(QIODevice::Append);
     outputStream = new QTextStream(outputFile);
@@ -60,17 +63,13 @@ void P190_creator::createP190File() {
 void P190_creator::writeToFile(QStringList data) {
     for (QString str: data) {
         if (str.length() > 82 ){    //
-            qDebug() << "too big string";
+            qDebug() << "too big string" << data;
         } else {
             (*outputStream) << str;
         }
     }
 }
 
-void P190_creator::setFileName(QString fileName)
-{
-    this->fileName = fileName;
-}
 
 QStringList P190_creator::createStreamerBlock() {
     QStringList res;
@@ -153,6 +152,18 @@ void P190_creator::setItemStoragePtr(ItemsStorage *Vault)
 void P190_creator::setLineName(const QString &newLineName)
 {
     lineName = newLineName;
+}
+
+QString P190_creator::createFileName()
+{
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString fileName = QString("%1.%2_%3_%4.p190")
+                           .arg(currentDateTime.time().hour())
+                           .arg(currentDateTime.time().minute(), 2, 10, QChar('0'))  // Добавляем ведущий ноль для минут
+                           .arg(currentDateTime.date().day())
+                           .arg(currentDateTime.date().month());
+    this->fileName = fileName;
+    return fileName;
 }
 
 

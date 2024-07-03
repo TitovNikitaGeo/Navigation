@@ -42,10 +42,10 @@ private:
     float totalLength;
 
     float endDepth;
-    Buoy* endBuoy;
+    Buoy* endBuoy = nullptr;
 
-    float l;
-    float h;
+    float realLen;
+    float heightDifference;
     float dh;
 
 

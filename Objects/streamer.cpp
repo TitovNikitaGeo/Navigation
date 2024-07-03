@@ -36,7 +36,7 @@ void Streamer::calcChansCoors()
         dh = heightDifference/realLen;
 
         float realAz = qAtan((x_coor - endBuoy->x_coor)/(y_coor - endBuoy->y_coor)); //азимут от начала косы до буя
-        float distanceCalcCoef = realLen > totalLength? 1.0: realLen/endBuoy->wireLength;
+        float distanceCalcCoef = realLen >= totalLength? 1.0: realLen/endBuoy->wireLength;
         for(int i = 0; i < ChannelsVector.size(); i++) {
             ChannelsVector[i]->height = this->height + chans[i]* dh;
             ChannelsVector[i]->x_coor = this->x_coor - (distanceCalcCoef)*chans[i]*qSin(realAz);
