@@ -8,7 +8,18 @@ Connection_creator::Connection_creator(QWidget *parent)
     , ui(new Ui::Connection_creator)
 {
     ui->setupUi(this);
-
+    dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Ship_logs";
+    QDir dir(dirPath);
+    if (!dir.exists()) {
+        // If the directory does not exist, create it
+        if (dir.mkpath(dirPath)) {
+            qDebug() << "Directory created successfully.";
+        } else {
+            qDebug() << "Failed to create directory.";
+        }
+    } else {
+        qDebug() << "Directory already exists.";
+    }
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
 
     for (const QSerialPortInfo &port : ports) {
@@ -56,10 +67,11 @@ void Connection_creator::on_pushButton_clicked()
 
 Connection* Connection_creator::createConnection()
 {
+
     QString fileName = QFileDialog::getSaveFileName(
         nullptr,
         "Save NMEA File",
-        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/tests_nmea",
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Ship_logs",
         "NMEA Files (*.nmea);;All Files (*)",
         nullptr,
         QFileDialog::DontConfirmOverwrite);

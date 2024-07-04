@@ -9,6 +9,7 @@ int Coordinator::calcCoors()
     try {
         for (FixedItem* item: Vault->ItemsVault) {
             if (item->hasConnection) {
+                qDebug() << item->name << item->hasConnection;
                 //сначала те, что имеют точное положение
                 item->getLastGGA();
                 item->getLastRMC();
@@ -18,16 +19,17 @@ int Coordinator::calcCoors()
         }
 
         for (FixedItem* item: Vault->ItemsVault) { //я вызываю метод предка
+            qDebug() << item->name << item->hasConnection;
             if (item->hasConnection) continue;
             QString className = QString(item->metaObject()->className());
             if (className == "Streamer") {
-                dynamic_cast<Streamer*>(item)->calcItemCoordinates();
+                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
                 dynamic_cast<Streamer*>(item)->calcChansCoors();
             } else if(className == "FixedItem") {
                 item->calcItemCoordinates();
             } else if (className == "TowedItem") {
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
-            } else {
+            } else { //for buoy
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             }
         }

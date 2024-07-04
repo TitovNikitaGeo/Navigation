@@ -28,8 +28,7 @@ TowedItem::~TowedItem() {
     delete this->connection;
 }
 
-void TowedItem::calcItemCoordinates()
-{
+void TowedItem::calcItemCoordinates() {
     if (hasConnection && connection) {
         x_coor = lastGGAData.coorUTM.rx();
         y_coor = lastGGAData.coorUTM.ry();
@@ -45,8 +44,9 @@ void TowedItem::calcItemCoordinates()
             } else {
                 height = tmp->height - tmp->towingDepth;
             }
-        } else if(towingPoint->itemType == "Fixed Item") {
+        } else if(QString(towingPoint->metaObject()->className()) == "FixedItem") {
             height = towingPoint->height - boardHeight; //высота борта больше не захардкожена
+            qDebug() << towingPoint->height << boardHeight << height;
         } else {
             height = towingPoint->height;
         }

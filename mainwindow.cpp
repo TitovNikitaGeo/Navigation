@@ -66,7 +66,7 @@ void MainWindow::timeToCollectData()
 {
     if (coordinator->calcCoors()) {
         coordinator->printCoors();
-        // p190Creator->createShotBlock();
+        p190Creator->createShotBlock();
     }
     qDebug()<<"__________________________ END TIC";
 

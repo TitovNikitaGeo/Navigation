@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QVector>
 #include <QDir>
+#include <QStandardPaths>
 
 #include "itemsstorage.h"
 #include "streamer.h"
@@ -23,6 +24,7 @@ class P190_creator : public QObject
 public:
 
     explicit P190_creator(QObject *parent = nullptr);
+    ~P190_creator();
 
     ///creating P190 data
     QStringList createShotBlock();

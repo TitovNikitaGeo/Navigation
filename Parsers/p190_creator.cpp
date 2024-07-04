@@ -4,7 +4,12 @@
 P190_creator::P190_creator(QObject *parent)
     : QObject{parent}
 {
+}
 
+P190_creator::~P190_creator()
+{
+    outputFile->close();
+    outputStream->flush();
 }
 
 QStringList P190_creator::createShotBlock()
@@ -49,9 +54,10 @@ QStringList P190_creator::createHeader() {
 }
 
 void P190_creator::createP190File() {
-    if (outputFile == nullptr) return;
-    QString dirPath = "~/Documents/Ship";
-    QDir dir(dirPath);
+    QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QDir dir(dirPath + "/Ship_logs");
+    qDebug() << dir;
+    fileName = createFileName();
     // Check if the directory already exists
     if (!dir.exists()) {
         // If the directory does not exist, create it
@@ -63,13 +69,27 @@ void P190_creator::createP190File() {
     } else {
         qDebug() << "Directory already exists.";
     }
+    outputFile = new QFile(dir.absolutePath() + "/" + fileName);
+    if (!outputFile->exists()) {
+        // Создание нового файла
+        if (!outputFile->open(QIODevice::WriteOnly)) {
+            qDebug() << "Не удалось создать файл:" << outputFile->errorString();
+            return;
+        }
+        outputFile->close();
+    }
 
-    outputFile = new QFile(dirPath + "/" + fileName);
-    outputFile->open(QIODevice::Append);
     outputStream = new QTextStream(outputFile);
+    // QTextStream()
+    // outputStream->setCodec("UTF-8");
+    outputStream->setEncoding(QStringConverter::Utf8);
+
+    *outputStream << "123";
+
     QStringList list = createHeader();
     for (QString l:list) {
-        *outputStream << l;
+        *outputStream << QByteArray(l.toStdString().c_str()) << "\n";
+        qDebug() << l <<"wrote to" << outputFile->fileName();
     }
 };
 

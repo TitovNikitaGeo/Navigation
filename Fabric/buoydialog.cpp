@@ -52,8 +52,10 @@ void BuoyDialog::onSetButtonClicked() {
         if (comboBox->count() == 0) {
             reject();
         } else {
+            selectedStreamerName = comboBox->currentText();
             selectedStreamer = qobject_cast<Streamer*>(MyVault->getItem(selectedStreamerName));
         }
+        qDebug() << MyVault->getItem(selectedStreamerName)->name << "buoyDialog";
     }
     AnthenaHeight = spinBox1->value();
     TowingDepth = spinBox2->value();

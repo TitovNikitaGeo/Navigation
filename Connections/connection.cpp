@@ -79,6 +79,8 @@ void Connection::create_file_for_nmea(QString filename){
     this->filename = filename;
 }
 
+
+
 int Connection::check_nmea_data(QByteArray nmea_data) {
     int res = 1;
     if (nmea_data.length() < 70){
@@ -222,6 +224,11 @@ float Connection::calcQuality(bool recieved) {
     }
 
     return currentQuality;
+}
+
+void Connection::setFilename(const QString &newFilename)
+{
+    filename = newFilename;
 }
 
 

@@ -119,11 +119,11 @@ int Fabric::bindItemConnection(FixedItem *to, Connection *who)
         if (className == QStringLiteral("Connection_com")) {
             Connection_com* tmp = dynamic_cast<Connection_com*>(who);
             qDebug() << tmp->getComPort() <<"Binded to" << to->name;
-
         } else if(className == QStringLiteral("Connection_Net")) {
             Connection_Net* tmp = dynamic_cast<Connection_Net*>(who);
             qDebug() << tmp->getIP_port()<<"Binded to" << to->name;
         }
+        who->setFilename(to->name);
         return 1;
     } else{
         return 0;

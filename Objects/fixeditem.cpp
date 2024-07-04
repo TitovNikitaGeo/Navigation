@@ -15,7 +15,7 @@ FixedItem::~FixedItem() {
     qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name;
     deletingWires();
     try{
-        if (hasConnection && connection != nullptr) delete connection;
+    if (hasConnection && connection != nullptr) delete connection;
     } catch (std::exception ex){
         qDebug() <<ex.what();
     }

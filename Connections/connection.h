@@ -13,6 +13,8 @@
 #include <QMessageBox>
 #include <QException>
 #include <QList>
+#include <QDir>
+
 
 #include "nmeaparser.h"
 
@@ -54,7 +56,7 @@ public:
     QVector<bool>::iterator iter;
     ///Quality of data trasmition
 
-
+    QDir logsDir = QDir("~/Documents/Ship_logs");
     QString filename;
     QFile* file = nullptr;
     QTextStream* datastream = nullptr;
@@ -62,8 +64,9 @@ public:
     QString lastRecievedGGA = "GGA empty";
     QString lastRecievedRMC = "RMC empty";
 
-private:
+    void setFilename(const QString &newFilename);
 
+private:
     Ui::Connection *ui;
     static NmeaParser nmeaParser;
 

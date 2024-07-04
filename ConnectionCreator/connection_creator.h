@@ -79,10 +79,11 @@ signals:
 
 private:
     Connection* lastConnection;
+    QString dirPath;
 
     Ui::Connection_creator *ui;
     QVector<Connection*> Connection_vector;
-    QVector<QString> Filenames_vector;
+    // QVector<QString> Filenames_vector;
 };
 
 #endif // CONNECTION_CREATOR_H
