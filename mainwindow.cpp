@@ -130,6 +130,7 @@ void MainWindow::on_AddItemtPushButton_clicked()
         QString itemType = ui->ComboBoxItemType->currentText();
         TowedItemInfo TowedItemInfo(twiw, wireLength, angleToWired, name);
         TowedItem* towedItem;
+
         if (itemType == "Streamer") {
             StreamerInfo StreamerItemInfo{TowedItemInfo, 0, {0}};
             // Streamer* newItem =
@@ -224,7 +225,7 @@ TowedItem* MainWindow::createTowedItem(TowedItemInfo NewItemInfo) {
         needConnection = true;
     }
     TowedItem* NewItem = MyFabric->CreateItem(NewItemInfo, needConnection);
-
+    if (NewItem == nullptr) return nullptr;
     ///Saving New Item
     Vault->SaveItem(NewItem);
     ///Saving New Item
@@ -254,6 +255,7 @@ Streamer* MainWindow::createStreamerItem(StreamerInfo info)
 
     // Streamer* NewItem = new Streamer();
     Streamer* NewItem = MyFabric->CreateItem(info);
+    if (NewItem == nullptr) return nullptr;
 
     ///Saving New Item
     Vault->SaveItem(NewItem);
@@ -290,7 +292,7 @@ Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
         needConnection = true;
     }
 
-    Buoy* NewItem = MyFabric->CreateBuoyItem(BuoyItemInfo, needConnection);
+    Buoy* NewItem = MyFabric->CreateItem(BuoyItemInfo, needConnection);
     if (QString(BuoyItemInfo.towedInfo.toWhoIsWired->metaObject()->className()) == "Streamer") {
         dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->setEndBuoy(NewItem);
         NewItem->wireLength += dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->getTotalLength();
@@ -310,7 +312,11 @@ Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
     ///adding ability to wire any towed item with it
     ui->ComboBoxWiredWith->addItem(NewItem->name);
 
+    //drawing
     drawLineToTowed(NewItem);
+    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+
     return NewItem;
 }
 

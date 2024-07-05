@@ -25,7 +25,7 @@ TowedItem::TowedItem(QString Name,
 
 TowedItem::~TowedItem() {
     qDebug() << itemType << " Item Deleted " <<x<<y<<z<<name;
-    delete this->connection;
+    if (hasConnection) delete this->connection;
 }
 
 void TowedItem::calcItemCoordinates() {

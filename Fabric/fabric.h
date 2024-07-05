@@ -21,9 +21,6 @@ class Fabric : public QObject
 public:
     Fabric();
 
-    FixedItem* CreateFixedItem(FixedItemInfo info);
-    TowedItem* CreateTowedItem(TowedItemInfo info);
-    Buoy* CreateBuoyItem(BuoyInfo info, bool needConnection);
 
     FixedItem* CreateItem(FixedItemInfo info, bool needConnect);
     TowedItem* CreateItem(TowedItemInfo info, bool needConnect);

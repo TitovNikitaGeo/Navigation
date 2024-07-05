@@ -4,27 +4,13 @@ Fabric::Fabric() {
     connectionCreator = new Connection_creator();
 }
 
-FixedItem* Fabric::CreateFixedItem(FixedItemInfo info) {
-    FixedItem* NewFixedItem = new FixedItem(
-        info.SchemeCoors.x, info.SchemeCoors.y,info.SchemeCoors.z,
-        info.ItemName);
-    return NewFixedItem;
-}
-
-TowedItem* Fabric::CreateTowedItem(TowedItemInfo info) {
-    return new TowedItem(
-        info.name, info.toWhoIsWired, info.angleToWired, info.wireLength);
-}
-
-Buoy* Fabric::CreateBuoyItem(BuoyInfo info, bool needConnection)
-{
-    return CreateItem(info, needConnection);
-}
 
 FixedItem* Fabric::CreateItem(FixedItemInfo info, bool needConnect)
 {
     // qDebug() <<needConnect;
-    FixedItem* item =   CreateFixedItem(info);
+    FixedItem* item = new FixedItem(
+        info.SchemeCoors.x, info.SchemeCoors.y,info.SchemeCoors.z,
+        info.ItemName);
     if (needConnect) {
         Connection* con = createConnection();
         if (con != nullptr) {
@@ -36,7 +22,8 @@ FixedItem* Fabric::CreateItem(FixedItemInfo info, bool needConnect)
 }
 TowedItem* Fabric::CreateItem(TowedItemInfo info, bool needConnect)
 {
-    TowedItem* item = CreateTowedItem(info);
+    TowedItem* item = new TowedItem(
+        info.name, info.toWhoIsWired, info.angleToWired, info.wireLength);
     if (needConnect) {
         Connection* con = createConnection();
         if (bindItemConnection(item, con)){
@@ -48,8 +35,7 @@ TowedItem* Fabric::CreateItem(TowedItemInfo info, bool needConnect)
 
 Streamer* Fabric::CreateItem(StreamerInfo info)
 {
-
-    ///streamer params dialog
+    //streamer params dialog
     StreamerDialog dialog;
     if (dialog.exec() == QDialog::Accepted){
 
