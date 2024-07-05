@@ -9,7 +9,7 @@ int Coordinator::calcCoors()
     try {
         for (FixedItem* item: Vault->ItemsVault) {
             if (item->hasConnection) {
-                qDebug() << item->name << item->hasConnection;
+                qDebug() << item->name << item->hasConnection << "Coordinator::calcCoors()";
                 //сначала те, что имеют точное положение
                 item->getLastGGA();
                 item->getLastRMC();
@@ -19,8 +19,8 @@ int Coordinator::calcCoors()
         }
 
         for (FixedItem* item: Vault->ItemsVault) { //я вызываю метод предка
-            qDebug() << item->name << item->hasConnection;
             if (item->hasConnection) continue;
+            qDebug() << item->name << item->hasConnection;
             QString className = QString(item->metaObject()->className());
             if (className == "Streamer") {
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();

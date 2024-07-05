@@ -19,6 +19,7 @@ QStringList P190_creator::createShotBlock()
     QStringList mainBlock = createMainInfoBlock();
     QStringList streamerBlock = createStreamerBlock();
     qDebug() << "P190";
+    // if (!outputFile->isOpen()) outputFile->open(QIODevice::Append);
     for (QString l: mainBlock) {
         qDebug() << l;
     }
@@ -27,6 +28,7 @@ QStringList P190_creator::createShotBlock()
     }
     res.append(mainBlock);
     res.append(streamerBlock);
+    writeToFile(res);
     return res;
 }
 
@@ -56,53 +58,47 @@ QStringList P190_creator::createHeader() {
 void P190_creator::createP190File() {
     QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QDir dir(dirPath + "/Ship_logs");
-    qDebug() << dir;
+    // qDebug() << dir;
     fileName = createFileName();
     // Check if the directory already exists
-    if (!dir.exists()) {
-        // If the directory does not exist, create it
-        if (dir.mkpath(dirPath)) {
-            qDebug() << "Directory created successfully.";
-        } else {
-            qDebug() << "Failed to create directory.";
-        }
-    } else {
-        qDebug() << "Directory already exists.";
-    }
+    // if (!dir.exists()) {
+    //     // If the directory does not exist, create it
+    //     if (dir.mkpath(dirPath)) {
+    //         qDebug() << "Directory created successfully.";
+    //     } else {
+    //         qDebug() << "Failed to create directory.";
+    //     }
+    // } else {
+    //     qDebug() << "Directory already exists.";
+    // }
     outputFile = new QFile(dir.absolutePath() + "/" + fileName);
-    if (!outputFile->exists()) {
-        // Создание нового файла
-        if (!outputFile->open(QIODevice::WriteOnly)) {
-            qDebug() << "Не удалось создать файл:" << outputFile->errorString();
-            return;
-        }
-        outputFile->close();
-    }
+    qDebug() <<outputFile->fileName();
 
-    outputStream = new QTextStream(outputFile);
-    // QTextStream()
-    // outputStream->setCodec("UTF-8");
-    outputStream->setEncoding(QStringConverter::Utf8);
-
-    *outputStream << "123";
+    outputFile->open(QIODevice::Append);
 
     QStringList list = createHeader();
-    for (QString l:list) {
-        *outputStream << QByteArray(l.toStdString().c_str()) << "\n";
+    for (auto l:list) {
+        // *outputStream << QByteArray(l.toStdString().c_str()) << "\n";
+        outputFile->write(QByteArray(l.toUtf8()));
+        outputFile->write("\n");
         qDebug() << l <<"wrote to" << outputFile->fileName();
     }
+    outputFile->close();
 };
 
 
 void P190_creator::writeToFile(QStringList data) {
-    if (outputFile->isOpen()){
+    if (outputFile->open(QIODevice::Append)){
         for (QString str: data) {
             if (str.length() > 82 ){    //
-                qDebug() << "too big string" << data;
+                qDebug() << "too big string" << str;
             } else {
-                (*outputStream) << str;
+                qDebug() << "not too big string" << data;
+                outputFile->write(QByteArray(str.toUtf8()));
+                outputFile->write("\n");
             }
         }
+        outputFile->close();
     }
 }
 
@@ -192,11 +188,11 @@ void P190_creator::setLineName(const QString &newLineName)
 QString P190_creator::createFileName()
 {
     QDateTime currentDateTime = QDateTime::currentDateTime();
-    QString fileName = QString("%1.%2_%3_%4.p190")
+    QString fileName = QString("%1_%2_%3_%4.p190")
                            .arg(currentDateTime.time().hour())
                            .arg(currentDateTime.time().minute(), 2, 10, QChar('0'))  // Добавляем ведущий ноль для минут
-                           .arg(currentDateTime.date().day())
-                           .arg(currentDateTime.date().month());
+                           .arg(currentDateTime.date().day(),2, 10, QChar('0'))
+                           .arg(currentDateTime.date().month(),2, 10, QChar('0'));
     this->fileName = fileName;
     return fileName;
 }
