@@ -38,12 +38,9 @@ Streamer* Fabric::CreateItem(StreamerInfo info)
     //streamer params dialog
     StreamerDialog dialog;
     if (dialog.exec() == QDialog::Accepted){
-
         info.chans = dialog.chans;
         info.numOfChannels = dialog.numOfChannels;
         ///streamer params dialog
-
-
         Streamer* streamer = new Streamer(info.towedInfo.name,
             info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
             info.towedInfo.wireLength, info.numOfChannels, info.chans);
