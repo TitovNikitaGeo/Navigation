@@ -12,13 +12,8 @@ FixedItem::FixedItem(float x,float y,float z, QString name) :
 }
 
 FixedItem::~FixedItem() {
-    qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name;
+    qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name << "~FixedItem";
     deletingWires();
-    try{
-    if (hasConnection && connection != nullptr) delete connection;
-    } catch (std::exception ex){
-        qDebug() <<ex.what();
-    }
 }
 
 void FixedItem::calcItemCoordinates()
@@ -63,7 +58,7 @@ void FixedItem::deletingWires() {
 }
 
 void FixedItem::lostWire(){
-    qDebug() << "Wire Lost Slot activated";
+    qDebug() << "Wire Lost Slot activated " << this->name;
     delete this;
 }
 

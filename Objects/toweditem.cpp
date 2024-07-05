@@ -20,12 +20,12 @@ TowedItem::TowedItem(QString Name,
 
     qDebug() << name << " towed by "<<towingPoint->name;
     towingPoint->vectorOfConnected.append(this);
-
+    qDebug() << "TowedItem::TowedItem" << towingPoint->name << name;
 }
 
 TowedItem::~TowedItem() {
-    qDebug() << itemType << " Item Deleted " <<x<<y<<z<<name;
-    if (hasConnection) delete this->connection;
+    qDebug() << itemType << " Item Deleted " <<x<<y<<z<<name << "~TowedItem";
+    if (hasConnection && connection != nullptr) delete this->connection;
 }
 
 void TowedItem::calcItemCoordinates() {

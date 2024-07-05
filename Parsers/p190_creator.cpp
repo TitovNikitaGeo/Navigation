@@ -91,9 +91,9 @@ void P190_creator::writeToFile(QStringList data) {
     if (outputFile->open(QIODevice::Append)){
         for (QString str: data) {
             if (str.length() > 82 ){    //
-                qDebug() << "too big string" << str;
+                // qDebug() << "too big string" << str;
             } else {
-                qDebug() << "not too big string" << data;
+                // qDebug() << "not too big string" << data;
                 outputFile->write(QByteArray(str.toUtf8()));
                 outputFile->write("\n");
             }
