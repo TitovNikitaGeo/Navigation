@@ -11,6 +11,7 @@
 #include <QVector>
 #include <QDir>
 #include <QStandardPaths>
+#include <QRegExp>
 
 #include "itemsstorage.h"
 #include "streamer.h"
@@ -31,6 +32,7 @@ public:
     QStringList createStreamerBlock();
     QStringList createMainInfoBlock();
     QStringList createHeader();
+    QString createMainRow(FixedItem* item, int pointNumber);
 
     void createP190File(); /// create file, write header
     void writeP190Block(); /// writing streamer and reciever blocks
@@ -40,7 +42,7 @@ public:
     void setLineName(const QString &newLineName);
 
     QString createFileName();
-
+    QString convertCoordinates(const QString &input);
 private:
 
     QString fileName;
@@ -48,7 +50,7 @@ private:
     QTextStream* outputStream;
     ItemsStorage* MyVault;
 
-    QString lineName = "AA10AA070707"; 
+    QString lineName = "AA10AA0707077";
     // QString floatToQString(float value, int totalLength, int decimalPlaces);
 signals:
 

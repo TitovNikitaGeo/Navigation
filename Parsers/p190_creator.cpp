@@ -55,6 +55,7 @@ QStringList P190_creator::createHeader() {
                        "H0800 SHOTPOINT POSITION        EIVA NAVIPAC 3.10.5                             "};
 }
 
+
 void P190_creator::createP190File() {
     QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QDir dir(dirPath + "/Ship_logs");
@@ -136,44 +137,54 @@ QStringList P190_creator::createStreamerBlock() {
 QStringList P190_creator::createMainInfoBlock() {
     QStringList res;
     QString tmp;
-    static uint pointNumber = 1;
+    static int pointNumber = 1;
     for (FixedItem* item: MyVault->ItemsVault) {
         if (QString(item->metaObject()->className()) == "Source") {
-            ;
-        } else if(QString(item->metaObject()->className()) == "FixedItem") {
-            if (item->x == 0 && item->y == 0 && item->z == 0) {
-                QDateTime dt = item->lastGGAData.dateTime;
-                tmp = "V" +  lineName + " " + QString::number(pointNumber) +
-                    QString::number(item->lastGGAData.coordinate.latitude())+"N"+
-                    QString::number(item->lastGGAData.coordinate.longitude())+"E "+
-                    floatToQString(item->x_coor, 7,2) + floatToQString(item->y_coor, 8,2) +
-                    " " + floatToQString(item->z, 2,1) + QString::number(dt.date().toJulianDay()) +
-                    QString::number(dt.time().hour())+QString::number(dt.time().minute()) +
-                      QString::number(dt.time().second());
-                res.append(tmp);
-            }
-
-        } else if(QString(item->metaObject()->className()) == "Buoy"){
-            QDateTime dt = item->lastGGAData.dateTime;
-            tmp = "T" +  lineName + " " + QString::number(pointNumber) +
-                  QString::number(item->lastGGAData.coordinate.latitude())+"N"+
-                  QString::number(item->lastGGAData.coordinate.longitude())+"E "+
-                  floatToQString(item->x_coor, 7,2) + floatToQString(item->y_coor, 8,2) +
-                  " " + floatToQString(item->z, 2,1) + QString::number(dt.date().toJulianDay()) +
-                  QString::number(dt.time().hour())+QString::number(dt.time().minute()) +
-                  QString::number(dt.time().second());
-            res.append(tmp);
+            continue;
         }
+        tmp = createMainRow(item, pointNumber);
+        res.append(tmp);
+        qDebug() <<tmp;
     }
     ++pointNumber;
-    // qDebug() << "P190";
-    // for (QString i: res) {
-    //     qDebug() << i ;
-    // }
+
     return res;
 }
 
+QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
+    QString tmp;
+    QChar type = '0';
+    QChar VesselID = '1';
+    QChar SourceID = '1';
+    QChar TailBuoyID = ' ';
+    if(QString(item->metaObject()->className()) == "FixedItem") {
+        if (item->x == 0 && item->y == 0 && item->z == 0) {
+            type = 'V';
+            SourceID = ' ';
+        }
+    }
+    if(QString(item->metaObject()->className()) == "Buoy") {
+        type = 'T';
+        TailBuoyID = '1';
+    }
+    QDateTime dt = item->lastGGAData.dateTime;
+    QString shotNum;
 
+    // qDebug() <<item->lastGGAData.coordinate.toString();
+
+    tmp = type + lineName  + QString(12-lineName.length(), ' ') + "   " +
+          VesselID + SourceID + TailBuoyID
+          + QString(6-QString::number(pointNumber).length(), ' ') + QString::number(pointNumber)
+          + convertCoordinates(item->lastGGAData.coordinate.toString())
+          + floatToQString(item->x_coor, 8,2)
+          + floatToQString(item->y_coor, 9,2)
+          + " " + floatToQString(item->height, 3,2)
+          + QString("%1").arg(dt.date().day(), 3, 10, QChar('0'))
+          + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
+          + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
+          + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
+    return tmp;
+}
 
 void P190_creator::setItemStoragePtr(ItemsStorage *Vault)
 {
@@ -195,6 +206,27 @@ QString P190_creator::createFileName()
                            .arg(currentDateTime.date().month(),2, 10, QChar('0'));
     this->fileName = fileName;
     return fileName;
+}
+
+QString P190_creator::convertCoordinates(const QString &input)
+{
+    QRegExp rx("([0-9]+)° ([0-9]+)' ([0-9]+\\.[0-9]+)\" ([NSEW]), ([0-9]+)° ([0-9]+)' ([0-9]+\\.[0-9]+)\" ([NSEW])");
+    QString result;
+
+    if (rx.indexIn(input) != -1) {
+        QString latDeg = rx.cap(1);
+        QString latMin = rx.cap(2);
+        QString latSec = rx.cap(3);
+        QString latDir = rx.cap(4);
+        QString lonDeg = rx.cap(5);
+        QString lonMin = rx.cap(6);
+        QString lonSec = rx.cap(7);
+        QString lonDir = rx.cap(8);
+
+        result = latDeg + latMin + latSec + latDir + lonDeg + lonMin + lonSec + lonDir;
+    }
+
+    return result;
 }
 
 
