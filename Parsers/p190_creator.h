@@ -44,7 +44,7 @@ public:
     QString createFileName();
     QString convertCoordinates(const QString &input);
 private:
-
+    QDateTime curDateTime;
     QString fileName;
     QFile* outputFile;
     QTextStream* outputStream;

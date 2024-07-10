@@ -32,6 +32,8 @@ public:
     /// for real coordinates
     float x_coor;
     float y_coor;
+    float x_proj;
+    float y_proj;
     float height;
     double azimuthOfMovement;
     void calcItemCoordinates();

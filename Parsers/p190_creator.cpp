@@ -61,24 +61,24 @@ void P190_creator::createP190File() {
     QDir dir(dirPath + "/Ship_logs");
     // qDebug() << dir;
     fileName = createFileName();
-    // Check if the directory already exists
-    // if (!dir.exists()) {
-    //     // If the directory does not exist, create it
-    //     if (dir.mkpath(dirPath)) {
-    //         qDebug() << "Directory created successfully.";
-    //     } else {
-    //         qDebug() << "Failed to create directory.";
-    //     }
-    // } else {
-    //     qDebug() << "Directory already exists.";
-    // }
+
+    if (!dir.exists()) {
+        // If the directory does not exist, create it
+        if (dir.mkpath(dirPath)) {
+            qDebug() << "Directory created successfully.";
+        } else {
+            qDebug() << "Failed to create directory.";
+        }
+    } else {
+        // qDebug() << "Directory already exists.";
+    }
     outputFile = new QFile(dir.absolutePath() + "/" + fileName);
     qDebug() <<outputFile->fileName();
 
     outputFile->open(QIODevice::Append);
 
     QStringList list = createHeader();
-    for (auto l:list) {
+    for (QString l:list) {
         // *outputStream << QByteArray(l.toStdString().c_str()) << "\n";
         outputFile->write(QByteArray(l.toUtf8()));
         outputFile->write("\n");
@@ -153,7 +153,7 @@ QStringList P190_creator::createMainInfoBlock() {
 
 QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
     QString tmp;
-    QChar type = '0';
+    QChar type = 'Z';
     QChar VesselID = '1';
     QChar SourceID = '1';
     QChar TailBuoyID = ' ';
@@ -161,6 +161,7 @@ QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
         if (item->x == 0 && item->y == 0 && item->z == 0) {
             type = 'V';
             SourceID = ' ';
+            curDateTime = item->lastGGAData.dateTime;
         }
     }
     if(QString(item->metaObject()->className()) == "Buoy") {
@@ -168,9 +169,16 @@ QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
         TailBuoyID = '1';
     }
     QDateTime dt = item->lastGGAData.dateTime;
-    QString shotNum;
 
     // qDebug() <<item->lastGGAData.coordinate.toString();
+    if (type == 'Z') return QString("");
+    if (!dt.isValid()) {
+        qDebug() << QString("%1").arg(dt.date().day(), 3, 10, QChar('0'))
+                        + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
+                        + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
+                        + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
+        dt = this->curDateTime;
+    }
 
     tmp = type + lineName  + QString(12-lineName.length(), ' ') + "   " +
           VesselID + SourceID + TailBuoyID

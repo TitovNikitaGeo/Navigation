@@ -213,22 +213,22 @@ void StreamerDialog::createChansValues()
         switch(singleChannelComboBox->currentIndex()){
         case 0:
             numOfChannels = 2;
-            chans[0] = leadingDamperLength;
-            chans[1] = chans[0] + 0.8;
+            chans.append(leadingDamperLength);
+            chans.append(chans[0] + 0.8);
             qDebug() << "1x8";
             break;
         case 1:
             numOfChannels = 3;
-            chans[0] = leadingDamperLength;
-            chans[1] = chans[0] + 0.8;
-            chans[2] = chans[1] + 1.6;
+            chans.append(leadingDamperLength);
+            chans.append(chans[0] + 0.8);
+            chans.append(chans[1] + 1.6);
             qDebug() << "1x16";
             break;
         case 2:
             numOfChannels = 3;
-            chans[0] = leadingDamperLength;
-            chans[1] = chans[0] + 0.8;
-            chans[2] = chans[1] + 2.4;
+            chans.append(leadingDamperLength);
+            chans.append(chans[0] + 0.8);
+            chans.append(chans[1] + 2.4);
             qDebug() << "1x24";
             break;
         case 3:
