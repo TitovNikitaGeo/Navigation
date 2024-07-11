@@ -7,7 +7,7 @@ NmeaParser::NmeaParser(QObject *parent)
 
 }
 
-NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) {
+NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { //разбиваем NMEA на части
     NmeaGGAData data;
 
     if (nmeaSentence.startsWith("$GPGGA") || nmeaSentence.startsWith("$GNGGA")) {
@@ -23,8 +23,8 @@ NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) {
 
 
 
-            double latitude = convertToDegrees(latitudeValue, latitudeDirection);
-            double longitude = convertToDegrees(longitudeValue, longitudeDirection);
+            double latitude = convertToDegrees(latitudeValue, latitudeDirection); //получение географических градусов
+            double longitude = convertToDegrees(longitudeValue, longitudeDirection); //в норм формате
             float height = heightValue.toFloat();
 
             int hours = timeValue.mid(0, 2).toInt();
@@ -87,11 +87,10 @@ NmeaParser::NmeaRMCData NmeaParser::parseNmeaRMC(const QString &nmeaSentence)
 
 }
 
-double NmeaParser::convertToDegrees(const QString &nmeaValue, const QString &direction) {
+double NmeaParser::convertToDegrees(const QString &nmeaValue, const QString &direction) { //перевод координат из градусы+минуты в градусы+доли градуса
     if (nmeaValue.isEmpty() || direction.isEmpty()) {
         return 0.0;
     }
-
 
     double degrees;
     double minutes;
@@ -143,21 +142,13 @@ void NmeaParser::printNmeaRMCData(NmeaRMCData data)
     }
 }
 
-QPointF NmeaParser::GeoToUTM(const QGeoCoordinate &coordinate) {
-    double k0 = 0.9996;
-    double a = 6378137.0;
-    double eccSquared = 0.00669438;
-    double eccPrimeSquared;
-    double e1 = (1 - std::sqrt(1 - eccSquared)) / (1 + std::sqrt(1 - eccSquared));
+QPointF NmeaParser::GeoToUTM(const QGeoCoordinate &coordinate) { //перевод географических координат в систему проекции
     double N, T, C, A, M;
     double LatRad = coordinate.latitude() * M_PI / 180.0;
     double LongRad = coordinate.longitude() * M_PI / 180.0;
     double LongOriginRad;
-    int ZoneNumber = std::floor((coordinate.longitude() + 180) / 6) + 1;
+    ZoneNumber = std::floor((coordinate.longitude() + 180) / 6) + 1;
     LongOriginRad = ((ZoneNumber - 1) * 6 - 180 + 3) * M_PI / 180.0;
-
-    eccPrimeSquared = (eccSquared) / (1 - eccSquared);
-
     N = a / std::sqrt(1 - eccSquared * std::sin(LatRad) * std::sin(LatRad));
     T = std::tan(LatRad) * std::tan(LatRad);
     C = eccPrimeSquared * std::cos(LatRad) * std::cos(LatRad);
@@ -181,6 +172,38 @@ QPointF NmeaParser::GeoToUTM(const QGeoCoordinate &coordinate) {
 
     return QPointF(UTMEasting, UTMNorthing);
 }
+
+QGeoCoordinate NmeaParser::UTMtoGeo(const QPointF &coordinate, int zone, bool isNorth) { //из utm в географические
+    double easting = coordinate.x();
+    double northing = coordinate.y();
+
+    double x = easting - 500000.0;  // Убрать 500,000 меток, для приведения к центру зоны
+    double y = isNorth ? northing : northing - 10000000.0;  // Убрать 10,000,000 меток, если это южное полушарие
+
+    double m = y / k0;
+    double mu = m / (a * (1 - eccSquared / 4 - 3 * eccSquared * eccSquared / 64 - 5 * eccSquared * eccSquared * eccSquared / 256));
+
+    double phi1Rad = mu + (3 * e1 / 2 - 27 * e1 * e1 * e1 / 32) * sin(2 * mu)
+                     + (21 * e1 * e1 / 16 - 55 * e1 * e1 * e1 * e1 / 32) * sin(4 * mu)
+                     + (151 * e1 * e1 * e1 / 96) * sin(6 * mu);
+
+    double n1 = a / sqrt(1 - eccSquared * sin(phi1Rad) * sin(phi1Rad));
+    double t1 = tan(phi1Rad) * tan(phi1Rad);
+    double c1 = eccPrimeSquared * cos(phi1Rad) * cos(phi1Rad);
+    double r1 = a * (1 - eccSquared) / pow(1 - eccSquared * sin(phi1Rad) * sin(phi1Rad), 1.5);
+    double d = x / (n1 * k0);
+
+    double lat = phi1Rad - (n1 * tan(phi1Rad) / r1) * (d * d / 2 - (5 + 3 * t1 + 10 * c1 - 4 * c1 * c1 - 9 * eccPrimeSquared) * d * d * d * d / 24
+        + (61 + 90 * t1 + 298 * c1 + 45 * t1 * t1 - 252 * eccPrimeSquared - 3 * c1 * c1) * d * d * d * d * d * d / 720);
+    lat = lat * (180.0 / M_PI);
+
+    double lon = (d - (1 + 2 * t1 + c1) * d * d * d / 6
+                  + (5 - 2 * c1 + 28 * t1 - 3 * c1 * c1 + 8 * eccPrimeSquared + 24 * t1 * t1) * d * d * d * d * d / 120) / cos(phi1Rad);
+    lon = zone > 0 ? lon * (180.0 / M_PI) + (zone * 6 - 183) : lon * (180.0 / M_PI);
+
+    return QGeoCoordinate(lat, lon);
+}
+
 
 
 

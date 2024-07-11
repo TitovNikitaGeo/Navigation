@@ -35,8 +35,19 @@ public:
     void printNmeaGGAData(NmeaGGAData data);
     void printNmeaRMCData(NmeaRMCData data);
 
+    QGeoCoordinate UTMtoGeo(const QPointF &coordinate, int zone, bool isNorth);
 private:
     double convertToDegrees(const QString &nmeaValue, const QString &direction);
+
+    int ZoneNumber; //сохраняем номер зоны
+
+
+    //constants for calculation
+    const double k0 = 0.9996;
+    const double a = 6378137.0;  // WGS84 major axis
+    const double eccSquared = 0.00669438;  // WGS84 eccentricity squared
+    const double eccPrimeSquared = eccSquared / (1 - eccSquared);
+    const double e1 = (1 - sqrt(1 - eccSquared)) / (1 + sqrt(1 - eccSquared));
 signals:
 };
 

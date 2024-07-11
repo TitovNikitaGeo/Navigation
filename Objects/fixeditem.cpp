@@ -21,8 +21,8 @@ void FixedItem::calcItemCoordinates()
     if (hasConnection && connection) {
         x_coor = lastGGAData.coorUTM.rx();
         y_coor = lastGGAData.coorUTM.ry();
-        x_geo = lastGGAData.coordinate.latitude();
-        y_geo = lastGGAData.coordinate.longitude(); +++
+        latitude= lastGGAData.coordinate.latitude();
+        longitude= lastGGAData.coordinate.longitude();
         height = lastGGAData.height;
         azimuthOfMovement = lastRMCData.azimuth;
     } else {
