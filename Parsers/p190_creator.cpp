@@ -76,13 +76,13 @@ void P190_creator::createP190File() {
     qDebug() <<outputFile->fileName();
 
     outputFile->open(QIODevice::Append);
-
+    // writeToFile(createHeader());
     QStringList list = createHeader();
     for (QString l:list) {
         // *outputStream << QByteArray(l.toStdString().c_str()) << "\n";
         outputFile->write(QByteArray(l.toUtf8()));
         outputFile->write("\n");
-        qDebug() << l <<"wrote to" << outputFile->fileName();
+        // qDebug() << l <<"wrote to" << outputFile->fileName();
     }
     outputFile->close();
 };
@@ -92,11 +92,9 @@ void P190_creator::writeToFile(QStringList data) {
     if (outputFile->open(QIODevice::Append)){
         for (QString str: data) {
             if (str.length() > 82 ){    //
-                // qDebug() << "too big string" << str;
             } else {
-                // qDebug() << "not too big string" << data;
-                outputFile->write(QByteArray(str.toUtf8()));
-                outputFile->write("\n");
+                outputFile->write(QByteArray(str.toUtf8()) + "\n");
+                // outputFile->write("\n");
             }
         }
         outputFile->close();
@@ -124,10 +122,6 @@ QStringList P190_creator::createStreamerBlock() {
             }
         }
     }
-    // qDebug() << "P190";
-    // for (QString i: res) {
-    //     qDebug() << i ;
-    // }
     return res;
 }
 
@@ -143,8 +137,9 @@ QStringList P190_creator::createMainInfoBlock() {
             continue;
         }
         tmp = createMainRow(item, pointNumber);
+        if (tmp.isEmpty()) continue;
         res.append(tmp);
-        qDebug() <<tmp;
+        // qDebug() <<tmp << "createMainInfoBlock() ";
     }
     ++pointNumber;
 
@@ -157,42 +152,43 @@ QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
     QChar VesselID = '1';
     QChar SourceID = '1';
     QChar TailBuoyID = ' ';
+    QDateTime dt = item->lastGGAData.dateTime;
+
     if(QString(item->metaObject()->className()) == "FixedItem") {
         if (item->x == 0 && item->y == 0 && item->z == 0) {
             type = 'V';
             SourceID = ' ';
-            curDateTime = item->lastGGAData.dateTime;
+            if (item->lastGGAData.dateTime.isValid()) curDateTime = item->lastGGAData.dateTime;
         }
     }
     if(QString(item->metaObject()->className()) == "Buoy") {
         type = 'T';
         TailBuoyID = '1';
     }
-    QDateTime dt = item->lastGGAData.dateTime;
 
     // qDebug() <<item->lastGGAData.coordinate.toString();
-    if (type == 'Z') return QString("");
+
+    // if (type == 'Z') return QString("");
     if (!dt.isValid()) {
-        qDebug() << QString("%1").arg(dt.date().day(), 3, 10, QChar('0'))
-                        + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
-                        + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
-                        + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
         dt = this->curDateTime;
+        // qDebug() << QString("%1").arg(dt.date().day(), 3, 10, QChar('0'))
+        //                 + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
+        //                 + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
+        //                 + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
     }
+    // + convertCoordinates(item->lastGGAData.coordinate.toString())
 
     tmp = type + lineName  + QString(12-lineName.length(), ' ') + "   " +
           VesselID + SourceID + TailBuoyID
           + QString(6-QString::number(pointNumber).length(), ' ') + QString::number(pointNumber)
-          // + convertCoordinates(item->lastGGAData.coordinate.toString())
-          + floatToQString(item->latitude, 10, 1)
-          + floatToQString(item->longitude, 10,1)
+          + QGeoCoordinate(item->latitude, item->longitude).toString(QGeoCoordinate::CoordinateFormat::DegreesWithHemisphere).remove("°").remove(' ')
           + floatToQString(item->x_coor, 8,2)
           + floatToQString(item->y_coor, 9,2)
           + " " + floatToQString(item->height, 3,2)
           + QString("%1").arg(dt.date().day(), 3, 10, QChar('0'))
           + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
           + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
-          + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
+           + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
     return tmp;
 }
 
