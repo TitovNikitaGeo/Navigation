@@ -9,7 +9,7 @@ int Coordinator::calcCoors()
     try {
         for (FixedItem* item: Vault->ItemsVault) {
             if (item->hasConnection) {
-                qDebug() << item->name << item->hasConnection << "Coordinator::calcCoors()";
+                // qDebug() << item->name << item->hasConnection << "Coordinator::calcCoors()";
                 //сначала те, что имеют точное положение
                 item->getLastGGA();
                 item->getLastRMC();
@@ -20,17 +20,17 @@ int Coordinator::calcCoors()
 
         for (FixedItem* item: Vault->ItemsVault) { //я вызываю метод предка
             if (item->hasConnection) continue;
-            qDebug() << item->name << item->hasConnection;
+            // qDebug() << item->name << item->hasConnection;
             QString className = QString(item->metaObject()->className());
             if (className == "Streamer") {
-                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
+                /*dynamic_cast<TowedItem*>(item)->*/item->calcItemCoordinates();
                 dynamic_cast<Streamer*>(item)->calcChansCoors();
             } else if(className == "FixedItem") {
                 item->calcItemCoordinates();
             } else if (className == "TowedItem") {
-                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
+                /*dynamic_cast<TowedItem*>(item)->*/item->calcItemCoordinates();
             } else { //for buoy
-                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
+                /*dynamic_cast<TowedItem*>(item)->*/item->calcItemCoordinates();
             }
         }
     } catch (std::exception& e) {

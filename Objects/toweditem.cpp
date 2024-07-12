@@ -28,12 +28,10 @@ TowedItem::~TowedItem() {
     if (hasConnection && connection != nullptr) delete this->connection;
 }
 
-void TowedItem::calcItemCoordinates() {
-    if (hasConnection && connection) {
-        x_coor = lastGGAData.coorUTM.rx();
-        y_coor = lastGGAData.coorUTM.ry();
-        height = lastGGAData.height;
-    } else if (towingPoint != nullptr){
+void TowedItem::calcIFNotConnected()
+{
+    qDebug() << "TowedItem::calcIFNotConnected()";
+    if (towingPoint != nullptr){
         azimuthOfMovement = towingPoint->azimuthOfMovement;
         double azRad = qDegreesToRadians(azimuthOfMovement);
 
@@ -50,12 +48,11 @@ void TowedItem::calcItemCoordinates() {
         } else {
             height = towingPoint->height;
         }
-
-
         x_coor = towingPoint->x_coor + (y-towingPoint->y)*qCos(azRad) +
                  (x-towingPoint->x)*qSin(azRad);
         y_coor = towingPoint->y_coor - (y-towingPoint->y)*qSin(azRad) +
                  (x-towingPoint->x)*qCos(azRad);
+
     } else {
         qDebug() << "TowedItem::calcItemCoordinates";
         qDebug() << "Если вы здесь, то буквируемое утройство оторвалось";

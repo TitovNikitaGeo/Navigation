@@ -1,6 +1,8 @@
 #include "nmeaparser.h"
 
 
+double NmeaParser::ZoneNumber = 0;
+
 NmeaParser::NmeaParser(QObject *parent)
     : QObject{parent}
 {
@@ -147,7 +149,8 @@ QPointF NmeaParser::GeoToUTM(const QGeoCoordinate &coordinate) { //перево�
     double LatRad = coordinate.latitude() * M_PI / 180.0;
     double LongRad = coordinate.longitude() * M_PI / 180.0;
     double LongOriginRad;
-    ZoneNumber = std::floor((coordinate.longitude() + 180) / 6) + 1;
+    ZoneNumber = std::floor((coordinate.longitude() + 180) / 6) + 1;;
+    qDebug() << "GeoToUTM zone number " << ZoneNumber;
     LongOriginRad = ((ZoneNumber - 1) * 6 - 180 + 3) * M_PI / 180.0;
     N = a / std::sqrt(1 - eccSquared * std::sin(LatRad) * std::sin(LatRad));
     T = std::tan(LatRad) * std::tan(LatRad);
@@ -167,16 +170,18 @@ QPointF NmeaParser::GeoToUTM(const QGeoCoordinate &coordinate) { //перево�
                                                             + (61 - 58 * T + T * T + 600 * C - 330 * eccPrimeSquared) * A * A * A * A * A * A / 720)));
 
     if (coordinate.latitude() < 0) {
+        isNorth = false;
         UTMNorthing += 10000000.0;
+    } else {
+        isNorth = true;
     }
 
     return QPointF(UTMEasting, UTMNorthing);
 }
 
-QGeoCoordinate NmeaParser::UTMtoGeo(const QPointF &coordinate, int zone, bool isNorth) { //из utm в географические
+QGeoCoordinate NmeaParser::UTMtoGeo(const QPointF &coordinate) { //из utm в географические
     double easting = coordinate.x();
     double northing = coordinate.y();
-
     double x = easting - 500000.0;  // Убрать 500,000 меток, для приведения к центру зоны
     double y = isNorth ? northing : northing - 10000000.0;  // Убрать 10,000,000 меток, если это южное полушарие
 
@@ -199,8 +204,15 @@ QGeoCoordinate NmeaParser::UTMtoGeo(const QPointF &coordinate, int zone, bool is
 
     double lon = (d - (1 + 2 * t1 + c1) * d * d * d / 6
                   + (5 - 2 * c1 + 28 * t1 - 3 * c1 * c1 + 8 * eccPrimeSquared + 24 * t1 * t1) * d * d * d * d * d / 120) / cos(phi1Rad);
-    lon = zone > 0 ? lon * (180.0 / M_PI) + (zone * 6 - 183) : lon * (180.0 / M_PI);
+    lon = ZoneNumber > 0 ? lon * (180.0 / M_PI) + (ZoneNumber * 6 - 183) : lon * (180.0 / M_PI);
 
+    qDebug() << "UTMtoGeo";
+    qDebug() << "Easting:" << easting << "Northing:" << northing;
+    qDebug() << "Zone:" << ZoneNumber << "isNorth:" << isNorth;
+    qDebug() << "x:" << x << "y:" << y;
+    qDebug() << "m:" << m << "mu:" << mu;
+    qDebug() << "phi1Rad:" << phi1Rad;
+    qDebug() << "lat:" << lat << "lon:" << lon;
     return QGeoCoordinate(lat, lon);
 }
 

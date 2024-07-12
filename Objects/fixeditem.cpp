@@ -19,37 +19,53 @@ FixedItem::~FixedItem() {
 void FixedItem::calcItemCoordinates()
 {
     if (hasConnection && connection) {
-        x_coor = lastGGAData.coorUTM.rx();
-        y_coor = lastGGAData.coorUTM.ry();
-        latitude= lastGGAData.coordinate.latitude();
-        longitude= lastGGAData.coordinate.longitude();
-        height = lastGGAData.height;
-        azimuthOfMovement = lastRMCData.azimuth;
+        calcIfConnected();
     } else {
         if (ItemForCalculations == nullptr) {
             return;
         } else {
-            azimuthOfMovement = ItemForCalculations->azimuthOfMovement;
-            // NmeaParser::NmeaGGAData coor = ItemForCalculations->lastGGAData;
-            double azRad = qDegreesToRadians(azimuthOfMovement);
-            x_coor = ItemForCalculations->x_coor + (y-ItemForCalculations->y)*qCos(azRad) +
-                     (x-ItemForCalculations->x)*qSin(azRad);
-            y_coor = ItemForCalculations->y_coor - (y-ItemForCalculations->y)*qSin(azRad) +
-                     (x-ItemForCalculations->x)*qCos(azRad);
-            height = ItemForCalculations->height - (z - ItemForCalculations->z);
+            calcIFNotConnected();
         }
     }
 }
 
+void FixedItem::calcIfConnected()
+{
+    x_coor = lastGGAData.coorUTM.rx();
+    y_coor = lastGGAData.coorUTM.ry();
+    latitude = lastGGAData.coordinate.latitude();
+    longitude = lastGGAData.coordinate.longitude();
+    height = lastGGAData.height;
+    azimuthOfMovement = lastRMCData.azimuth;
+}
+
+void FixedItem::calcIFNotConnected()
+{
+    azimuthOfMovement = ItemForCalculations->azimuthOfMovement;
+    // NmeaParser::NmeaGGAData coor = ItemForCalculations->lastGGAData;
+    double azRad = qDegreesToRadians(azimuthOfMovement);
+    x_coor = ItemForCalculations->x_coor + (y-ItemForCalculations->y)*qCos(azRad) +
+             (x-ItemForCalculations->x)*qSin(azRad);
+    y_coor = ItemForCalculations->y_coor - (y-ItemForCalculations->y)*qSin(azRad) +
+             (x-ItemForCalculations->x)*qCos(azRad);
+    QGeoCoordinate tmp = parser.UTMtoGeo(QPointF(x_coor, y_coor));
+    qDebug() << x_coor << y_coor <<"FixedItem::calcIFNotConnected()";
+    this->latitude = tmp.latitude();
+    this->longitude = tmp.longitude();
+    height = ItemForCalculations->height - (z - ItemForCalculations->z);
+}
+
 void FixedItem::printPos()
 {
-    qDebug() <<"-----------------------";
+    qDebug() <<"-----------------------FixedItem::printPos()";
     qDebug() <<name;
     qDebug() << "Высота:" << qSetRealNumberPrecision(3) << height  ;
     // QPointF utmCoordinates = GeoToUTM(data.coordinate);
     qDebug() << "UTM Восток:" << qSetRealNumberPrecision(10)<< x_coor ;
     qDebug() << "UTM Север:" << qSetRealNumberPrecision(10) << y_coor;
-    // qDebug() << "Высота над уровнем моря"<< data.height;
+    qDebug() << "Geo восток:" << this->longitude;
+    qDebug() << "Geo Север:" << this->latitude;
+                                                                    // qDebug() << "Высота над уровнем моря"<< data.height;
     qDebug() << "Азимут движения" << azimuthOfMovement;
 }
 

@@ -32,11 +32,13 @@ public:
     /// for real coordinates
     float x_coor;
     float y_coor;
-    float x_geo;
-    float y_geo;
+    float latitude;
+    float longitude;
     float height;
     double azimuthOfMovement;
     void calcItemCoordinates();
+    void calcIfConnected();
+    virtual void calcIFNotConnected();
     NmeaParser::NmeaGGAData lastGGAData = {{0,0}, {0,0}, QDateTime(),0};
     NmeaParser::NmeaRMCData lastRMCData = {0,0};
 

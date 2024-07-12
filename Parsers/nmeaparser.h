@@ -35,14 +35,14 @@ public:
     void printNmeaGGAData(NmeaGGAData data);
     void printNmeaRMCData(NmeaRMCData data);
 
-    QGeoCoordinate UTMtoGeo(const QPointF &coordinate, int zone, bool isNorth);
+    QGeoCoordinate UTMtoGeo(const QPointF &coordinate);
 private:
     double convertToDegrees(const QString &nmeaValue, const QString &direction);
 
-    int ZoneNumber; //сохраняем номер зоны
-
+    bool isNorth = true;
 
     //constants for calculation
+    static int ZoneNumber; //сохраняем номер зоны
     const double k0 = 0.9996;
     const double a = 6378137.0;  // WGS84 major axis
     const double eccSquared = 0.00669438;  // WGS84 eccentricity squared

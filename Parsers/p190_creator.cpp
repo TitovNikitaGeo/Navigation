@@ -183,7 +183,9 @@ QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
     tmp = type + lineName  + QString(12-lineName.length(), ' ') + "   " +
           VesselID + SourceID + TailBuoyID
           + QString(6-QString::number(pointNumber).length(), ' ') + QString::number(pointNumber)
-          + convertCoordinates(item->lastGGAData.coordinate.toString())
+          // + convertCoordinates(item->lastGGAData.coordinate.toString())
+          + floatToQString(item->latitude, 10, 1)
+          + floatToQString(item->longitude, 10,1)
           + floatToQString(item->x_coor, 8,2)
           + floatToQString(item->y_coor, 9,2)
           + " " + floatToQString(item->height, 3,2)

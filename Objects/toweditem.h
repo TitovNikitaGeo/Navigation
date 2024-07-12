@@ -18,8 +18,8 @@ public:
     ~TowedItem();
 
 
-    void calcItemCoordinates();
-
+    // void calcItemCoordinates();
+    void calcIFNotConnected();
 
     void printSelfInfo();
 
