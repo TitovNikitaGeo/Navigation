@@ -91,6 +91,7 @@ void P190_creator::createP190File() {
 void P190_creator::writeToFile(QStringList data) {
     if (outputFile->open(QIODevice::Append)){
         for (QString str: data) {
+            if (data.isEmpty()) continue;
             if (str.length() > 82 ){    //
             } else {
                 outputFile->write(QByteArray(str.toUtf8()) + "\n");

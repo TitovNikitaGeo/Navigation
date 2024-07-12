@@ -23,14 +23,14 @@ int Coordinator::calcCoors()
             // qDebug() << item->name << item->hasConnection;
             QString className = QString(item->metaObject()->className());
             if (className == "Streamer") {
-                /*dynamic_cast<TowedItem*>(item)->*/item->calcItemCoordinates();
+                dynamic_cast<Streamer*>(item)->calcItemCoordinates();
                 dynamic_cast<Streamer*>(item)->calcChansCoors();
             } else if(className == "FixedItem") {
                 item->calcItemCoordinates();
             } else if (className == "TowedItem") {
-                /*dynamic_cast<TowedItem*>(item)->*/item->calcItemCoordinates();
-            } else { //for buoy
-                /*dynamic_cast<TowedItem*>(item)->*/item->calcItemCoordinates();
+                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
+            } else if (className == "Buoy") { //for buoy
+                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             }
         }
     } catch (std::exception& e) {
