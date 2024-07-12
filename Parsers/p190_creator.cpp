@@ -166,7 +166,7 @@ QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
         type = 'T';
         TailBuoyID = '1';
     }
-
+    if (QString(item->metaObject()->className()) == "Streamer") return "";
     // qDebug() <<item->lastGGAData.coordinate.toString();
 
     // if (type == 'Z') return QString("");

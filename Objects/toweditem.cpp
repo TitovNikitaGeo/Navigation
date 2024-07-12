@@ -30,7 +30,7 @@ TowedItem::~TowedItem() {
 
 void TowedItem::calcIFNotConnected()
 {
-    qDebug() << "TowedItem::calcIFNotConnected()";
+    qDebug() << "TowedItem::calcIFNotConnected()" << this->metaObject()->className();
     if (towingPoint != nullptr){
         azimuthOfMovement = towingPoint->azimuthOfMovement;
         double azRad = qDegreesToRadians(azimuthOfMovement);
@@ -52,6 +52,9 @@ void TowedItem::calcIFNotConnected()
                  (x-towingPoint->x)*qSin(azRad);
         y_coor = towingPoint->y_coor - (y-towingPoint->y)*qSin(azRad) +
                  (x-towingPoint->x)*qCos(azRad);
+        QGeoCoordinate tmp = parser.UTMtoGeo(QPointF(x_coor, y_coor));
+        this->latitude = tmp.latitude();
+        this->longitude = tmp.longitude();
 
     } else {
         qDebug() << "TowedItem::calcItemCoordinates";
