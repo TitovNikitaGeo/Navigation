@@ -16,6 +16,9 @@ int Coordinator::calcCoors()
                 item->calcItemCoordinates();
                 // qDebug() << item->connection->lastRecievedNMEA << "MainWindow::timeToCollectData()";
             }
+            if (item->azimuthOfMovement != -1) {
+                commonDummyAzimuth = item->azimuthOfMovement;
+            }
         }
 
         for (FixedItem* item: Vault->ItemsVault) { //я вызываю метод предка
@@ -33,6 +36,11 @@ int Coordinator::calcCoors()
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             } else if (className == "Source") { //for Source
                 item->calcItemCoordinates();
+            }
+
+            if (item->azimuthOfMovement == -1) {
+                //if we don't have azimuth, we get it from someone else
+                item->azimuthOfMovement = commonDummyAzimuth;
             }
         }
     } catch (std::exception& e) {

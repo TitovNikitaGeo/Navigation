@@ -14,9 +14,11 @@ public:
     int printCoors();
     ItemsStorage* Vault;
     bool wireFixedItems();
+
 signals:
 
 public slots:
+    double commonDummyAzimuth; //if end buoy doesn't send az
     void boardDepthChanged(double boardHeight);
 };
 
