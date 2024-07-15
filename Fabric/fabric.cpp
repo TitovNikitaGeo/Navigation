@@ -75,6 +75,13 @@ Buoy* Fabric::CreateItem(BuoyInfo info, bool needConnection)
     }
 }
 
+Source* Fabric::CreateItem(SourceInfo sourceInfo, bool needConnect)
+{
+    TowedItemInfo newInfo = sourceInfo.info;
+    Source* newItem = new Source(newInfo.name, newInfo.toWhoIsWired, newInfo.angleToWired, newInfo.wireLength);
+    return newItem;
+}
+
 Connection* Fabric::createConnection()
 {
     Connection* res = nullptr;

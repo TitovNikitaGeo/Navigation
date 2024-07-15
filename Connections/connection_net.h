@@ -26,7 +26,7 @@ public:
     int getPort() const;
 
 private:
-
+    QByteArray data;
     QTcpSocket* socket;
     QString IP;
     int port;

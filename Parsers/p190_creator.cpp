@@ -161,12 +161,12 @@ QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
             SourceID = ' ';
             if (item->lastGGAData.dateTime.isValid()) curDateTime = item->lastGGAData.dateTime;
         }
-    }
-    if(QString(item->metaObject()->className()) == "Buoy") {
+    } else if(QString(item->metaObject()->className()) == "Buoy") {
         type = 'T';
         TailBuoyID = '1';
+    } else if (QString(item->metaObject()->className()) == "Streamer") {
+        type = 'S';
     }
-    if (QString(item->metaObject()->className()) == "Streamer") return "";
     // qDebug() <<item->lastGGAData.coordinate.toString();
 
     // if (type == 'Z') return QString("");

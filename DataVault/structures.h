@@ -46,5 +46,9 @@ struct BuoyInfo{
     float towingDepth;
 };
 
+struct SourceInfo{
+    TowedItemInfo info;
+};
+
 
 #endif

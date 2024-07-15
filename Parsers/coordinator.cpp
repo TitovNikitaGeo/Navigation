@@ -31,6 +31,8 @@ int Coordinator::calcCoors()
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             } else if (className == "Buoy") { //for buoy
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
+            } else if (className == "Source") { //for Source
+                item->calcItemCoordinates();
             }
         }
     } catch (std::exception& e) {

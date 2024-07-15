@@ -132,6 +132,6 @@ QString Streamer::Channel::getUTMPos()
 {
     QString res;
     res += floatToQString(myNumber, 2, 0) + " " + floatToQString(x_coor, 7,1)
-           + floatToQString(y_coor, 7,1) + QString::number(height);
+           + floatToQString(y_coor, 7,1) + floatToQString(height, 4,2);
     return res;
 }

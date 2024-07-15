@@ -25,6 +25,7 @@ SOURCES += \
     Fabric/streamerdialog.cpp \
     Objects/buoy.cpp \
     Objects/fixeditem.cpp \
+    Objects/source.cpp \
     Objects/streamer.cpp \
     Objects/toweditem.cpp \
     Parsers/coordinator.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     Fabric/streamerdialog.h \
     Objects/buoy.h \
     Objects/fixeditem.h \
+    Objects/source.h \
     Objects/streamer.h \
     Objects/toweditem.h \
     Parsers/coordinator.h \

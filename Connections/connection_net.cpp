@@ -59,15 +59,27 @@ void Connection_Net::onConnected()
 
 void Connection_Net::ReadyRead()
 {
-    QByteArray data = socket->readAll();
-    ///TODO check that buffer is clear
-    if (check_nmea_data(data)) { ///дублирование функционала
-        recieve_data(data);
-        calcQuality(true);
-        // qDebug() << "GOOD DATA "<< data;
+    int index;
+    if ((index = data.indexOf('\n')) == -1) {
+        ;
     } else {
-        calcQuality(false);
-        // qDebug() << "BAD DATA "<< data;
+        // data = DataBuffer + data;
+        QByteArray mainPart = data.left(index + 1);  // включая '\r\n'
+        QByteArray removedPart = data.mid(index + 1); // после '\r\n'
+        data = mainPart;
+        // qDebug() << data << "Data"; // <<DataBuffer;
+        // return;
+        if (check_nmea_data(data)) {
+            recieve_data(data);
+            calcQuality(true);
+            // qDebug() << "GOOD DATA "<< data;
+        } else {
+            calcQuality(false);
+            // qDebug() << "BAD DATA "<< data;
+        }
+        data.clear();
+        data = removedPart;
+        // DataBuffer.clear();
     }
 }
 

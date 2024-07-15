@@ -11,6 +11,7 @@ private:
     friend class Fabric;
     friend class Streamer;
     friend class Buoy;
+    friend class Source;
     TowedItem(QString name, FixedItem* towingPoint,
               float angleToWired, float wireLength);
 public:

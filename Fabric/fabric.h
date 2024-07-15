@@ -7,6 +7,7 @@
 #include "fixeditem.h"
 #include "toweditem.h"
 #include "streamer.h"
+#include "source.h"
 #include "connection_creator.h"
 
 #include "streamerdialog.h"
@@ -26,6 +27,7 @@ public:
     TowedItem* CreateItem(TowedItemInfo info, bool needConnect);
     Streamer* CreateItem(StreamerInfo info);
     Buoy* CreateItem(BuoyInfo info, bool needConnection);
+    Source* CreateItem(SourceInfo info, bool needConnect);
 
     Connection* createConnection();
 

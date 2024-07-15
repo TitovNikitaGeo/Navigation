@@ -142,6 +142,9 @@ void MainWindow::on_AddItemtPushButton_clicked()
         } else if (itemType == "Towed") {
             //newItem =
             towedItem = createTowedItem(TowedItemInfo);
+        } else if (itemType == "Source") {
+            SourceInfo SourceItemInfo = {TowedItemInfo};
+            towedItem = createSourceItem(SourceItemInfo);
         }
     }
 
@@ -301,6 +304,34 @@ Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
     //а потом увеличиваем дистанцию буксировки на длину косы
 
 
+    ///Saving New Item
+    Vault->SaveItem(NewItem);
+    ///Saving New Item
+
+    ///adding obj to table
+    addItemToObjectsList(NewItem);
+    ///adding obj to table
+
+    ///adding ability to wire any towed item with it
+    ui->ComboBoxWiredWith->addItem(NewItem->name);
+
+    //drawing
+    drawLineToTowed(NewItem);
+    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+
+    return NewItem;
+}
+
+Source* MainWindow::createSourceItem(SourceInfo SourceItemInfo) //метод для создания объекта под источник
+{
+    bool needConnection = false;
+    if (ui->NeedConnectionCB->isChecked()) {
+        needConnection = true;
+    }
+
+
+    Source* NewItem = MyFabric->CreateItem(SourceItemInfo, needConnection);
     ///Saving New Item
     Vault->SaveItem(NewItem);
     ///Saving New Item

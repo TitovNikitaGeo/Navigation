@@ -31,10 +31,11 @@ public:
     ~MainWindow();
 
 
-    FixedItem* createFixedItem(FixedItemInfo NewItemInfo);
-    TowedItem* createTowedItem(TowedItemInfo NewItemInfo);
-    Streamer* createStreamerItem(StreamerInfo NewItemInfo);
+    FixedItem* createFixedItem(FixedItemInfo FixedItemInfo);
+    TowedItem* createTowedItem(TowedItemInfo TowedItemInfo);
+    Streamer* createStreamerItem(StreamerInfo StreamerItemInfo);
     Buoy* createBuoyItem(BuoyInfo BuoyItemInfo);
+    Source* createSourceItem(SourceInfo SourceItemInfo);
 
     QString GetNewDeviceName(QString name);
 
