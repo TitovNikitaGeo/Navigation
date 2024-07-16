@@ -15,7 +15,6 @@ P190_creator::~P190_creator()
 QStringList P190_creator::createShotBlock()
 {
     QStringList res;
-    static int shotNum = 0; //номер выстрела
     QStringList mainBlock = createMainInfoBlock();
     QStringList streamerBlock = createStreamerBlock();
     qDebug() << "P190";
@@ -57,6 +56,7 @@ QStringList P190_creator::createHeader() {
 
 
 void P190_creator::createP190File() {
+
     QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QDir dir(dirPath + "/Ship_logs");
     // qDebug() << dir;
@@ -130,6 +130,7 @@ QStringList P190_creator::createStreamerBlock() {
 
 
 QStringList P190_creator::createMainInfoBlock() {
+    this->currentBuoyNumber = 0;
     QStringList res;
     QString tmp;
     static int pointNumber = 1;
@@ -137,7 +138,8 @@ QStringList P190_creator::createMainInfoBlock() {
         if (QString(item->metaObject()->className()) == "Source") {
             continue;
         }
-        tmp = createMainRow(item, pointNumber);
+        tmp = createMainRow__new(item, pointNumber, currentBuoyNumber);
+        currentBuoyNumber++;
         if (tmp.isEmpty()) continue;
         res.append(tmp);
         // qDebug() <<tmp << "createMainInfoBlock() ";
@@ -147,7 +149,7 @@ QStringList P190_creator::createMainInfoBlock() {
     return res;
 }
 
-QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
+QString P190_creator::createMainRow(FixedItem *item, int pointNumber, int tailBuoy) {
     QString tmp;
     QChar type = 'Z';
     QChar VesselID = '1';
@@ -186,11 +188,51 @@ QString P190_creator::createMainRow(FixedItem *item, int pointNumber) {
           + floatToQString(item->x_coor, 8,2)
           + floatToQString(item->y_coor, 9,2)
           + " " + floatToQString(item->height, 3,2)
-          + QString("%1").arg(dt.date().day(), 3, 10, QChar('0'))
+          + QString("%1").arg(dt.date().dayOfYear(), 3, 10, QChar('0'))
           + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
           + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
-           + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
+          + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
     return tmp;
+}
+QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int tailBuoy)
+{
+    QString res(80, ' ');
+    QChar type = 'Z';
+    QChar VesselID = '1';
+    QChar SourceID = '1';
+    QChar TailBuoyID = ' ';
+    QDateTime dt = item->lastGGAData.dateTime;
+    if(QString(item->metaObject()->className()) == "FixedItem") {
+        if (item->x == 0 && item->y == 0 && item->z == 0) {
+            type = 'V';
+            SourceID = ' ';
+            if (item->lastGGAData.dateTime.isValid()) curDateTime = item->lastGGAData.dateTime;
+        }
+    } else if(QString(item->metaObject()->className()) == "Buoy") {
+        type = 'T';
+        TailBuoyID = '1';
+    } else if (QString(item->metaObject()->className()) == "Streamer") {
+        type = 'S';
+    }
+    if (!dt.isValid()) {
+        dt = this->curDateTime;
+    }
+    res.replace(0, 1, type);
+    res.replace(1, 12, lineName);
+    res.replace(16, 1, VesselID);
+    res.replace(17, 1, SourceID);
+    res.replace(18, 1, TailBuoyID);
+    res.replace(19, 6, QString(6-QString::number(pointNumber).length(), ' ') + QString::number(pointNumber));
+    res.replace(25, 21, QGeoCoordinate(item->latitude, item->longitude).
+        toString(QGeoCoordinate::CoordinateFormat::DegreesWithHemisphere).remove("°").remove(' '));
+    res.replace(46, 9, floatToQString(item->x_coor, 8,2));
+    res.replace(55, 9, floatToQString(item->y_coor, 9,2));
+    res.replace(64, 5, floatToQString(item->height, 3,2));
+    res.replace(70, 3, QString("%1").arg(dt.date().dayOfYear(), 3, 10, QChar('0')));
+    res.replace(73, 2, QString("%1").arg(dt.time().hour(), 2, 10, QChar('0')));
+    res.replace(75, 2, QString("%1").arg(dt.time().minute(), 2, 10, QChar('0')));
+    res.replace(77, 2, QString("%1").arg(dt.time().second(), 2, 10, QChar('0')));
+    return res;
 }
 
 void P190_creator::setItemStoragePtr(ItemsStorage *Vault)
@@ -235,6 +277,7 @@ QString P190_creator::convertCoordinates(const QString &input)
 
     return result;
 }
+
 
 
 

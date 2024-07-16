@@ -428,7 +428,7 @@ void MainWindow::on_ComboBoxItemType_activated(int index)
         ui->NeedConnectionCB->setEnabled(true);
         break;
     case 1:
-        ui->ItemNameLineEdit->setText("");
+        ui->ItemNameLineEdit->setText("Source");
         ui->NeedConnectionCB->setEnabled(true);
         break;
     case 2:

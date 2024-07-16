@@ -14,7 +14,6 @@
 #include <QRegExp>
 
 #include "itemsstorage.h"
-#include "streamer.h"
 #include "functions.h"
 
 
@@ -32,7 +31,7 @@ public:
     QStringList createStreamerBlock();
     QStringList createMainInfoBlock();
     QStringList createHeader();
-    QString createMainRow(FixedItem* item, int pointNumber);
+    QString createMainRow(FixedItem* item, int pointNumber, int tailBuoy);
 
     void createP190File(); /// create file, write header
     void writeP190Block(); /// writing streamer and reciever blocks
@@ -43,7 +42,11 @@ public:
 
     QString createFileName();
     QString convertCoordinates(const QString &input);
+
+    QString createMainRow__new(FixedItem* item, int pointNumber, int tailBuoy);
 private:
+    int currentBuoyNumber;
+
     QDateTime curDateTime;
     QString fileName;
     QFile* outputFile;
@@ -51,6 +54,7 @@ private:
     ItemsStorage* MyVault;
 
     QString lineName = "AA10AA0707077";
+    QChar tailBuoy;
     // QString floatToQString(float value, int totalLength, int decimalPlaces);
 signals:
 
