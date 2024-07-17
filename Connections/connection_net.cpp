@@ -57,31 +57,72 @@ void Connection_Net::onConnected()
     qDebug() << "Connected to" << socket->peerAddress().toString() << ":" << socket->peerPort();
 }
 
+// void Connection_Net::ReadyRead()
+// {
+//     int index;
+//     if ((index = data.indexOf('\n')) == -1) {
+//         ;
+//     } else {
+//         // data = DataBuffer + data;
+//         QByteArray mainPart = data.left(index + 1);  // РІРєР»СЋС‡Р°СЏ '\r\n'
+//         QByteArray removedPart = data.mid(index + 1); // РїРѕСЃР»Рµ '\r\n'
+//         data = mainPart;
+//         // qDebug() << data << "Data"; // <<DataBuffer;
+//         // return;
+//         if (check_nmea_data(data)) {
+//             recieve_data(data);
+//             calcQuality(true);
+//             // qDebug() << "GOOD DATA "<< data;
+//         } else {
+//             calcQuality(false);
+//             // qDebug() << "BAD DATA "<< data;
+//         }
+//         data.clear();
+//         data = removedPart;
+//         // DataBuffer.clear();
+//     }
+// }
+
+// void Connection_Net::ReadyRead()
+// {
+//     int index;
+//     if ((index = data.indexOf('\n')) == -1) {
+//         ;
+//     } else {
+//         // data = DataBuffer + data;
+//         QByteArray mainPart = data.left(index + 1);  // РІРєР»СЋС‡Р°СЏ '\r\n'
+//         QByteArray removedPart = data.mid(index + 1); // РїРѕСЃР»Рµ '\r\n'
+//         data = mainPart;
+//         // qDebug() << data << "Data"; // <<DataBuffer;
+//         // return;
+//         if (check_nmea_data(data)) {
+//             recieve_data(data);
+//             calcQuality(true);
+//             // qDebug() << "GOOD DATA "<< data;
+//         } else {
+//             calcQuality(false);
+//             // qDebug() << "BAD DATA "<< data;
+//         }
+//         data.clear();
+//         data = removedPart;
+//         // DataBuffer.clear();
+//     }
+// }
+
 void Connection_Net::ReadyRead()
 {
-    int index;
-    if ((index = data.indexOf('\n')) == -1) {
-        ;
+    QByteArray data = socket->readAll();
+    ///TODO check that buffer is clear
+    if (check_nmea_data(data)) { ///дублирование функционала
+        recieve_data(data);
+        calcQuality(true);
+        // qDebug() << "GOOD DATA "<< data;
     } else {
-        // data = DataBuffer + data;
-        QByteArray mainPart = data.left(index + 1);  // РІРєР»СЋС‡Р°СЏ '\r\n'
-        QByteArray removedPart = data.mid(index + 1); // РїРѕСЃР»Рµ '\r\n'
-        data = mainPart;
-        // qDebug() << data << "Data"; // <<DataBuffer;
-        // return;
-        if (check_nmea_data(data)) {
-            recieve_data(data);
-            calcQuality(true);
-            // qDebug() << "GOOD DATA "<< data;
-        } else {
-            calcQuality(false);
-            // qDebug() << "BAD DATA "<< data;
-        }
-        data.clear();
-        data = removedPart;
-        // DataBuffer.clear();
+        calcQuality(false);
+        // qDebug() << "BAD DATA "<< data;
     }
 }
+
 
 void Connection_Net::onDisconnected()
 {

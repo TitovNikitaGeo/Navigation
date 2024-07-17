@@ -16,7 +16,7 @@ TowedItem::TowedItem(QString Name,
     x = towingPoint->x + wireLength*sin(angleInRadians);
     y = towingPoint->y + wireLength*cos(angleInRadians);
     z = towingPoint->z;
-    qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
+    qDebug() <<QString(this->metaObject()->className())<< " Item Created "<<x<<y<<z<<name;
 
     qDebug() << name << " towed by "<<towingPoint->name;
     towingPoint->vectorOfConnected.append(this);
