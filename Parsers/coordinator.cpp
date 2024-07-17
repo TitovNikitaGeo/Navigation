@@ -35,7 +35,7 @@ int Coordinator::calcCoors()
             } else if (className == "Buoy") { //for buoy
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             } else if (className == "Source") { //for Source
-                item->calcItemCoordinates();
+                dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             }
 
             if (item->azimuthOfMovement == -1) {
