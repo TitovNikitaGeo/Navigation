@@ -17,7 +17,7 @@ QStringList P190_creator::createShotBlock()
     QStringList res;
     QStringList mainBlock = createMainInfoBlock();
     QStringList streamerBlock = createStreamerBlock();
-    qDebug() << "P190";
+    qDebug() << "P190 createShotBlock()";
     // if (!outputFile->isOpen()) outputFile->open(QIODevice::Append);
     for (QString l: mainBlock) {
         qDebug() << l;
@@ -104,22 +104,33 @@ void P190_creator::writeToFile(QStringList data) {
 
 QStringList P190_creator::createStreamerBlock() {
     QStringList res;
-    QString tmp;
+    ///TODO: убрать костыли
     for (FixedItem* item: MyVault->ItemsVault) {
         if (QString(item->metaObject()->className()) == "Streamer") {
             Streamer* strm = dynamic_cast<Streamer*>(item);
+            // QString tmp(80, ' ');
+            QString tmp;
             for (uint i = 0; i < strm->getChanCount(); ++i) {
                 if (i % 3 == 0) {
                     if (!tmp.isEmpty()) {
                         res.append(tmp.append("1"));
                     }
-                    tmp = "R  ";
+                    tmp = "R";
                 }
+                // tmp.replace(4 + 26*(i%3), 26, strm->getChan(i+1)->getUTMPos());
+                // qDebug() << tmp;
                 tmp += strm->getChan(i+1)->getUTMPos(); // в массиве от 0 до 23
                 tmp += " "; //каналы от 1 до 24
             }
-            if (!tmp.isEmpty()) {
-                res.append(tmp + "1");
+            qDebug() << "P190_creator::createStreamerBlock"<< tmp;
+            if (!tmp.isEmpty() && tmp[0] == 'R') {
+                res.append(tmp.replace(79,1,"1"));
+            }
+        }
+
+        for (QString i: res) { //костыль!!!
+            if (i[i.length()-1] != '1') {
+                i.append('1');
             }
         }
     }
@@ -135,7 +146,7 @@ QStringList P190_creator::createMainInfoBlock() {
     QString tmp;
     static int pointNumber = 1;
     for (FixedItem* item: MyVault->ItemsVault) {
-        if (QString(item->metaObject()->className()) == "Source") {
+        if (QString(item->metaObject()->className()) == "Streamer") {
             continue;
         }
         tmp = createMainRow__new(item, pointNumber, currentBuoyNumber);
@@ -211,7 +222,7 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
     } else if(QString(item->metaObject()->className()) == "Buoy") {
         type = 'T';
         TailBuoyID = '1';
-    } else if (QString(item->metaObject()->className()) == "Streamer") {
+    } else if (QString(item->metaObject()->className()) == "Source") {
         type = 'S';
     }
     if (!dt.isValid()) {
@@ -227,7 +238,7 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
         toString(QGeoCoordinate::CoordinateFormat::DegreesWithHemisphere).remove("°").remove(' '));
     res.replace(46, 9, floatToQString(item->x_coor, 8,2));
     res.replace(55, 9, floatToQString(item->y_coor, 9,2));
-    res.replace(64, 5, floatToQString(item->height, 3,2));
+    res.replace(64, 5, floatToQString(item->height, 5,2));
     res.replace(70, 3, QString("%1").arg(dt.date().dayOfYear(), 3, 10, QChar('0')));
     res.replace(73, 2, QString("%1").arg(dt.time().hour(), 2, 10, QChar('0')));
     res.replace(75, 2, QString("%1").arg(dt.time().minute(), 2, 10, QChar('0')));

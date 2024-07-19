@@ -130,8 +130,28 @@ Streamer::Channel::Channel(uint myNumber)
 
 QString Streamer::Channel::getUTMPos()
 {
-    QString res;
-    res += floatToQString(myNumber, 2, 0) + " " + floatToQString(x_coor, 7,1)
-           + floatToQString(y_coor, 7,1) + floatToQString(height, 4,2);
+    QString res(29, ' ');
+    // res +=
+    res.replace(4, 10,floatToQString(x_coor, 10,2));
+    res.replace(14, 10,floatToQString(y_coor, 10,2));
+    res.replace(24, 5,floatToQString(height, 5,2));
+
+    for (int i = 0; i < 4; i++) {
+        res[i] = floatToQString(myNumber, 4, 0)[i];
+        // res[i] = '~';
+    }
+    // res.remove(' ');
+    // qDebug() << res.replace(0, 4,floatToQString(myNumber, 4, 0));
+    // QString res;
+    // res += floatToQString(myNumber, 2, 0) + " " + floatToQString(x_coor, 7,1)
+           // + floatToQString(y_coor, 7,1) + floatToQString(height, 5,2);
+    // qDebug() << res;
     return res;
 }
+
+
+
+
+
+
+
