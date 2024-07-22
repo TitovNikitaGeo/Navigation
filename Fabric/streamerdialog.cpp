@@ -81,6 +81,7 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     mainLayout->addWidget(saveCSVButton);
     mainLayout->addWidget(finishButton);
     mainLayout->setAlignment(finishButton, Qt::AlignRight); // Align finish button to the right
+    this->multiChannelTab->setFocus();
     setLayout(mainLayout);
 }
 

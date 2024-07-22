@@ -42,12 +42,14 @@ void Streamer::calcChansCoors()
             ChannelsVector[i]->height = this->height + chans[i]* dh;
             ChannelsVector[i]->x_coor = this->x_coor - (distanceCalcCoef)*chans[i]*qSin(realAz);
             ChannelsVector[i]->y_coor = this->y_coor - (distanceCalcCoef)*chans[i]*qCos(realAz);
+            ChannelsVector[i]->depth = this->endBuoy->height - ChannelsVector[i]->height - this->endBuoy->AnthenaHeight - this->endBuoy->towingDepth;
         }
     } else {
         for(int i = 0; i < ChannelsVector.size(); i++) {
             ChannelsVector[i]->x_coor = this->x_coor - chans[i]*qSin(azRad);
             ChannelsVector[i]->y_coor = this->y_coor - chans[i]*qCos(azRad);
             ChannelsVector[i]->height = height;
+            // if (towingPoint->)
         }
 
     }
@@ -59,7 +61,7 @@ void Streamer::printChansCoor() //функция для дебага. вывод
     int i = 0;
     // QDebug deb = qDebug();
     for (Channel* ch: ChannelsVector) {
-        qDebug() <<qSetRealNumberPrecision(10)<< "Chan "<<i<<"X "<<ch->x_coor<<"Y "<<ch->y_coor<<"Depth"<<ch->height;
+        qDebug() <<qSetRealNumberPrecision(10)<< "Chan "<<i<<"X "<<ch->x_coor<<"Y "<<ch->y_coor<<"Depth"<<ch->depth;
         i++;
     }
 }
@@ -121,6 +123,14 @@ float Streamer::getTotalLength() const
     return totalLength;
 }
 
+void Streamer::calcStreamerDepth()
+{
+    depth = towingPoint->height - this->height;
+    for (Channel* ch: ChannelsVector) {
+        ch->depth = depth + (height - ch->height);
+    }
+}
+
 Streamer::Channel::Channel(uint myNumber)
 {
     this->myNumber = myNumber;
@@ -130,11 +140,11 @@ Streamer::Channel::Channel(uint myNumber)
 
 QString Streamer::Channel::getUTMPos()
 {
-    QString res(29, ' ');
+    QString res(22, ' ');
     // res +=
-    res.replace(4, 10,floatToQString(x_coor, 10,2));
-    res.replace(14, 10,floatToQString(y_coor, 10,2));
-    res.replace(24, 5,floatToQString(height, 5,2));
+    res.replace(4, 9,floatToQString(x_coor, 10,2));
+    res.replace(13, 8,floatToQString(y_coor, 10,2));
+    res.replace(22, 4,floatToQString(depth, 4, 1));
 
     for (int i = 0; i < 4; i++) {
         res[i] = floatToQString(myNumber, 4, 0)[i];
@@ -145,6 +155,8 @@ QString Streamer::Channel::getUTMPos()
     // QString res;
     // res += floatToQString(myNumber, 2, 0) + " " + floatToQString(x_coor, 7,1)
            // + floatToQString(y_coor, 7,1) + floatToQString(height, 5,2);
+    // qDebug() << res;
+    // res.removeAt(res.size()-1);
     // qDebug() << res;
     return res;
 }

@@ -34,6 +34,8 @@ public:
 
     float getTotalLength() const;
 
+    float depth;
+    void calcStreamerDepth();
 private:
     uint NumChanels;
     QVector<float> chans;
@@ -49,6 +51,7 @@ private:
     float dh;
 
 
+
     ///inner class for channels
     class Channel : public TowedItem
     {
@@ -57,7 +60,7 @@ private:
         Channel(uint myNumber);
 
         QString getUTMPos();
-
+        float depth;
 
     private:
         uint myNumber;

@@ -26,8 +26,10 @@ int Coordinator::calcCoors()
             // qDebug() << item->name << item->hasConnection;
             QString className = QString(item->metaObject()->className());
             if (className == "Streamer") {
-                dynamic_cast<Streamer*>(item)->calcItemCoordinates();
-                dynamic_cast<Streamer*>(item)->calcChansCoors();
+                Streamer* tmp = dynamic_cast<Streamer*>(item);
+                tmp->calcItemCoordinates();
+                tmp->calcChansCoors();
+                tmp->calcStreamerDepth();
             } else if(className == "FixedItem") {
                 item->calcItemCoordinates();
             } else if (className == "TowedItem") {
@@ -36,6 +38,7 @@ int Coordinator::calcCoors()
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
             } else if (className == "Source") { //for Source
                 dynamic_cast<TowedItem*>(item)->calcItemCoordinates();
+
             }
 
             if (item->azimuthOfMovement == -1) {
@@ -98,6 +101,7 @@ bool Coordinator::wireFixedItems()
     return true;
 }
 
+
 void Coordinator::boardDepthChanged(double boardHeight)
 {
     for (FixedItem* item: Vault->ItemsVault) {
@@ -114,3 +118,5 @@ void Coordinator::boardDepthChanged(double boardHeight)
     }
     qDebug() << "Coordinator::boardDepthChanged to" << boardHeight;
 }
+
+

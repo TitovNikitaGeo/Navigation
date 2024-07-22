@@ -15,7 +15,7 @@ public:
     ItemsStorage* Vault;
     bool wireFixedItems();
     double commonDummyAzimuth; //if end buoy doesn't send az
-
+    ;
 signals:
 
 public slots:

@@ -42,6 +42,7 @@ void TowedItem::calcIFNotConnected()
             } else {
                 height = tmp->height - tmp->towingDepth;
             }
+
         } else if(QString(towingPoint->metaObject()->className()) == "FixedItem") {
             height = towingPoint->height - boardHeight; //высота борта больше не захардкожена
             qDebug() << towingPoint->height << boardHeight << height;

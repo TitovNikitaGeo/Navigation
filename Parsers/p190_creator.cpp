@@ -92,7 +92,8 @@ void P190_creator::writeToFile(QStringList data) {
     if (outputFile->open(QIODevice::Append)){
         for (QString str: data) {
             if (data.isEmpty()) continue;
-            if (str.length() > 82 ){    //
+            if (str.length() > 82 || 1!=1 ){    //
+
             } else {
                 outputFile->write(QByteArray(str.toUtf8()) + "\n");
                 // outputFile->write("\n");
@@ -113,26 +114,30 @@ QStringList P190_creator::createStreamerBlock() {
             for (uint i = 0; i < strm->getChanCount(); ++i) {
                 if (i % 3 == 0) {
                     if (!tmp.isEmpty()) {
-                        res.append(tmp.append("1"));
+                        // res.append(tmp.append("1"));
+                        res.append(tmp);
+
                     }
                     tmp = "R";
                 }
                 // tmp.replace(4 + 26*(i%3), 26, strm->getChan(i+1)->getUTMPos());
                 // qDebug() << tmp;
                 tmp += strm->getChan(i+1)->getUTMPos(); // в массиве от 0 до 23
-                tmp += " "; //каналы от 1 до 24
+                // tmp += " "; //каналы от 1 до 24
             }
-            qDebug() << "P190_creator::createStreamerBlock"<< tmp;
-            if (!tmp.isEmpty() && tmp[0] == 'R') {
-                res.append(tmp.replace(79,1,"1"));
-            }
+            // qDebug() << "P190_creator::createStreamerBlock"<< tmp;
+            // if (!tmp.isEmpty() && tmp[0] == 'R') {
+            //     res.append(tmp.replace(78,1,"1"));
+            // }
         }
 
-        for (QString i: res) { //костыль!!!
-            if (i[i.length()-1] != '1') {
-                i.append('1');
-            }
-        }
+        // for (QString i: res) { //костыль!!!
+        //     // i.remove("  ");
+        //     i.replace(" 1", "1");
+        //     if (i[i.length()-1] != '1') {
+        //         i[i.size()-1] = '1';
+        //     }
+        // }
     }
     return res;
 }
