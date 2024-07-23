@@ -76,7 +76,6 @@ void P190_creator::createP190File() {
     qDebug() <<outputFile->fileName();
 
     outputFile->open(QIODevice::Append);
-    // writeToFile(createHeader());
     QStringList list = createHeader();
     for (QString l:list) {
         // *outputStream << QByteArray(l.toStdString().c_str()) << "\n";
@@ -92,12 +91,8 @@ void P190_creator::writeToFile(QStringList data) {
     if (outputFile->open(QIODevice::Append)){
         for (QString str: data) {
             if (data.isEmpty()) continue;
-            if (str.length() > 82 || 1!=1 ){    //
-
-            } else {
-                outputFile->write(QByteArray(str.toUtf8()) + "\n");
+            outputFile->write(QByteArray(str.toUtf8()) + "\n");
                 // outputFile->write("\n");
-            }
         }
         outputFile->close();
     }
