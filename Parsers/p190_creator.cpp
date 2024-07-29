@@ -90,7 +90,7 @@ void P190_creator::createP190File() {
 void P190_creator::writeToFile(QStringList data) {
     if (outputFile->open(QIODevice::Append)){
         for (QString str: data) {
-            if (data.isEmpty()) continue;
+            if (str.isEmpty() || str.length() < 20) continue;
             outputFile->write(QByteArray(str.toUtf8()) + "\n");
                 // outputFile->write("\n");
         }
@@ -105,34 +105,21 @@ QStringList P190_creator::createStreamerBlock() {
         if (QString(item->metaObject()->className()) == "Streamer") {
             Streamer* strm = dynamic_cast<Streamer*>(item);
             // QString tmp(80, ' ');
-            QString tmp;
+            QString tmp = "R";
             for (uint i = 0; i < strm->getChanCount(); ++i) {
                 if (i % 3 == 0) {
                     if (!tmp.isEmpty()) {
                         // res.append(tmp.append("1"));
                         res.append(tmp);
+                        tmp = "R";
+                    } ///I dont fucking know how does it work
 
-                    }
-                    tmp = "R";
                 }
-                // tmp.replace(4 + 26*(i%3), 26, strm->getChan(i+1)->getUTMPos());
-                // qDebug() << tmp;
                 tmp += strm->getChan(i+1)->getUTMPos(); // в массиве от 0 до 23
                 // tmp += " "; //каналы от 1 до 24
             }
-            // qDebug() << "P190_creator::createStreamerBlock"<< tmp;
-            // if (!tmp.isEmpty() && tmp[0] == 'R') {
-            //     res.append(tmp.replace(78,1,"1"));
-            // }
+            if (!tmp.isEmpty()) res.append(tmp);
         }
-
-        // for (QString i: res) { //костыль!!!
-        //     // i.remove("  ");
-        //     i.replace(" 1", "1");
-        //     if (i[i.length()-1] != '1') {
-        //         i[i.size()-1] = '1';
-        //     }
-        // }
     }
     return res;
 }
@@ -218,6 +205,8 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
             type = 'V';
             SourceID = ' ';
             if (item->lastGGAData.dateTime.isValid()) curDateTime = item->lastGGAData.dateTime;
+        } else {
+            return "";
         }
     } else if(QString(item->metaObject()->className()) == "Buoy") {
         type = 'T';

@@ -41,17 +41,18 @@ Connection::~Connection() {
 
 void Connection::write_nmea_data(QByteArray nmea_data){
     int data_condition;
-    qDebug() << "write_nmea_data" << nmea_data;
+    // qDebug() << "write_nmea_data" << nmea_data;
     if (file  && datastream) {
         data_condition = check_nmea_data(nmea_data);
         if (data_condition == 1) {
             // calcQuality(true);
             *datastream << nmea_data;
             lastRecievedGGA = QString(nmea_data);
+            qDebug() << filename.right(filename.lastIndexOf('/')) <<"Connection::write_nmea_data GGA UPDATED";
         }else if(data_condition == 3){
             lastRecievedRMC = QString(nmea_data);
+            qDebug() << "Connection::write_nmea_data RMC UPDATED";
         } else {
-            // calcQuality(false);
             qDebug() << "BAD PACKAGE" << nmea_data;
             return;
         }
@@ -84,7 +85,7 @@ void Connection::create_file_for_nmea(QString filename){
 int Connection::check_nmea_data(QByteArray nmea_data) {
     int res = 1;
     if (nmea_data.length() < 70){
-        qDebug() << "too short check_nmea_data";
+        qDebug() << "too short check_nmea_data" << nmea_data;
         return 0; // possible package without all data
     }
     if (nmea_data[0] != '$') {  //WTF data (not our package)
@@ -229,6 +230,11 @@ float Connection::calcQuality(bool recieved) {
 void Connection::setFilename(const QString &newFilename)
 {
     filename = newFilename;
+}
+
+void Connection::reconnect()
+{
+
 }
 
 

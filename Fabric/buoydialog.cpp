@@ -25,13 +25,13 @@ BuoyDialog::BuoyDialog(ItemsStorage* vault, bool needConnection) : MyVault(vault
     spinBox1 = new QDoubleSpinBox();
     spinBox1->setRange(0.5, 2.5);
     spinBox1->setSingleStep(0.1);
-    spinBox1->setValue(1);
+    spinBox1->setValue(1.25);
 
     QLabel *spinBoxLabel2 = new QLabel("Towing Depth:");
     spinBox2 = new QDoubleSpinBox();
     spinBox2->setRange(0.0, 5.0);
     spinBox2->setSingleStep(0.1);
-    spinBox2->setValue(1);
+    spinBox2->setValue(0.15);
 
     spinBoxLayout->addWidget(spinBoxLabel1);
     spinBoxLayout->addWidget(spinBox1);

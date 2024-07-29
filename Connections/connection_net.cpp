@@ -51,6 +51,24 @@ int Connection_Net::getPort() const
     return port;
 }
 
+void Connection_Net::reconnect()
+{
+    socket->close();
+    delete socket;
+    socket = new QTcpSocket(this);
+    connect(socket, &QTcpSocket::connected, this, &Connection_Net::onConnected);
+    connect(socket,
+            &QTcpSocket::readyRead, this, &Connection_Net::ReadyRead);
+    connect(socket, &QTcpSocket::
+                    disconnected, this, &Connection_Net::onDisconnected);
+    connect(socket, QOverload<QAbstractSocket::SocketError>::
+            of(&QAbstractSocket::errorOccurred), this, &Connection_Net::onError);
+    ///конектим сигналы сокета о событиях с слотами нашего объекта соединения
+
+
+    socket->connectToHost(QHostAddress(IP), port);
+}
+
 
 void Connection_Net::onConnected()
 {
@@ -113,7 +131,7 @@ void Connection_Net::ReadyRead()
 {
     QByteArray data = socket->readAll();
     ///TODO check that buffer is clear
-    if (check_nmea_data(data)) { ///������������ �����������
+    if (check_nmea_data(data)) { ///������������ �����������
         recieve_data(data);
         calcQuality(true);
         // qDebug() << "GOOD DATA "<< data;

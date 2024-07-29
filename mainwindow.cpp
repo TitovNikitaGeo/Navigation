@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::timeToCollectData()
 {
     if (coordinator->calcCoors()) {
-        coordinator->printCoors();
+        // coordinator->printCoors();
         p190Creator->createShotBlock();
     }
     qDebug()<<"__________________________ END TIC";
@@ -469,6 +469,16 @@ void MainWindow::on_pushButton_clicked()
     } else {
         timerRunsFlag = 0;
         MyTimer->stop();
+    }
+}
+
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    for (FixedItem* it: Vault->ItemsVault) {
+        if (it->hasConnection) {
+            it->connection->reconnect();
+        }
     }
 }
 

@@ -49,6 +49,21 @@ int Connection_com::getByteRate() const
     return ByteRate;
 }
 
+void Connection_com::reconnect()
+{
+    SerialPort.close();    // Устанавливаем параметры порта
+    SerialPort.setPortName(COM_port);
+    SerialPort.setBaudRate(ByteRate);
+    // SerialPort.setBaudRate(QSerialPort::Baud115200);
+
+    SerialPort.setDataBits(QSerialPort::Data8);
+    SerialPort.setParity(QSerialPort::NoParity);
+    SerialPort.setStopBits(QSerialPort::OneStop);
+    SerialPort.setFlowControl(QSerialPort::NoFlowControl);
+
+    SerialPort.open(QIODevice::ReadOnly);
+}
+
 
 void Connection_com::ReadyRead() {
     data.append(SerialPort.readAll());

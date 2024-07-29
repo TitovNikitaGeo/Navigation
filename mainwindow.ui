@@ -435,6 +435,19 @@
      <string>Board Height</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>460</y>
+      <width>41</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Re</string>
+    </property>
+   </widget>
    <zorder>RBFixed</zorder>
    <zorder>label_4</zorder>
    <zorder>AddItemtPushButton</zorder>
@@ -460,6 +473,7 @@
    <zorder>pushButton</zorder>
    <zorder>boardHeightSpinBox</zorder>
    <zorder>label_8</zorder>
+   <zorder>pushButton_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

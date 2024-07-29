@@ -76,11 +76,13 @@ QString TowedItem::getLastGGA()
     if (connection != nullptr && hasConnection) {
         newGGA = connection->lastRecievedGGA;
         lastGGAData = parser.parseNmeaGGA(newGGA);
+        // connection->lastRecievedGGA = "empty GGA";
         // parser.printNmeaGGAData(lastGGAData);
     } else if(towingPoint != nullptr) {
         newGGA = towingPoint->getLastGGA();
-        lastGGAData = towingPoint->lastGGAData;
-        // lastGGAData = parser.parseNmeaGGA(newGGA);
+        // lastGGAData = towingPoint->lastGGAData;
+        // connection->lastRecievedRMC = "empty RMC";
+        lastGGAData = parser.parseNmeaGGA(newGGA);
     }
     return newGGA;
 }

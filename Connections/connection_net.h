@@ -24,7 +24,7 @@ public:
     QString getIP_port();
 
     int getPort() const;
-
+    void reconnect() override;
 private:
     QByteArray data;
     QTcpSocket* socket;

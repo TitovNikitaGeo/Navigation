@@ -25,6 +25,7 @@ public:
     QString getComPort();
 
     int getByteRate() const;
+    void reconnect() override;
 
 private:
     Ui::Connection_com *ui;

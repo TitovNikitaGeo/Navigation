@@ -65,7 +65,7 @@ public:
     QString lastRecievedRMC = "RMC empty";
 
     void setFilename(const QString &newFilename);
-
+    virtual void reconnect();
 private:
     Ui::Connection *ui;
     static NmeaParser nmeaParser;

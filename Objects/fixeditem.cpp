@@ -86,6 +86,7 @@ QString FixedItem::getLastGGA()
     if (connection != nullptr && hasConnection) {
         newGGA = connection->lastRecievedGGA;
         lastGGAData = parser.parseNmeaGGA(newGGA);
+        // connection->lastRecievedGGA = "empty GGA";
         // parser.printNmeaGGAData(lastGGAData);
     }
     return newGGA;
@@ -97,6 +98,7 @@ QString FixedItem::getLastRMC()
     if (connection != nullptr && hasConnection) {
         newRMC = connection->lastRecievedRMC;
         lastRMCData = parser.parseNmeaRMC(newRMC);
+        // connection->lastRecievedRMC = "empty RMC";
         // parser.printNmeaRMCData(lastRMCData);
     }
     return newRMC;

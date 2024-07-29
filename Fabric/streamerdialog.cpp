@@ -206,7 +206,7 @@ void StreamerDialog::createChansValues()
             }
             dCh = 2;
             for (uint i = 0; i < 24; i++) {
-                chans.append(chans[23]+i*dCh);
+                chans.append(chans[23]+i*dCh + 2);
             }
         }
     } else{ //HRStreamer-1
