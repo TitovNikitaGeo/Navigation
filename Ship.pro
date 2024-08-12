@@ -14,11 +14,13 @@ INCLUDEPATH += ./DataVault
 INCLUDEPATH += ./ConnectionCreator
 INCLUDEPATH += ./Connections
 INCLUDEPATH += ./Parsers
+INCLUDEPATH += ./Service
 
 
 SOURCES += \
     DataVault/itemsloader.cpp \
     DataVault/itemsstorage.cpp \
+    Drawing/lordofgraphic.cpp \
     Drawing/sidegraphicview.cpp \
     Fabric/buoydialog.cpp \
     Fabric/fabric.cpp \
@@ -29,6 +31,7 @@ SOURCES += \
     Objects/streamer.cpp \
     Objects/toweditem.cpp \
     Parsers/coordinator.cpp \
+    Service/logger.cpp \
     main.cpp \
     mainwindow.cpp \
     Drawing/mygraphicview.cpp \
@@ -43,6 +46,7 @@ HEADERS += \
     DataVault/itemsloader.h \
     DataVault/itemsstorage.h \
     DataVault/structures.h \
+    Drawing/lordofgraphic.h \
     Drawing/sidegraphicview.h \
     Fabric/buoydialog.h \
     Fabric/fabric.h \
@@ -54,6 +58,7 @@ HEADERS += \
     Objects/toweditem.h \
     Parsers/coordinator.h \
     Parsers/functions.h \
+    Service/logger.h \
     mainwindow.h \
     Drawing/mygraphicview.h \
     Connections/connection.h \

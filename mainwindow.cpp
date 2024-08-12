@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->boardHeightSpinBox, &QDoubleSpinBox::valueChanged,
             coordinator,&Coordinator::boardDepthChanged);
 
+    setMenuBar(this->menuBar());
 }
 
 void MainWindow::timeToCollectData()
@@ -163,6 +164,42 @@ void MainWindow::setUpObjectsTable() {
     tableWithItems->setSelectionMode(QAbstractItemView::SingleSelection);
 
     tableWithItems->setEditTriggers(QTableWidget::NoEditTriggers);
+}
+
+void MainWindow::setMenuBar(QMenuBar *menuBar)
+{
+    QMenu *fileMenu = menuBar->findChild<QMenu*>("fileMenu");
+    if (!fileMenu) {
+        // Если нет, создаем новое меню "Файл"
+        fileMenu = new QMenu("File", menuBar);
+        fileMenu->setObjectName("fileMenu"); // Присваиваем имя для поиска в будущем
+        menuBar->addMenu(fileMenu);
+    } else {
+        // Если меню уже существует, очищаем его для добавления новых действий
+        fileMenu->clear();
+    }
+
+    // Создание действия "Сохранить параметры"
+    QAction *saveAction = new QAction("Save configuration", fileMenu);
+    QObject::connect(saveAction, &QAction::triggered, menuBar->parent(), []() {
+        QString fileName = QFileDialog::getSaveFileName(nullptr, "Save configuration", "", "Config Files (*.json);;All Files (*)");
+        if (!fileName.isEmpty()) {
+            // Логика сохранения параметров в файл
+            QMessageBox::information(nullptr, "Save configuration", QString("Configuration saved at %1").arg(fileName));
+        }
+    });
+    fileMenu->addAction(saveAction);
+
+    // Создание действия "Загрузить параметры"
+    QAction *loadAction = new QAction("Load configuration", fileMenu);
+    QObject::connect(loadAction, &QAction::triggered, menuBar->parent(), []() {
+        QString fileName = QFileDialog::getOpenFileName(nullptr, "Load configuration", "", "Config Files (*.json);;All Files (*)");
+        if (!fileName.isEmpty()) {
+            // Логика загрузки параметров из файла
+            QMessageBox::information(nullptr, "Load configuration", QString("Configuration loaded from %1").arg(fileName));
+        }
+    });
+    fileMenu->addAction(loadAction);
 }
 
 

@@ -7,7 +7,102 @@ ItemsLoader::ItemsLoader(QObject *parent)
 QVector<FixedItem *> ItemsLoader::readFromJSON(QFile *file)
 {
     QVector<FixedItem *> res;
+    // Ensure the file is open and ready to be read
+    if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning("Couldn't open the file.");
+        return res;
+    }
+
+    // Read the entire content of the file into a QJsonDocument
+    QByteArray fileContent = file->readAll();
+    file->close();
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(fileContent);
+    if (!jsonDoc.isObject()) {
+        qWarning("Invalid JSON format.");
+        return res;
+    }
+
+    QJsonObject jsonObj = jsonDoc.object();
+    QJsonArray itemsArray = jsonObj["items"].toArray();
+
+    for (const QJsonValue &value : itemsArray) {
+        QJsonObject jsonItem = value.toObject();
+        QString itemType = jsonItem["type"].toString();
+
+        FixedItem* item = nullptr;
+
+        if (itemType == "Fixed") {
+            item = new FixedItem();
+            item->x = jsonItem["x"].toDouble();
+            item->y = jsonItem["y"].toDouble();
+            item->z = jsonItem["z"].toDouble();
+        }
+        else if (itemType == "Towed") {
+            TowedItem* towedItem = new TowedItem();
+            towedItem->towingPoint->name = jsonItem["twiw"].toString();
+            towedItem->wireLength = jsonItem["wireLength"].toDouble();
+            item = towedItem;
+        }
+        else if (itemType == "Buoy") {
+            Buoy* buoyItem = new Buoy();
+            buoyItem->towingPoint->name = jsonItem["twiw"].toString();
+            buoyItem->wireLength = jsonItem["wireLength"].toDouble();
+            buoyItem->AnthenaHeight = jsonItem["buoy"].toObject()["AnthenaHeight"].toDouble();
+            buoyItem->towingDepth = jsonItem["buoy"].toObject()["towingDepth"].toDouble();
+            item = buoyItem;
+        }
+        else if (itemType == "Streamer") {
+            // Streamer* streamerItem = new Streamer();
+            QVector<float> chansVector;
+            QJsonArray chansArray = jsonItem["Streamer"].toObject()["Channels"].toArray();
+            for (const QJsonValue &chanValue : chansArray) {
+                chansVector.append(chanValue.toDouble());
+            }
+            Streamer* streamerItem = new Streamer();
+            streamerItem->towingPoint->name = jsonItem["twiw"].toString();
+            streamerItem->wireLength = jsonItem["wireLength"].toDouble();
+
+            // for (const QJsonValue &chanValue : chansArray) {
+            //     streamerItem->addChannel(chanValue.toDouble());
+            // }
+            item = streamerItem;
+
+        }
+
+        if (item != nullptr) {
+            item->name = jsonItem["name"].toString();
+            item->itemType = itemType;
+            item->hasConnection = jsonItem["hasConnection"].toBool();
+            if (item->hasConnection) {
+                item->connection = jsonToConnection(jsonItem["connection"].toObject());
+            }
+
+            res.append(item);
+        }
+    }
     return res;
+}
+
+Connection* ItemsLoader::jsonToConnection(const QJsonObject &obj) {
+    Connection* conn = nullptr;
+
+    QString filename = obj["filename"].toString();
+
+    if (obj.contains("IP")) {
+        Connection_Net* netConn = new Connection_Net(
+            obj["IP"].toString(), obj["port"].toInt(), filename);
+        netConn->setFilename(filename);
+        conn = netConn;
+    }
+    else if (obj.contains("COMport")) {
+        // Connection_com
+        Connection_com* comConn = new Connection_com
+            (obj["COMport"].toString(), obj["ByteRate"].toInt(), filename);
+        conn = comConn;
+    }
+
+    return conn;
 }
 
 QJsonObject ItemsLoader::writeToJSON(QVector<FixedItem *> ItemsVector)

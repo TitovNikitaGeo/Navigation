@@ -44,7 +44,7 @@ private:
     void drawStreamer(Streamer* item);
     void addItemToObjectsList(FixedItem* newItem);
     void setUpObjectsTable();
-
+    void setMenuBar(QMenuBar *menuBar);
 
     ///TODO
     void CreateShipItem();

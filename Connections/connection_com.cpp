@@ -65,6 +65,7 @@ void Connection_com::reconnect()
 }
 
 
+
 void Connection_com::ReadyRead() {
     data.append(SerialPort.readAll());
     int index;

@@ -14,7 +14,7 @@ class ItemsLoader : public QObject
     Q_OBJECT
     explicit ItemsLoader(QObject *parent = nullptr);
 public:
-
+    static Connection* jsonToConnection(const QJsonObject &obj);
     static QVector<FixedItem*> readFromJSON(QFile* file);
     static QJsonObject  writeToJSON(QVector<FixedItem*> ItemsVector);
     static QJsonObject connectionToJson(Connection *conn);

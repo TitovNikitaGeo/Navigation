@@ -475,7 +475,7 @@
    <zorder>label_8</zorder>
    <zorder>pushButton_2</zorder>
   </widget>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
