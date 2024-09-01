@@ -42,7 +42,12 @@ void Streamer::calcChansCoors()
             ChannelsVector[i]->height = this->height + chans[i]* dh;
             ChannelsVector[i]->x_coor = this->x_coor - (distanceCalcCoef)*chans[i]*qSin(realAz);
             ChannelsVector[i]->y_coor = this->y_coor - (distanceCalcCoef)*chans[i]*qCos(realAz);
-            ChannelsVector[i]->depth = this->endBuoy->height - ChannelsVector[i]->height - this->endBuoy->AnthenaHeight - this->endBuoy->towingDepth;
+            if (QString(towingPoint->metaObject()->className()) == "Buoy") {
+                Buoy* leadBuoy = dynamic_cast<Buoy*>(towingPoint);
+                ChannelsVector[i]->depth = leadBuoy->towingDepth + (endBuoy->towingDepth - leadBuoy->towingDepth) * (chans[i]/realLen);
+            } else {
+                ChannelsVector[i]->depth = this->endBuoy->height - ChannelsVector[i]->height - this->endBuoy->AnthenaHeight - this->endBuoy->towingDepth;
+            }
         }
     } else {
         for(int i = 0; i < ChannelsVector.size(); i++) {

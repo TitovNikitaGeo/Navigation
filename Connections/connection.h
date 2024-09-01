@@ -5,7 +5,6 @@
 #include <QUdpSocket>
 #include <QTimer>
 #include <QNetworkDatagram>
-#include <QTimer>
 #include <QMessageBox>
 #include <QFile>
 #include <QDataStream>
@@ -17,7 +16,7 @@
 
 
 #include "nmeaparser.h"
-
+#include "logger.h"
 
 namespace Ui {
 class Connection;
@@ -67,11 +66,16 @@ public:
     void setFilename(const QString &newFilename);
     virtual void reconnect();
 private:
+    void showSignalQuality(float currentQuality);
     Ui::Connection *ui;
     static NmeaParser nmeaParser;
+    bool signalTimerAlert = false;
+    QTimer* timer;
+    Logger* log;
 
 private slots:
     virtual void ReadyRead(); //slot for getting signal
+    void onTimeout();
     // void readPendingDatagrams(); //to TCP
 };
 

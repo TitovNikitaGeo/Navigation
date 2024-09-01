@@ -19,26 +19,6 @@ Connection::~Connection() {
     file->close();
 }
 
-// Connection::~Connection()
-// {
-//     qDebug() << file->size() << "Connection killed";
-//     // file->close();
-//     // delete file;
-//     // delete socket;
-//     // delete datastream;
-//     // delete ui;
-// }
-
-// void Connection::readPendingDatagrams() //to TCP
-// {
-//     QNetworkDatagram datagram = socket->receiveDatagram();
-//     QByteArray message = datagram.data();
-//     ui->label->setText(message);
-//     // qDebug() << message << filename;
-//     write_nmea_data(message);
-//     // QStringList list = message.split(',');
-// }
-
 void Connection::write_nmea_data(QByteArray nmea_data){
     int data_condition;
     // qDebug() << "write_nmea_data" << nmea_data;
@@ -78,6 +58,13 @@ void Connection::create_file_for_nmea(QString filename){
 
     datastream = new QTextStream (file);
     this->filename = filename;
+
+
+    timer = new QTimer(this);
+    timer->setInterval(10000); // Устанавливаем интервал в 10 секунд
+
+    // Соединяем сигнал timeout() с нашим слотом onTimeout()
+    connect(timer, &QTimer::timeout, this, &Connection::onTimeout);
 }
 
 
@@ -175,6 +162,7 @@ int Connection::check_double_package(QByteArray nmea_data) {
 }
 
 float Connection::calcQuality(bool recieved) {
+
     // Наполнение 20
     if (packetsRecieved.size() < calcWindow) {
         packetsRecieved.push_front(recieved);
@@ -210,19 +198,7 @@ float Connection::calcQuality(bool recieved) {
         iter++;
     }
 
-    if (currentQuality > border) {
-        ui->label_2->setText("GOOD");
-        QPalette palette = ui->label_2->palette();
-        palette.setColor(QPalette::Window, Qt::green);
-        ui->label_2->setAutoFillBackground(true);
-        ui->label_2->setPalette(palette);
-    } else {
-        ui->label_2->setText("BAD");
-        QPalette palette = ui->label_2->palette();
-        palette.setColor(QPalette::Window, Qt::red);
-        ui->label_2->setAutoFillBackground(true);
-        ui->label_2->setPalette(palette);
-    }
+    showSignalQuality(currentQuality);
 
     return currentQuality;
 }
@@ -237,8 +213,34 @@ void Connection::reconnect()
 
 }
 
+void Connection::showSignalQuality(float currentQuality)
+{
+    if (currentQuality > border && !signalTimerAlert) {
+        ui->label_2->setText("GOOD");
+        QPalette palette = ui->label_2->palette();
+        palette.setColor(QPalette::Window, Qt::green);
+        ui->label_2->setAutoFillBackground(true);
+        ui->label_2->setPalette(palette);
+    } else {
+        ui->label_2->setText("BAD");
+        QPalette palette = ui->label_2->palette();
+        palette.setColor(QPalette::Window, Qt::red);
+        ui->label_2->setAutoFillBackground(true);
+        ui->label_2->setPalette(palette);
+    }
+}
+
 
 void Connection::ReadyRead() {
+}
+
+void Connection::onTimeout()
+{
+    // Если таймер сработал, значит, прошло более 10 секунд
+    // с последнего хорошего пакета
+    signalTimerAlert = true;
+    showSignalQuality(currentQuality);
+    reconnect();
 }
 
 

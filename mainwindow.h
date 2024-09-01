@@ -5,6 +5,7 @@
 #include "sidegraphicview.h"
 #include "fabric.h"
 #include "itemsstorage.h"
+#include "itemsloader.h"
 #include "coordinator.h"
 #include "p190_creator.h"
 
@@ -60,6 +61,7 @@ private:
     QTableWidget* tableWithItems;
     Coordinator* coordinator;
     QTimer* MyTimer;
+    ItemsLoader* itemsLoader;
 
 
     int NumberOfRowsInTable = 0;

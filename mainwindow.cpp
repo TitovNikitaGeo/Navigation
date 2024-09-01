@@ -186,6 +186,7 @@ void MainWindow::setMenuBar(QMenuBar *menuBar)
         if (!fileName.isEmpty()) {
             // Логика сохранения параметров в файл
             QMessageBox::information(nullptr, "Save configuration", QString("Configuration saved at %1").arg(fileName));
+
         }
     });
     fileMenu->addAction(saveAction);

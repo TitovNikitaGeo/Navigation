@@ -18,6 +18,8 @@ INCLUDEPATH += ./Service
 
 
 SOURCES += \
+    Connections/depthsensors.cpp \
+    Connections/sender.cpp \
     DataVault/itemsloader.cpp \
     DataVault/itemsstorage.cpp \
     Drawing/lordofgraphic.cpp \
@@ -43,6 +45,8 @@ SOURCES += \
     ConnectionCreator/connection_creator.cpp
 
 HEADERS += \
+    Connections/depthsensors.h \
+    Connections/sender.h \
     DataVault/itemsloader.h \
     DataVault/itemsstorage.h \
     DataVault/structures.h \
