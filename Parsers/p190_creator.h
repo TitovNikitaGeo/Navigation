@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QRegExp>
+#include <QCoreApplication>
 
 #include "itemsstorage.h"
 #include "functions.h"
@@ -39,11 +40,12 @@ public:
 
     void setItemStoragePtr(ItemsStorage* Vault);
     void setLineName(const QString &newLineName);
-
     QString createFileName();
     QString convertCoordinates(const QString &input);
 
     QString createMainRow__new(FixedItem* item, int pointNumber, int tailBuoy);
+    void setPath(const QDir &newPath);
+
 private:
     int currentBuoyNumber;
 
@@ -53,8 +55,10 @@ private:
     QTextStream* outputStream;
     ItemsStorage* MyVault;
 
+    QDir path;
+
     QString lineName = "AA10AA0707077";
-    QChar tailBuoy;
+    QChar tailBuoy; //ну и костыль. руки бы оторвать разрабу
     // QString floatToQString(float value, int totalLength, int decimalPlaces);
 signals:
 

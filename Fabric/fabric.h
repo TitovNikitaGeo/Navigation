@@ -37,8 +37,8 @@ public:
 
     void setMyVault(ItemsStorage* MyVault);
 
-private:
     Connection_creator* connectionCreator;
+private:
     ItemsStorage* MyVault;
 
 private slots:

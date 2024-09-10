@@ -9,6 +9,8 @@
 #include <QDir>
 #include <QStandardPaths>
 
+#define logmsg(msg) Logger::instance().logMessage(Logger::Info, QString(msg) + " " + __FUNCTION__)
+
 class Logger : public QObject
 {
     Q_OBJECT
@@ -23,20 +25,26 @@ public:
 
     static Logger& instance();
 
-    void log(QObject* caller, LogLevel level, QString msg);
-    void log(LogLevel level, QString msg);
+    void logMessage(QObject* caller, LogLevel level, QString msg);
+    void logMessage(LogLevel level, QString msg);
+    void createLogFile();
+
+    void setPath(const QDir &newPath);
+
 private:
     Logger();
     ~Logger();
-    void createLogFile();
 
     QFile* logFile;
     QTextStream* logStream;
     QMutex mutex;
     bool consoleOutput;
+    QDir path;
 
     QString logLevelToString(LogLevel level);
 signals:
 };
+
+
 
 #endif // LOGGER_H

@@ -30,11 +30,13 @@ private:
         float nextCoef;
     };
 
-    int numOfSensors;
+    int checkNS();
+
+    int numOfSensors = 0;
     QVector<float> sensorsPos;
     QVector<float> sensorsDepth;
     QVector<float> chans;
-    QVector<nearestSensors>* nS;
+    QVector<nearestSensors> nS;
 
     QVector<float> chanDepth;
 

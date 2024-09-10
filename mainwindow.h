@@ -8,6 +8,7 @@
 #include "itemsloader.h"
 #include "coordinator.h"
 #include "p190_creator.h"
+#include "logger.h"
 
 #include <QMainWindow>
 #include <QListView>
@@ -40,12 +41,18 @@ public:
 
     QString GetNewDeviceName(QString name);
 
+
 private:
     void drawLineToTowed(TowedItem* item);
     void drawStreamer(Streamer* item);
     void addItemToObjectsList(FixedItem* newItem);
     void setUpObjectsTable();
     void setMenuBar(QMenuBar *menuBar);
+
+    ///Path for all generated files
+    QDir pathForAllFiles;
+    void setPathForAllFiles();
+    ///Path for all generated files
 
     ///TODO
     void CreateShipItem();
@@ -62,7 +69,7 @@ private:
     Coordinator* coordinator;
     QTimer* MyTimer;
     ItemsLoader* itemsLoader;
-
+    Logger* logger;
 
     int NumberOfRowsInTable = 0;
 

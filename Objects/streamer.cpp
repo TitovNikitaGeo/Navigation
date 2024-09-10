@@ -153,16 +153,7 @@ QString Streamer::Channel::getUTMPos()
 
     for (int i = 0; i < 4; i++) {
         res[i] = floatToQString(myNumber, 4, 0)[i];
-        // res[i] = '~';
     }
-    // res.remove(' ');
-    // qDebug() << res.replace(0, 4,floatToQString(myNumber, 4, 0));
-    // QString res;
-    // res += floatToQString(myNumber, 2, 0) + " " + floatToQString(x_coor, 7,1)
-           // + floatToQString(y_coor, 7,1) + floatToQString(height, 5,2);
-    // qDebug() << res;
-    // res.removeAt(res.size()-1);
-    // qDebug() << res;
     return res;
 }
 

@@ -14,21 +14,9 @@ Logger::~Logger()
     logFile->close();
 }
 
-void Logger::createLogFile()
+void Logger::setPath(const QDir &newPath)
 {
-    QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    QDir dir(dirPath + "/Ship_logs");
-    QDateTime currentDateTime = QDateTime::currentDateTime();
-    QString fileName = QString("%1_%2_%3_%4.log")
-                           .arg(currentDateTime.time().hour())
-                           .arg(currentDateTime.time().minute(), 2, 10, QChar('0'))  // Добавляем ведущий ноль для минут
-                           .arg(currentDateTime.date().day(),2, 10, QChar('0'))
-                           .arg(currentDateTime.date().month(),2, 10, QChar('0'));
-    logFile = new QFile(dir.absolutePath() + "/"+ fileName);
-    logFile->open(QIODevice::WriteOnly);
-    logStream = new QTextStream(logFile);
-
-    QMutexLocker locker(&mutex);
+    path = newPath;
 }
 
 Logger &Logger::instance()
@@ -37,7 +25,23 @@ Logger &Logger::instance()
     return instance;
 }
 
-void Logger::log(QObject *caller, LogLevel level = LogLevel::Debug, QString msg = "")
+void Logger::createLogFile()
+{
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString fileName = QString("%1_%2_%3_%4.log")
+                           .arg(currentDateTime.time().hour())
+                           .arg(currentDateTime.time().minute(), 2, 10, QChar('0'))  // Добавляем ведущий ноль для минут
+                           .arg(currentDateTime.date().day(),2, 10, QChar('0'))
+                           .arg(currentDateTime.date().month(),2, 10, QChar('0'));
+    logFile = new QFile(path.absolutePath() + "/"+ fileName);
+    logFile->open(QIODevice::WriteOnly);
+    logStream = new QTextStream(logFile);
+
+    QMutexLocker locker(&mutex);
+}
+
+
+void Logger::logMessage(QObject *caller, LogLevel level = LogLevel::Debug, QString msg = "")
 {
     QMutexLocker locker(&mutex);
     QString callerName = caller->objectName();
@@ -47,7 +51,7 @@ void Logger::log(QObject *caller, LogLevel level = LogLevel::Debug, QString msg 
         .arg(logLevelToString(level))
         .arg(msg);
     if (logFile->isOpen()) {
-        *logStream << log << "\n";
+        *logStream << log << "/n";
         logStream->flush();
     }
     if (consoleOutput) {
@@ -55,10 +59,10 @@ void Logger::log(QObject *caller, LogLevel level = LogLevel::Debug, QString msg 
     }
 }
 
-void Logger::log(LogLevel level = LogLevel::Debug, QString msg = "")
+void Logger::logMessage(LogLevel level = LogLevel::Debug, QString msg = "")
 {
     QMutexLocker locker(&mutex);
-    QString log = QString("%1 %2\n%3 %4")
+    QString log = QString("%1 %2 %3")
         .arg(QDateTime::currentDateTime().
           toString("yyyy-MM-dd HH:mm:ss"))
         .arg(logLevelToString(level))

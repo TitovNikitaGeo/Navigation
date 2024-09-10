@@ -61,20 +61,29 @@ MainWindow::MainWindow(QWidget *parent)
             coordinator,&Coordinator::boardDepthChanged);
 
     setMenuBar(this->menuBar());
-}
 
+    ///one path to rule all the files
+    ///and logger
+    logger = (&Logger::instance());
+    setPathForAllFiles();    
+    logger->createLogFile();
+
+}
 void MainWindow::timeToCollectData()
 {
     if (coordinator->calcCoors()) {
         // coordinator->printCoors();
         p190Creator->createShotBlock();
     }
-    qDebug()<<"__________________________ END TIC";
+    // qDebug()<<"__________________________ END TIC";
+    // log->logMessage(this, Logger::Info, "timer tick");
+    logmsg("timer tick");
 
 }
 
 MainWindow::~MainWindow()
 {
+    // log->logMessage(this, Logger::Info, "Main Window destructor");
     delete MyFabric;
     delete DrawingAreaTopView;
     delete Vault;
@@ -201,6 +210,25 @@ void MainWindow::setMenuBar(QMenuBar *menuBar)
         }
     });
     fileMenu->addAction(loadAction);
+}
+
+void MainWindow::setPathForAllFiles()
+{
+    QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString folderName = QString("%1_%2__%3_%4")
+                             .arg(currentDateTime.time().hour())
+                             .arg(currentDateTime.time().minute(), 2, 10, QChar('0'))
+                             .arg(currentDateTime.date().day(),2, 10, QChar('0'))
+                             .arg(currentDateTime.date().month(),2, 10, QChar('0'));
+
+
+    QDir dir(dirPath + "/Ship_logs/" + folderName);
+    dir.mkpath(dirPath + "/Ship_logs/" + folderName);
+
+    MyFabric->connectionCreator->setDirPath(dir);
+    p190Creator->setPath(dir);
+    logger->setPath(dir);
 }
 
 

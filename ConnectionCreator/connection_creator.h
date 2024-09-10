@@ -69,6 +69,9 @@ public:
     Connection* getLastConnection();
 
 
+
+    void setDirPath(const QDir &newDirPath);
+
 private slots:
     void on_pushButton_clicked();
 
@@ -79,7 +82,7 @@ signals:
 
 private:
     Connection* lastConnection;
-    QString dirPath;
+    QDir dirPath;
 
     Ui::Connection_creator *ui;
     QVector<Connection*> Connection_vector;

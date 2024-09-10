@@ -16,7 +16,14 @@ QStringList Sender::createPackage()
     QStringList res;
     for (FixedItem* item: MyVault->ItemsVault) {
         QString msg;
+        QString type = QString(item->metaObject()->className());
         msg.append(item->name + "\t" + item->itemType + "\t");
+        if (type == "Streamer") {
+            Streamer* strm = dynamic_cast<Streamer*>(item);
+            for (uint i = 0; i < strm->getChanCount(); i++) {
+
+            }
+        }
     }
     return res;
 }

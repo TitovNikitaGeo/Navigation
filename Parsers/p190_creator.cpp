@@ -35,43 +35,41 @@ QStringList P190_creator::createShotBlock()
 
 ///STUB. DO NOT OPEN
 QStringList P190_creator::createHeader() {
-    return QStringList {"H0100 AREA NAME                ALMATY, KAZAKHSTAN                              ",
-                       "H0101 JOB DESCRIPTION           2D HIGH RESOLUTION SURVEY                       ",
-                       "H0102 VESSEL DETAILS            GEOHIMIK                   1                    ",
-                       "H0103 SOURCE DETAILS            COS                        1   1                ",
-                       "H0104 STREAMER DETAILS          GPS                        1       1   1        ",
-                       "H0105 OTHER DETAILS             SIMRAD EA600:SIMRADEA600   1               1    ",
-                       "H0105 OTHER DETAILS             CMP                        1               2    ",
-                       "H0200 DATE OF SURVEY            23.06.1997                                      ",
-                       "H0201 DATE OF TAPE              23.06.1997                                      ",
-                       "H0202 TAPE VERSION ID           CBR                                             ",
-                       "H0203 LINE PREFIX               AA16A                                           ",
-                       "H0300 CLIENT NAME               GEODEVICE                                       ",
-                       "H0400 GEOPHYSICAL CONTRACTOR    GEODEVICE KAZAKHSTAN                            ",
-                       "H0500 POSITION CONTRACTOR       C-NAV                                           ",
-                       "H0600 POS. PROC. CONTRACTOR     GEODEVICE                                       ",
-                       "H0700 POS./ COMPUTER SYSTEM     C-NAV                                           ",
-                       "H0800 SHOTPOINT POSITION        EIVA NAVIPAC 3.10.5                             "};
+    QString filePath = ":/Data/SurveyInfo.txt";
+    qDebug() << filePath <<__FUNCTION__;
+
+    // Открываем файл
+    QFile file(filePath);
+    QStringList header;
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+
+        // Читаем строки из файла и добавляем их в QStringList
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            header << line;
+        }
+
+        file.close();
+    } else {
+        // Обработка ошибки, если файл не удалось открыть
+        qWarning("Cannot open file for reading: %s", qPrintable(file.errorString()));
+    }
+
+    return header;;
 }
 
 
 void P190_creator::createP190File() {
 
-    QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    QDir dir(dirPath + "/Ship_logs");
+    // QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    // QDir dir(dirPath + "/Ship_logs");
     // qDebug() << dir;
+    QDir dir = path; //setted in MainWindow
+    qDebug() << dir.absolutePath();
     fileName = createFileName();
 
-    if (!dir.exists()) {
-        // If the directory does not exist, create it
-        if (dir.mkpath(dirPath)) {
-            qDebug() << "Directory created successfully.";
-        } else {
-            qDebug() << "Failed to create directory.";
-        }
-    } else {
-        // qDebug() << "Directory already exists.";
-    }
     outputFile = new QFile(dir.absolutePath() + "/" + fileName);
     qDebug() <<outputFile->fileName();
 
@@ -233,6 +231,11 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
     res.replace(75, 2, QString("%1").arg(dt.time().minute(), 2, 10, QChar('0')));
     res.replace(77, 2, QString("%1").arg(dt.time().second(), 2, 10, QChar('0')));
     return res;
+}
+
+void P190_creator::setPath(const QDir &newPath)
+{
+    path = newPath;
 }
 
 void P190_creator::setItemStoragePtr(ItemsStorage *Vault)
