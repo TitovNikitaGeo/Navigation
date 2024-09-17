@@ -6,6 +6,11 @@ consoleOutput = false;
     consoleOutput = true;
 #endif
 
+    // Создаем окно для вывода логов
+    logWindow = new QTextEdit();
+    logWindow->setReadOnly(true);  // Окно только для чтения
+    logWindow->show();             // Показать окно
+
 }
 
 Logger::~Logger()
@@ -57,6 +62,8 @@ void Logger::logMessage(QObject *caller, LogLevel level = LogLevel::Debug, QStri
     if (consoleOutput) {
         qDebug() << log;
     }
+
+    logWindow->setPlainText(log + "\n" + logWindow->toPlainText());
 }
 
 void Logger::logMessage(LogLevel level = LogLevel::Debug, QString msg = "")
@@ -74,6 +81,7 @@ void Logger::logMessage(LogLevel level = LogLevel::Debug, QString msg = "")
     if (consoleOutput) {
         qDebug() << log;
     }
+    logWindow->setPlainText(log + "\n" + logWindow->toPlainText());
 }
 
 QString Logger::logLevelToString(LogLevel level)

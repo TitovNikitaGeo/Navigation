@@ -4,6 +4,7 @@
 P190_creator::P190_creator(QObject *parent)
     : QObject{parent}
 {
+
 }
 
 P190_creator::~P190_creator()
@@ -90,6 +91,7 @@ void P190_creator::writeToFile(QStringList data) {
         for (QString str: data) {
             if (str.isEmpty() || str.length() < 20) continue;
             outputFile->write(QByteArray(str.toUtf8()) + "\n");
+            logmsg(str);
                 // outputFile->write("\n");
         }
         outputFile->close();

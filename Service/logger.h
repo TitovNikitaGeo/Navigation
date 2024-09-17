@@ -8,6 +8,7 @@
 #include <QMutex>
 #include <QDir>
 #include <QStandardPaths>
+#include <QTextEdit>
 
 #define logmsg(msg) Logger::instance().logMessage(Logger::Info, QString(msg) + " " + __FUNCTION__)
 
@@ -40,6 +41,8 @@ private:
     QMutex mutex;
     bool consoleOutput;
     QDir path;
+
+    QTextEdit* logWindow;
 
     QString logLevelToString(LogLevel level);
 signals:

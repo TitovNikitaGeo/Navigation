@@ -28,6 +28,7 @@ void Connection::write_nmea_data(QByteArray nmea_data){
             // calcQuality(true);
             *datastream << nmea_data;
             lastRecievedGGA = QString(nmea_data);
+            logmsg(nmea_data);
             qDebug() << filename.right(filename.lastIndexOf('/')) <<"Connection::write_nmea_data GGA UPDATED";
         }else if(data_condition == 3){
             lastRecievedRMC = QString(nmea_data);

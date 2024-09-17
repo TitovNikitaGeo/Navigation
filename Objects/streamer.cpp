@@ -44,9 +44,9 @@ void Streamer::calcChansCoors()
             ChannelsVector[i]->y_coor = this->y_coor - (distanceCalcCoef)*chans[i]*qCos(realAz);
             if (QString(towingPoint->metaObject()->className()) == "Buoy") {
                 Buoy* leadBuoy = dynamic_cast<Buoy*>(towingPoint);
-                ChannelsVector[i]->depth = leadBuoy->towingDepth + (endBuoy->towingDepth - leadBuoy->towingDepth) * (chans[i]/realLen);
+                // ChannelsVector[i]->depth = leadBuoy->towingDepth + (endBuoy->towingDepth - leadBuoy->towingDepth) * (chans[i]/realLen);
             } else {
-                ChannelsVector[i]->depth = this->endBuoy->height - ChannelsVector[i]->height - this->endBuoy->AnthenaHeight - this->endBuoy->towingDepth;
+                // ChannelsVector[i]->depth = this->endBuoy->height - ChannelsVector[i]->height - this->endBuoy->AnthenaHeight - this->endBuoy->towingDepth;
             }
         }
     } else {
@@ -130,9 +130,17 @@ float Streamer::getTotalLength() const
 
 void Streamer::calcStreamerDepth()
 {
-    depth = towingPoint->height - this->height;
-    for (Channel* ch: ChannelsVector) {
-        ch->depth = depth + (height - ch->height);
+
+    if (QString(towingPoint->metaObject()->className()) == "Buoy") {
+        Buoy* leadBuoy = dynamic_cast<Buoy*>(towingPoint);
+        float leadEndDepthDif = leadBuoy->towingDepth - this->endBuoy->towingDepth;
+        for (int i = 0; i < NumChanels; i++) {
+            ChannelsVector[i]->depth = leadBuoy->towingDepth + leadEndDepthDif*(chans[i]/realLen);
+        }
+    } else {
+        for (int i = 0; i < NumChanels; i++) {
+            ChannelsVector[i]->depth = endBuoy->towingDepth;
+        }
     }
 }
 
