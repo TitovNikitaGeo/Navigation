@@ -60,7 +60,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->boardHeightSpinBox, &QDoubleSpinBox::valueChanged,
             coordinator,&Coordinator::boardDepthChanged);
 
-    setMenuBar(this->menuBar());
+    // setMenuBar(this->menuBar());
+
+
 
     ///one path to rule all the files
     ///and logger
@@ -88,6 +90,7 @@ MainWindow::~MainWindow()
     delete DrawingAreaTopView;
     delete Vault;
     delete ui;
+    exit(0);
 }
 
 
@@ -454,12 +457,19 @@ QString MainWindow::GetNewDeviceName(QString name){
 
 void MainWindow::drawLineToTowed(TowedItem* item) {
     //рисует линию от буксируемого устройства к точке крепления
-    DrawingAreaTopView->drawLineToTowed(item->x, item->y,
+    if (QString(item->towingPoint->metaObject()->className()) == "Streamer") {
+        float streamerLength = dynamic_cast<Streamer*>(item->towingPoint)->totalLength;
+        DrawingAreaTopView->drawLineToTowed(item->x, item->y,
+                                            item->towingPoint->x-streamerLength, item->towingPoint->y);
+        DrawingAreaSideView->drawLineToTowed(item->x, item->z,
+                                             item->towingPoint->x-streamerLength, item->towingPoint->z);
+    } else {
+        DrawingAreaTopView->drawLineToTowed(item->x, item->y,
             item->towingPoint->x, item->towingPoint->y);
-    DrawingAreaSideView->drawLineToTowed(item->x, item->z,
-            item->towingPoint->x, item->towingPoint->z);
+        DrawingAreaSideView->drawLineToTowed(item->x, item->z,
+            item->towingPoint->x, item->towingPoint->z);   
+    }
 }
-
 void MainWindow::drawStreamer(Streamer *item)
 {
     DrawingAreaTopView->drawStreamer(item->x, item->y,

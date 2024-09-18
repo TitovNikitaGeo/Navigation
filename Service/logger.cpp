@@ -9,7 +9,8 @@ consoleOutput = false;
     // Создаем окно для вывода логов
     logWindow = new QTextEdit();
     logWindow->setReadOnly(true);  // Окно только для чтения
-    logWindow->show();             // Показать окно
+    logWindow->show();            // Показать окно
+    logWindow->move(0, 200);
 
 }
 

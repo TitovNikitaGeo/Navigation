@@ -32,16 +32,16 @@ public:
 
     void setEndBuoy(Buoy *newEndBuoy);
 
-    float getTotalLength() const;
+    float getTotalLength();
 
     float depth;
     void calcStreamerDepth();
+    float totalLength;
 private:
     uint NumChanels;
     QVector<float> chans;
     QVector<Channel*> ChannelsVector;
 
-    float totalLength;
 
     float endDepth;
     Buoy* endBuoy = nullptr;

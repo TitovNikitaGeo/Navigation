@@ -7,12 +7,14 @@ FixedItem::FixedItem(float x,float y,float z, QString name) :
     x(x), y(y), z(z), name(name)
 {
     itemType = "Fixed";
-    qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
+    // qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
+    logmsg(itemType+" Item Created");
 
 }
 
 FixedItem::~FixedItem() {
-    qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name << "~FixedItem";
+    // qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name << "~FixedItem";
+    logmsg(itemType +" Item Deleted " + name);
     deletingWires();
 }
 
@@ -49,7 +51,7 @@ void FixedItem::calcIFNotConnected()
     y_coor = ItemForCalculations->y_coor - (y-ItemForCalculations->y)*qSin(azRad) +
              (x-ItemForCalculations->x)*qCos(azRad);
     QGeoCoordinate tmp = parser.UTMtoGeo(QPointF(x_coor, y_coor));
-    qDebug() << x_coor << y_coor <<"FixedItem::calcIFNotConnected()";
+    // qDebug() << x_coor << y_coor <<"FixedItem::calcIFNotConnected()";
     this->latitude = tmp.latitude();
     this->longitude = tmp.longitude();
     height = ItemForCalculations->height - (z - ItemForCalculations->z);
@@ -57,16 +59,22 @@ void FixedItem::calcIFNotConnected()
 
 void FixedItem::printPos()
 {
-    qDebug() <<"-----------------------FixedItem::printPos()";
-    qDebug() <<name;
-    qDebug() << "Высота:" << qSetRealNumberPrecision(3) << height  ;
-    // QPointF utmCoordinates = GeoToUTM(data.coordinate);
-    qDebug() << "UTM Восток:" << qSetRealNumberPrecision(10)<< x_coor ;
-    qDebug() << "UTM Север:" << qSetRealNumberPrecision(10) << y_coor;
-    qDebug() << "Geo восток:" << this->longitude;
-    qDebug() << "Geo Север:" << this->latitude;
-                                                                    // qDebug() << "Высота над уровнем моря"<< data.height;
-    qDebug() << "Азимут движения" << azimuthOfMovement;
+    // qDebug() <<"-----------------------FixedItem::printPos()";
+    // qDebug() <<name;
+    // qDebug() << "Height:" << qSetRealNumberPrecision(3) << height  ;
+    // qDebug() << "UTM East:" << qSetRealNumberPrecision(10)<< x_coor ;
+    // qDebug() << "UTM North:" << qSetRealNumberPrecision(10) << y_coor;
+    // qDebug() << "Geo East:" << this->longitude;
+    // qDebug() << "Geo Notrh:" << this->latitude;
+    // qDebug() << "Azimuth of movement" << azimuthOfMovement;
+    logmsg(name + "\nHeight " + QString::number(height) +
+           "\nUTM East:" + QString::number(x_coor) +
+           "\nUTM North:" + QString::number(y_coor) +
+           "\nGeo East:" + QString::number(this->longitude) +
+           "\nGeo Notrh:" + QString::number(this->latitude) +
+           "Azimuth of movement" + QString::number(azimuthOfMovement));
+
+
 }
 
 void FixedItem::deletingWires() {

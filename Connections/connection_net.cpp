@@ -75,57 +75,7 @@ void Connection_Net::onConnected()
     qDebug() << "Connected to" << socket->peerAddress().toString() << ":" << socket->peerPort();
 }
 
-// void Connection_Net::ReadyRead()
-// {
-//     int index;
-//     if ((index = data.indexOf('\n')) == -1) {
-//         ;
-//     } else {
-//         // data = DataBuffer + data;
-//         QByteArray mainPart = data.left(index + 1);  // включая '\r\n'
-//         QByteArray removedPart = data.mid(index + 1); // после '\r\n'
-//         data = mainPart;
-//         // qDebug() << data << "Data"; // <<DataBuffer;
-//         // return;
-//         if (check_nmea_data(data)) {
-//             recieve_data(data);
-//             calcQuality(true);
-//             // qDebug() << "GOOD DATA "<< data;
-//         } else {
-//             calcQuality(false);
-//             // qDebug() << "BAD DATA "<< data;
-//         }
-//         data.clear();
-//         data = removedPart;
-//         // DataBuffer.clear();
-//     }
-// }
 
-// void Connection_Net::ReadyRead()
-// {
-//     int index;
-//     if ((index = data.indexOf('\n')) == -1) {
-//         ;
-//     } else {
-//         // data = DataBuffer + data;
-//         QByteArray mainPart = data.left(index + 1);  // включая '\r\n'
-//         QByteArray removedPart = data.mid(index + 1); // после '\r\n'
-//         data = mainPart;
-//         // qDebug() << data << "Data"; // <<DataBuffer;
-//         // return;
-//         if (check_nmea_data(data)) {
-//             recieve_data(data);
-//             calcQuality(true);
-//             // qDebug() << "GOOD DATA "<< data;
-//         } else {
-//             calcQuality(false);
-//             // qDebug() << "BAD DATA "<< data;
-//         }
-//         data.clear();
-//         data = removedPart;
-//         // DataBuffer.clear();
-//     }
-// }
 
 void Connection_Net::ReadyRead()
 {

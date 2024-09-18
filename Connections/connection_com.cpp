@@ -94,6 +94,3 @@ void Connection_com::ReadyRead() {
     // qDebug() <<"_____________";
 }
 
-
-// void Connection_com::recieve_data(QByteArray data) {
-// }

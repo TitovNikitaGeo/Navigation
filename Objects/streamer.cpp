@@ -13,7 +13,7 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
     itemType = "Streamer";
 
     if (NumChanels == 0 || chans.empty()) {
-        qDebug() << "Wrong streaner configuration";
+        qDebug() << "Wrong streamer configuration";
         return;
     }
 
@@ -21,6 +21,7 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
         Channel* chan = new Channel(i);
         ChannelsVector.append(chan);
     }
+    totalLength =  chans.at(chans.size() - 1);
     // calcChansCoors();
     // printSelfInfo();
 }
@@ -73,14 +74,20 @@ void Streamer::printChansCoor() //функция для дебага. вывод
 
 void Streamer::printPos()
 {
-    qDebug() <<"-----------------------";
-    qDebug() <<name;
-    qDebug() << "Высота:" << qSetRealNumberPrecision(3) << height  ;
-    // QPointF utmCoordinates = GeoToUTM(data.coordinate);
-    qDebug() << "UTM Восток:" << qSetRealNumberPrecision(10)<< x_coor ;
-    qDebug() << "UTM Север:" << qSetRealNumberPrecision(10) << y_coor;
-    // qDebug() << "Высота над уровнем моря"<< data.height;
-    qDebug() << "Азимут движения" << azimuthOfMovement;
+    // qDebug() <<"-----------------------";
+    // qDebug() <<name;
+    // qDebug() << "Высота:" << qSetRealNumberPrecision(3) << height  ;
+    // // QPointF utmCoordinates = GeoToUTM(data.coordinate);
+    // qDebug() << "UTM Восток:" << qSetRealNumberPrecision(10)<< x_coor ;
+    // qDebug() << "UTM Север:" << qSetRealNumberPrecision(10) << y_coor;
+    // // qDebug() << "Высота над уровнем моря"<< data.height;
+    // qDebug() << "Азимут движения" << azimuthOfMovement;
+    logmsg(name + "\nHeight " + QString::number(height) +
+           "\nUTM East:" + QString::number(x_coor) +
+           "\nUTM North:" + QString::number(y_coor) +
+           "\nGeo East:" + QString::number(this->longitude) +
+           "\nGeo Notrh:" + QString::number(this->latitude) +
+           "Azimuth of movement" + QString::number(azimuthOfMovement));
     printChansCoor();
 }
 
@@ -123,7 +130,7 @@ void Streamer::setEndBuoy(Buoy *newEndBuoy)
     endBuoy = newEndBuoy;
 }
 
-float Streamer::getTotalLength() const
+float Streamer::getTotalLength()
 {
     return totalLength;
 }

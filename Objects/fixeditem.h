@@ -10,6 +10,7 @@
 
 #include "nmeaparser.h"
 #include "connection.h"
+#include "logger.h"
 
 class FixedItem : public QObject
 {

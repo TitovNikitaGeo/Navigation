@@ -3,3 +3,4 @@
 *.user
 Ship.pro.user
 *.user
+/release/*

@@ -23,11 +23,11 @@ StreamerDialog::StreamerDialog(QWidget* parent)
 
     // Multi Channel Tab
     multiChannelTab = new QWidget(this);
-    QLabel *channelsLabel = new QLabel("Количество каналов", multiChannelTab);
+    QLabel *channelsLabel = new QLabel("Number of channels", multiChannelTab);
     multiChannelComboBoxChannels = new QComboBox(multiChannelTab);
     multiChannelComboBoxChannels->addItems({"24", "48"});
 
-    QLabel *distanceLabel = new QLabel("Расстояние между каналами", multiChannelTab);
+    QLabel *distanceLabel = new QLabel("Step between channels", multiChannelTab);
     multiChannelComboBoxDistance = new QComboBox(multiChannelTab);
     multiChannelComboBoxDistance->addItems({"1", "2", "3.125"});
 
@@ -49,8 +49,8 @@ StreamerDialog::StreamerDialog(QWidget* parent)
         }
     });
 
-    tabWidget->addTab(singleChannelTab, "Одноканальная");
-    tabWidget->addTab(multiChannelTab, "Многоканальная");
+    tabWidget->addTab(singleChannelTab, "Single channel");
+    tabWidget->addTab(multiChannelTab, "Multi channel");
 
     // New Elastic Section Length SpinBox and Label
     QLabel *elasticSectionLengthLabel = new QLabel("Elastic Section Length", this);
