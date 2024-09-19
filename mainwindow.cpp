@@ -11,7 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
     // MyTimer->start(1000);
 
-
     ///Just for init settings of widgets
     emit on_RBFixed_clicked();
     ///Just for init settings of widgets
@@ -60,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->boardHeightSpinBox, &QDoubleSpinBox::valueChanged,
             coordinator,&Coordinator::boardDepthChanged);
 
-    // setMenuBar(this->menuBar());
+    setMenuBar(this->menuBar());
 
 
 
@@ -69,6 +68,8 @@ MainWindow::MainWindow(QWidget *parent)
     logger = (&Logger::instance());
     setPathForAllFiles();    
     logger->createLogFile();
+
+
 
 }
 void MainWindow::timeToCollectData()
@@ -232,6 +233,16 @@ void MainWindow::setPathForAllFiles()
     MyFabric->connectionCreator->setDirPath(dir);
     p190Creator->setPath(dir);
     logger->setPath(dir);
+}
+
+void MainWindow::saveConfig()
+{
+
+}
+
+void MainWindow::postProcessing()
+{
+
 }
 
 
@@ -555,6 +566,18 @@ void MainWindow::on_pushButton_2_clicked()
         if (it->hasConnection) {
             it->connection->reconnect();
         }
+    }
+}
+
+
+
+void MainWindow::on_PostProcessingButton_clicked()
+{
+    QString dirPath = QFileDialog::getExistingDirectory(nullptr, "Select Directory With Seg-Y");
+    SegYReader sr;
+    sr.readPathWithSegy(QDir(dirPath));
+    for (int i = 0; i < sr.times.size(); i++) {
+        logmsg("read from sgy. FFID - " + QString::number(sr.ffids[i]) + "time - " + sr.times[i].toString());
     }
 }
 

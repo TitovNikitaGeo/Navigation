@@ -16,6 +16,7 @@ INCLUDEPATH += ./Connections
 INCLUDEPATH += ./Parsers
 INCLUDEPATH += ./Service
 INCLUDEPATH += ./Data
+INCLUDEPATH += ./SegyReader
 
 
 SOURCES += \
@@ -34,6 +35,7 @@ SOURCES += \
     Objects/streamer.cpp \
     Objects/toweditem.cpp \
     Parsers/coordinator.cpp \
+    SegyReader/segyreader.cpp \
     Service/logger.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -63,6 +65,7 @@ HEADERS += \
     Objects/toweditem.h \
     Parsers/coordinator.h \
     Parsers/functions.h \
+    SegyReader/segyreader.h \
     Service/logger.h \
     mainwindow.h \
     Drawing/mygraphicview.h \

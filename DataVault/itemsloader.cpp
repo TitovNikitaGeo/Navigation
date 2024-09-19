@@ -1,5 +1,11 @@
 #include "itemsloader.h"
 
+ItemsLoader &ItemsLoader::instance()
+{
+    static ItemsLoader instance;
+    return instance;
+}
+
 ItemsLoader::ItemsLoader(QObject *parent)
     : QObject{parent}
 {}
