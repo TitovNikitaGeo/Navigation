@@ -57,8 +57,10 @@ QStringList P190_creator::createHeader() {
         // Обработка ошибки, если файл не удалось открыть
         qWarning("Cannot open file for reading: %s", qPrintable(file.errorString()));
     }
+    header[7] = replaceDates(header[7]);
+    header[8] = replaceDates(header[8]);
 
-    return header;;
+    return header;
 }
 
 
@@ -147,58 +149,33 @@ QStringList P190_creator::createMainInfoBlock() {
     return res;
 }
 
-QString P190_creator::createMainRow(FixedItem *item, int pointNumber, int tailBuoy) {
+QStringList P190_creator::createMainInfoBlock(int ffid) {
+    this->currentBuoyNumber = 0;
+    QStringList res;
     QString tmp;
-    QChar type = 'Z';
-    QChar VesselID = '1';
-    QChar SourceID = '1';
-    QChar TailBuoyID = ' ';
-    QDateTime dt = item->lastGGAData.dateTime;
-
-    if(QString(item->metaObject()->className()) == "FixedItem") {
-        if (item->x == 0 && item->y == 0 && item->z == 0) {
-            type = 'V';
-            SourceID = ' ';
-            if (item->lastGGAData.dateTime.isValid()) curDateTime = item->lastGGAData.dateTime;
+    int pointNumber = ffid;
+    for (FixedItem* item: MyVault->ItemsVault) {
+        if (QString(item->metaObject()->className()) == "Streamer") {
+            continue;
         }
-    } else if(QString(item->metaObject()->className()) == "Buoy") {
-        type = 'T';
-        TailBuoyID = '1';
-    } else if (QString(item->metaObject()->className()) == "Streamer") {
-        type = 'S';
+        tmp = createMainRow__new(item, pointNumber, currentBuoyNumber);
+        currentBuoyNumber++;
+        if (tmp.isEmpty()) continue;
+        res.append(tmp);
+        // qDebug() <<tmp << "createMainInfoBlock() ";
     }
-    // qDebug() <<item->lastGGAData.coordinate.toString();
+    ++pointNumber;
 
-    // if (type == 'Z') return QString("");
-    if (!dt.isValid()) {
-        dt = this->curDateTime;
-        // qDebug() << QString("%1").arg(dt.date().day(), 3, 10, QChar('0'))
-        //                 + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
-        //                 + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
-        //                 + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
-    }
-    // + convertCoordinates(item->lastGGAData.coordinate.toString())
-
-    tmp = type + lineName  + QString(12-lineName.length(), ' ') + "   " +
-          VesselID + SourceID + TailBuoyID
-          + QString(6-QString::number(pointNumber).length(), ' ') + QString::number(pointNumber)
-          + QGeoCoordinate(item->latitude, item->longitude).toString(QGeoCoordinate::CoordinateFormat::DegreesWithHemisphere).remove("°").remove(' ')
-          + floatToQString(item->x_coor, 8,2)
-          + floatToQString(item->y_coor, 9,2)
-          + " " + floatToQString(item->height, 3,2)
-          + QString("%1").arg(dt.date().dayOfYear(), 3, 10, QChar('0'))
-          + QString("%1").arg(dt.time().hour(), 2, 10, QChar('0'))
-          + QString("%1").arg(dt.time().minute(), 2, 10, QChar('0'))
-          + QString("%1").arg(dt.time().second(), 2, 10, QChar('0'));
-    return tmp;
+    return res;
 }
+
 QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int tailBuoy)
 {
     QString res(80, ' ');
     QChar type = 'Z';
     QChar VesselID = '1';
     QChar SourceID = '1';
-    QChar TailBuoyID = ' ';
+    QChar TailBuoyID = QChar(tailBuoy);
     QDateTime dt = item->lastGGAData.dateTime;
     if(QString(item->metaObject()->className()) == "FixedItem") {
         if (item->x == 0 && item->y == 0 && item->z == 0) {
@@ -284,5 +261,23 @@ QString P190_creator::convertCoordinates(const QString &input)
 }
 
 
+QString P190_creator::replaceDates(QString& input) {
+    // Define the current date in the desired format (dd.MM.yyyy)
+    QDate date = QDate::currentDate();
+    QString currentDate = date.toString("dd.MM.yyyy");
+    QString modifiedInput = input;
+    QString month = QString::number(date.month());
+    QString day = QString::number(date.day());
+    if (month.length() == 1) {
+        month = "0" + month;
+    }
+    if (day.length() == 1) {
+        day = "0" + day;
+    }
+    modifiedInput.replace("23", day);
+    modifiedInput.replace("06", month);
+    modifiedInput.replace("1997", QString::number(date.year()));
 
+    return modifiedInput;
+}
 

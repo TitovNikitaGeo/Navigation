@@ -9,7 +9,8 @@
 #include "coordinator.h"
 #include "p190_creator.h"
 #include "logger.h"
-#include "SegyReader/segyreader.h"
+#include "postprocessor.h"
+
 
 #include <QMainWindow>
 #include <QListView>
@@ -77,7 +78,7 @@ private:
     void loadConfig();
     void saveConfig();
 
-    void postProcessing();
+    void postProcessing(QDir pathNmea, QDir pathSegy);
 
 private slots:
     void on_DeleteItemPushButton_clicked();
@@ -93,7 +94,5 @@ private slots:
     void on_doubleSpinBox_valueChanged(double arg1);
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
-
-    void on_PostProcessingButton_clicked();
 };
 #endif // MAINWINDOW_H

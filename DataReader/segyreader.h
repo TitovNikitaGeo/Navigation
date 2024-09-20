@@ -15,10 +15,15 @@ class SegYReader
 {
     // Q_OBJECT
 public:
-
+    struct Pair{
+        int ffid;
+        QTime time;
+        Pair(int ffid, QTime time) :ffid(ffid), time(time){};
+    };
 
     QVector<int> ffids;
     QVector<QTime> times;
+    QVector<Pair> pairs;
 
     SegYReader();
     SegYReader(const QString& filePath);

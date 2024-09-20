@@ -93,6 +93,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="DeleteItemPushButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>140</x>
@@ -164,7 +167,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Центр</string>
+     <string>Center</string>
     </property>
    </widget>
    <widget class="QWidget" name="graphicsViewContainer" native="true">
@@ -389,6 +392,9 @@
     </layout>
    </widget>
    <widget class="QPushButton" name="pushButton">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -439,6 +445,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -449,22 +458,6 @@
     </property>
     <property name="text">
      <string>Re</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="PostProcessingButton">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>420</y>
-      <width>41</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Fin</string>
     </property>
    </widget>
    <zorder>RBFixed</zorder>
@@ -493,7 +486,6 @@
    <zorder>boardHeightSpinBox</zorder>
    <zorder>label_8</zorder>
    <zorder>pushButton_2</zorder>
-   <zorder>PostProcessingButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

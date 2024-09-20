@@ -8,18 +8,7 @@ Connection_creator::Connection_creator(QWidget *parent)
     , ui(new Ui::Connection_creator)
 {
     ui->setupUi(this);
-/*    dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Ship_logs";
-    QDir dir(dirPath);
-    if (!dir.exists()) {
-        // If the directory does not exist, create it
-        if (dir.mkpath(dirPath)) {
-            qDebug() << "Directory created successfully.";
-        } else {
-            qDebug() << "Failed to create directory.";
-        }
-    } else {
-        qDebug() << "Directory already exists.";
-    } */
+
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
 
     for (const QSerialPortInfo &port : ports) {
@@ -32,7 +21,7 @@ Connection_creator::Connection_creator(QWidget *parent)
         ui->pushButton->setEnabled(false);
     }
     ui->BRate_choose->setCurrentIndex(1);
-
+    setWindowTitle("Create new connection");
     // connect(ui->pushButton, &QPushButton::clicked, this, &Connection_creator::on_pushButton_clicked);
 }
 
@@ -68,18 +57,19 @@ void Connection_creator::on_pushButton_clicked()
 Connection* Connection_creator::createConnection()
 {
 
-    QString fileName = QFileDialog::getSaveFileName(
-        nullptr,
-        "Save NMEA File",
-        dirPath.absolutePath(),
-        "NMEA Files (*.nmea);;All Files (*)",
-        nullptr,
-        QFileDialog::DontConfirmOverwrite);
+    // QString fileName = QFileDialog::getSaveFileName(
+    //     nullptr,
+    //     "Save NMEA File",
+    //     dirPath.absolutePath(),
+    //     "NMEA Files (*.nmea);;All Files (*)",
+    //     nullptr,
+    //     QFileDialog::DontConfirmOverwrite);
 
-    if (fileName.isEmpty()) {
-        return nullptr;
-    }
-
+    // if (fileName.isEmpty()) {
+    //     return nullptr;
+    // }
+    QString fileName = this->dirPath.absolutePath()+"/"+lastCreatedFileName;
+    qDebug() << fileName << __FUNCTION__;
     if (!fileName.endsWith(".nmea", Qt::CaseInsensitive)) {
         fileName += ".nmea";
     }
@@ -118,6 +108,11 @@ void Connection_creator::on_connection_types_currentChanged(int index)
             ui->pushButton->setEnabled(false);
         }
     }
+}
+
+void Connection_creator::setLastCreatedFileName(const QString &newLastCreatedFileName)
+{
+    lastCreatedFileName = newLastCreatedFileName;
 }
 
 void Connection_creator::setDirPath(const QDir &newDirPath)

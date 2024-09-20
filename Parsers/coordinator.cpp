@@ -13,7 +13,10 @@ int Coordinator::calcCoors()
                 //сначала те, что имеют точное положение
                 item->getLastGGA();
                 item->getLastRMC();
-                item->calcItemCoordinates();
+
+                if (NmeaParser::isValid(item->lastGGAData) && NmeaParser::isValid(item->lastRMCData)) {
+                    item->calcItemCoordinates();
+                }
                 // qDebug() << item->connection->lastRecievedNMEA << "MainWindow::timeToCollectData()";
             }
             if (item->azimuthOfMovement != -1) {

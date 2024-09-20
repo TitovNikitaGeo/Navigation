@@ -6,6 +6,10 @@ SegYReader::SegYReader(const QString& filePath) : filePath(filePath) {}
 
 bool SegYReader::readFile() {
     QFile file(filePath);
+    if (QFileInfo(file).suffix() != "sgy") {
+        qDebug() << file.fileName() << " not segy";
+        return false;
+    }
     if (!file.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not open file: " << filePath.toStdString() << std::endl;
         return false;
@@ -53,6 +57,7 @@ void SegYReader::readTraceHeader(QFile& file) {
     uint32_t microseconds = (data[233] << 16) | (data[234]) << 8 | data[235];
     ffids.push_back(ffid);
     times.push_back(QTime(hours, minutes, seconds, microseconds/1000));
+    pairs.push_back(Pair(ffid, QTime(hours, minutes, seconds, microseconds/1000)));
 
     // qDebug() << ffid << hours << minutes << seconds << microseconds;
     file.close();

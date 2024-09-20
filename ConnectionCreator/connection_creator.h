@@ -72,6 +72,8 @@ public:
 
     void setDirPath(const QDir &newDirPath);
 
+    void setLastCreatedFileName(const QString &newLastCreatedFileName);
+
 private slots:
     void on_pushButton_clicked();
 
@@ -83,6 +85,8 @@ signals:
 private:
     Connection* lastConnection;
     QDir dirPath;
+
+    QString lastCreatedFileName;
 
     Ui::Connection_creator *ui;
     QVector<Connection*> Connection_vector;

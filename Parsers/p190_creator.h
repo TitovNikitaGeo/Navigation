@@ -13,6 +13,7 @@
 #include <QStandardPaths>
 #include <QRegExp>
 #include <QCoreApplication>
+#include <QRegularExpression>
 
 #include "itemsstorage.h"
 #include "functions.h"
@@ -31,6 +32,7 @@ public:
     QStringList createShotBlock();
     QStringList createStreamerBlock();
     QStringList createMainInfoBlock();
+    QStringList createMainInfoBlock(int ffid);
     QStringList createHeader();
     QString createMainRow(FixedItem* item, int pointNumber, int tailBuoy);
 
@@ -60,6 +62,8 @@ private:
     QString lineName = "AA10AA0707077";
     QChar tailBuoy; //ну и костыль. руки бы оторвать разрабу
     // QString floatToQString(float value, int totalLength, int decimalPlaces);
+
+    QString replaceDates(QString& input);
 signals:
 
 };

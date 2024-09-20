@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>Data/SurveyInfo.txt</file>
+        <file>Data/icon.ico</file>
     </qresource>
 </RCC>

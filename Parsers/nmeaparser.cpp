@@ -9,6 +9,25 @@ NmeaParser::NmeaParser(QObject *parent)
 
 }
 
+QTime NmeaParser::getTimeFromNmeaGGA(const QString &nmeaSentence)
+{
+    QTime time(-1,-1,-1,-1);
+    if (nmeaSentence.startsWith("$GPGGA") || nmeaSentence.startsWith("$GNGGA")) {
+        QStringList parts = nmeaSentence.split(',');
+        if (parts.size() > 9) {
+            QString timeValue = parts[1];
+            int hours = timeValue.mid(0, 2).toInt();
+            int minutes = timeValue.mid(2, 2).toInt();
+            int seconds = timeValue.mid(4, 2).toInt();
+            int milliseconds = timeValue.mid(7, 2).toInt();
+            if (QTime::isValid(hours, minutes, seconds, milliseconds)) {
+                time = QTime(hours, minutes, seconds, milliseconds);
+            }
+        }
+    }
+    return time;
+}
+
 NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { //разбиваем NMEA на части
     NmeaGGAData data;
 
@@ -213,6 +232,20 @@ QGeoCoordinate NmeaParser::UTMtoGeo(const QPointF &coordinate) { //из utm в �
     // qDebug() << "phi1Rad:" << phi1Rad;
     // qDebug() << "lat:" << lat << "lon:" << lon;
     return QGeoCoordinate(lat, lon);
+}
+
+bool NmeaParser::isValid(NmeaGGAData nmeaGGA) {
+    int res = 1;
+    if (nmeaGGA.coorUTM.rx() == 0 || nmeaGGA.coorUTM.ry() == 0) res = 0;
+    if (!nmeaGGA.dateTime.isValid()) res = 0;
+    return res;
+}
+
+bool NmeaParser::isValid(NmeaRMCData nmeaRMC) {
+    int res = 1;
+    if (nmeaRMC.azimuth < 0 || nmeaRMC.azimuth >= 360) res = 0;
+    if (nmeaRMC.speed < 0 || nmeaRMC.speed > 50) res = 0;
+    return res;
 }
 
 

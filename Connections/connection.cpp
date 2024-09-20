@@ -56,6 +56,7 @@ void Connection::create_file_for_nmea(QString filename){
         return;
     }
     qDebug() << "File " << filename << "opened in A mode";
+    qDebug() << file->filesystemFileName();
 
     datastream = new QTextStream (file);
     this->filename = filename;

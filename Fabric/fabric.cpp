@@ -12,7 +12,7 @@ FixedItem* Fabric::CreateItem(FixedItemInfo info, bool needConnect)
         info.SchemeCoors.x, info.SchemeCoors.y,info.SchemeCoors.z,
         info.ItemName);
     if (needConnect) {
-        Connection* con = createConnection();
+        Connection* con = createConnection(info.ItemName);
         if (con != nullptr) {
             bindItemConnection(item, con);
         }
@@ -25,7 +25,7 @@ TowedItem* Fabric::CreateItem(TowedItemInfo info, bool needConnect)
     TowedItem* item = new TowedItem(
         info.name, info.toWhoIsWired, info.angleToWired, info.wireLength);
     if (needConnect) {
-        Connection* con = createConnection();
+        Connection* con = createConnection(info.name);
         if (bindItemConnection(item, con)){
             qDebug() << "Fabric::CreateItem";
         }
@@ -63,7 +63,7 @@ Buoy* Fabric::CreateItem(BuoyInfo info, bool needConnection)
             info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
             info.towedInfo.wireLength, info.AnthenaHeight, info.towingDepth);
         if (needConnection) {
-            Connection* con = createConnection();
+            Connection* con = createConnection(info.towedInfo.name);
             if (bindItemConnection(newBuoy, con)){
                 qDebug() << "Fabric::CreateItem";
             }
@@ -82,9 +82,10 @@ Source* Fabric::CreateItem(SourceInfo sourceInfo, bool needConnect)
     return newItem;
 }
 
-Connection* Fabric::createConnection()
+Connection* Fabric::createConnection(QString itemName)
 {
     Connection* res = nullptr;
+    connectionCreator->setLastCreatedFileName(itemName);
     if (connectionCreator->exec() == QDialog::Accepted){
         qDebug() << "Fabric::createConnection() Accepted";
         connectionCreator->close();

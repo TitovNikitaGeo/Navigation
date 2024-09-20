@@ -29,7 +29,7 @@ public:
     Buoy* CreateItem(BuoyInfo info, bool needConnection);
     Source* CreateItem(SourceInfo info, bool needConnect);
 
-    Connection* createConnection();
+    Connection* createConnection(QString itemName);
 
 
     int bindItemConnection(FixedItem* to, Connection* who);

@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
             coordinator,&Coordinator::boardDepthChanged);
 
     setMenuBar(this->menuBar());
+    setWindowTitle("Seismic Navigation");
 
 
 
@@ -74,12 +75,10 @@ MainWindow::MainWindow(QWidget *parent)
 }
 void MainWindow::timeToCollectData()
 {
+
     if (coordinator->calcCoors()) {
-        // coordinator->printCoors();
         p190Creator->createShotBlock();
     }
-    // qDebug()<<"__________________________ END TIC";
-    // log->logMessage(this, Logger::Info, "timer tick");
     logmsg("timer tick");
 
 }
@@ -214,6 +213,21 @@ void MainWindow::setMenuBar(QMenuBar *menuBar)
         }
     });
     fileMenu->addAction(loadAction);
+
+    // Создание действия "Постпроцессинг"
+    QAction *postProcessingAction = new QAction("Start postprocessing", fileMenu);
+    QObject::connect(postProcessingAction, &QAction::triggered, menuBar->parent(), [this]() {
+        QString dirWithNmea = QFileDialog::getExistingDirectory(
+            nullptr, "Select folder with raw Nmea data", pathForAllFiles.absolutePath(),           // Default directory
+            QFileDialog::DontResolveSymlinks);
+        QString dirWithSegy = QFileDialog::getExistingDirectory(nullptr, "Select folder with Seg-Y",
+        pathForAllFiles.absolutePath(),           // Default directory
+        QFileDialog::DontResolveSymlinks);
+        postProcessing(dirWithNmea, dirWithSegy);
+
+    });
+    fileMenu->addAction(postProcessingAction);
+
 }
 
 void MainWindow::setPathForAllFiles()
@@ -229,6 +243,7 @@ void MainWindow::setPathForAllFiles()
 
     QDir dir(dirPath + "/Ship_logs/" + folderName);
     dir.mkpath(dirPath + "/Ship_logs/" + folderName);
+    this->pathForAllFiles = dir;
 
     MyFabric->connectionCreator->setDirPath(dir);
     p190Creator->setPath(dir);
@@ -240,9 +255,13 @@ void MainWindow::saveConfig()
 
 }
 
-void MainWindow::postProcessing()
+void MainWindow::postProcessing(QDir pathNmea, QDir pathSegy)
 {
-
+    PostProcessor processor;
+    processor.setNmeaStorage(pathNmea);
+    processor.setSegyStorage(pathSegy);
+    processor.getDataFromSegy();
+    processor.setMyVault(this->Vault);
 }
 
 
@@ -569,15 +588,4 @@ void MainWindow::on_pushButton_2_clicked()
     }
 }
 
-
-
-void MainWindow::on_PostProcessingButton_clicked()
-{
-    QString dirPath = QFileDialog::getExistingDirectory(nullptr, "Select Directory With Seg-Y");
-    SegYReader sr;
-    sr.readPathWithSegy(QDir(dirPath));
-    for (int i = 0; i < sr.times.size(); i++) {
-        logmsg("read from sgy. FFID - " + QString::number(sr.ffids[i]) + "time - " + sr.times[i].toString());
-    }
-}
 
