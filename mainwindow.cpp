@@ -258,6 +258,7 @@ void MainWindow::saveConfig()
 void MainWindow::postProcessing(QDir pathNmea, QDir pathSegy)
 {
     PostProcessor processor;
+    processor.setP190(this->p190Creator);
     processor.setNmeaStorage(pathNmea);
     processor.setSegyStorage(pathSegy);
     processor.getDataFromSegy();

@@ -35,6 +35,8 @@ public:
     int findNmeaFiles();
 
 
+    void setP190(P190_creator *newP190);
+
 private:
     QStringList findNmaeForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos);
     NmeaParser::NmeaGGAData calcTruePosition(NmeaParser::NmeaGGAData first,
@@ -43,6 +45,8 @@ private:
     ItemsStorage* MyVault;
     QVector<SegYReader::Pair> pairs;
     NmeaParser nmeaParser;
+
+    P190_creator* p190;
 };
 
 #endif // POSTPROCESSOR_H

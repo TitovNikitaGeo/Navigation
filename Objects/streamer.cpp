@@ -5,7 +5,7 @@ Streamer::Streamer(QObject *parent)
 {}
 
 Streamer::Streamer(QString Name, FixedItem *towingPoint,
-                   float angleToWired, float wireLength, uint NumChanels, QVector<float> chans)
+    float angleToWired, float wireLength, uint NumChanels, QVector<float> chans)
     : TowedItem(Name, towingPoint, angleToWired, wireLength)
 {
     this->NumChanels = NumChanels;
@@ -67,21 +67,14 @@ void Streamer::printChansCoor() //функция для дебага. вывод
     int i = 0;
     // QDebug deb = qDebug();
     for (Channel* ch: ChannelsVector) {
-        qDebug() <<qSetRealNumberPrecision(10)<< "Chan "<<i<<"X "<<ch->x_coor<<"Y "<<ch->y_coor<<"Depth"<<ch->depth;
+        qDebug() <<qSetRealNumberPrecision(10)<< "Chan "
+            <<i<<"X "<<ch->x_coor<<"Y "<<ch->y_coor<<"Depth"<<ch->depth;
         i++;
     }
 }
 
 void Streamer::printPos()
 {
-    // qDebug() <<"-----------------------";
-    // qDebug() <<name;
-    // qDebug() << "Высота:" << qSetRealNumberPrecision(3) << height  ;
-    // // QPointF utmCoordinates = GeoToUTM(data.coordinate);
-    // qDebug() << "UTM Восток:" << qSetRealNumberPrecision(10)<< x_coor ;
-    // qDebug() << "UTM Север:" << qSetRealNumberPrecision(10) << y_coor;
-    // // qDebug() << "Высота над уровнем моря"<< data.height;
-    // qDebug() << "Азимут движения" << azimuthOfMovement;
     logmsg(name + "\nHeight " + QString::number(height) +
            "\nUTM East:" + QString::number(x_coor) +
            "\nUTM North:" + QString::number(y_coor) +
@@ -137,7 +130,6 @@ float Streamer::getTotalLength()
 
 void Streamer::calcStreamerDepth()
 {
-
     if (QString(towingPoint->metaObject()->className()) == "Buoy") {
         Buoy* leadBuoy = dynamic_cast<Buoy*>(towingPoint);
         float leadEndDepthDif = leadBuoy->towingDepth - this->endBuoy->towingDepth;

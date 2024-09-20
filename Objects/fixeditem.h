@@ -19,11 +19,14 @@ private:
     friend class Fabric;
     friend class Coordinator;
     FixedItem(float x,float y,float z, QString name);
+    void calcIfConnected();
+    virtual void calcIFNotConnected();
 
 public:
     FixedItem();
     ~FixedItem();
 
+    void calcItemCoordinates();
     ///for scheme
     float x;
     float y;
@@ -37,9 +40,6 @@ public:
     float longitude;
     float height;
     double azimuthOfMovement;
-    void calcItemCoordinates();
-    void calcIfConnected();
-    virtual void calcIFNotConnected();
     NmeaParser::NmeaGGAData lastGGAData = {{0,0}, {0,0}, QDateTime(),0};
     NmeaParser::NmeaRMCData lastRMCData = {0,0};
 

@@ -7,6 +7,9 @@ int PostProcessor::runPP() {
     int* trash = 0;
     int res = 1;
 
+    p190->createP190File();
+
+
     getDataFromSegy(); //getting pairs
     logmsg("Pairs generated");
     fillItemsVectors(); //getting items (with and without connection)
@@ -22,9 +25,15 @@ int PostProcessor::runPP() {
                 pair.time, nmeaParser.getTimeFromNmeaGGA(nmeaValues[0]),
                 nmeaParser.getTimeFromNmeaGGA(nmeaValues[1]));
             item->lastGGAData = truePosition;
+            item->calcItemCoordinates();
         }
-        logmsg("Show with ffid " + QString::number(pair.ffid) + " created");
+        for (FixedItem* item: vectorNoCon) {
+            item->calcItemCoordinates();
+        }
+        p190->createMainInfoBlock(pair.ffid);
+        logmsg("P190 block with ffid " + QString::number(pair.ffid) + " created");
     }
+
     return res;
 }
 
@@ -116,7 +125,7 @@ NmeaParser::NmeaGGAData PostProcessor::calcTruePosition(NmeaParser::NmeaGGAData 
     NmeaParser::NmeaGGAData res;
     if (!firstTime.isValid()) return second;
     if (!secondTime.isValid()) return first;
-
+    if (secondTime == firstTime) return second;
     c1 = 1-(trueTime.msecsSinceStartOfDay() - firstTime.msecsSinceStartOfDay())/
                  (secondTime.msecsSinceStartOfDay() - firstTime.msecsSinceStartOfDay());
     c2 = 1-c1;
@@ -128,6 +137,11 @@ NmeaParser::NmeaGGAData PostProcessor::calcTruePosition(NmeaParser::NmeaGGAData 
     res.coordinate.setLatitude(first.coordinate.altitude()*c1 + second.coordinate.altitude()*c2);
     res.coordinate.setLongitude(first.coordinate.longitude()*c1 + second.coordinate.longitude()*c2);
     return res;
+}
+
+void PostProcessor::setP190(P190_creator *newP190)
+{
+    p190 = newP190;
 }
 
 

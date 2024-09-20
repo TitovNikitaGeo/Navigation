@@ -77,8 +77,8 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     mainLayout->addWidget(tabWidget);
     mainLayout->addWidget(elasticSectionLengthLabel);
     mainLayout->addWidget(elasticSectionLengthSpinBox);
-    mainLayout->addWidget(loadCSVButton);
-    mainLayout->addWidget(saveCSVButton);
+    // mainLayout->addWidget(loadCSVButton);
+    // mainLayout->addWidget(saveCSVButton);
     mainLayout->addWidget(finishButton);
     mainLayout->setAlignment(finishButton, Qt::AlignRight); // Align finish button to the right
     this->multiChannelTab->setFocus();
@@ -91,7 +91,7 @@ void StreamerDialog::onFinishButtonClicked()
     createChansValues();
     elasticSectionLength = elasticSectionLengthSpinBox->value();
     leadingDamperLength = elasticSectionLength;
-    endDamperLength = elasticSectionLength;
+    endDamperLength = 0;
     totalLength = leadingDamperLength + endDamperLength + chans.last() - chans.first();
     accept();
 }
