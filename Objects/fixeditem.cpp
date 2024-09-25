@@ -8,13 +8,13 @@ FixedItem::FixedItem(float x,float y,float z, QString name) :
 {
     itemType = "Fixed";
     // qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
-    logmsg(itemType+" Item Created");
+    // logmsg(itemType+" Item Created");
 
 }
 
 FixedItem::~FixedItem() {
     // qDebug() <<itemType<< " Item Deleted " <<x<<y<<z<<name << "~FixedItem";
-    logmsg(itemType +" Item Deleted " + name);
+    // logmsg(itemType +" Item Deleted " + name);
     deletingWires();
 }
 

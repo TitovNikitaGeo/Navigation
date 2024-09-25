@@ -76,11 +76,15 @@ Connection* Connection_creator::createConnection()
 
     Connection* new_connection = nullptr;
 
-    if (ui->connection_types->currentIndex() == 0) { // TCP connection
+    if (ui->connection_types->currentIndex() == 0) { // net connection
         QString IP = ui->lineEdit->text();
         uint16_t port = ui->lineEdit_2->text().toInt();
-        qDebug() << "TCP Connection created" << IP << port;
-        new_connection = new Connection_Net(IP, port, fileName);
+        qDebug() << "Connection created" << IP << port;
+        if (ui->TCP_RB->isChecked()) {
+            new_connection = new Connection_Net(IP, port, fileName);
+        } else {
+            new_connection = new connection_UDP(IP, port, fileName);
+        }
     } else { // COM connection
         QString comport = ui->PortsAvailableComboBox->currentText();
         qDebug() << "COM Port: " << comport;

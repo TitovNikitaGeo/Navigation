@@ -10,6 +10,7 @@
 #include "p190_creator.h"
 #include "logger.h"
 #include "postprocessor.h"
+#include "segyreader.h"
 
 
 #include <QMainWindow>
@@ -70,7 +71,6 @@ private:
     QTableWidget* tableWithItems;
     Coordinator* coordinator;
     QTimer* MyTimer;
-    ItemsLoader* itemsLoader;
     Logger* logger;
 
     int NumberOfRowsInTable = 0;
@@ -79,6 +79,12 @@ private:
     void saveConfig();
 
     void postProcessing(QDir pathNmea, QDir pathSegy);
+
+
+    SegYReader* sr;
+    void setSegyReader();
+    QVector <SegYReader::Pair> pairs;
+    int curSegyFile = 0;
 
 private slots:
     void on_DeleteItemPushButton_clicked();
@@ -94,5 +100,6 @@ private slots:
     void on_doubleSpinBox_valueChanged(double arg1);
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
+
 };
 #endif // MAINWINDOW_H

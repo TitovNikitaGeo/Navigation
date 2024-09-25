@@ -48,8 +48,12 @@ public:
     QString createMainRow__new(FixedItem* item, int pointNumber, int tailBuoy);
     void setPath(const QDir &newPath);
 
+    void setFFID(int newFFID);
+
 private:
     int currentBuoyNumber;
+    int FFID;
+
 
     QDateTime curDateTime;
     QString fileName;

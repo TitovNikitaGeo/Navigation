@@ -2,7 +2,7 @@
 
 StreamerDialog::StreamerDialog(QWidget* parent)
     : QDialog(parent), elasticSectionLength(12.5) {
-    setFixedSize(400, 300);
+    setFixedSize(400, 200);
     tabWidget = new QTabWidget(this);
 
     // Single Channel Tab
@@ -53,30 +53,30 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     tabWidget->addTab(multiChannelTab, "Multi channel");
 
     // New Elastic Section Length SpinBox and Label
-    QLabel *elasticSectionLengthLabel = new QLabel("Elastic Section Length", this);
-    elasticSectionLengthSpinBox = new QDoubleSpinBox(this);
-    elasticSectionLengthSpinBox->setRange(0.0, 25.0);
-    elasticSectionLengthSpinBox->setDecimals(1);
-    elasticSectionLengthSpinBox->setValue(12.5);
-    connect(elasticSectionLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {
-        elasticSectionLength = value;
-    });
+    // QLabel *elasticSectionLengthLabel = new QLabel("Elastic Section Length", this);
+    // elasticSectionLengthSpinBox = new QDoubleSpinBox(this);
+    // elasticSectionLengthSpinBox->setRange(0.0, 25.0);
+    // elasticSectionLengthSpinBox->setDecimals(1);
+    // elasticSectionLengthSpinBox->setValue(0);
+    // connect(elasticSectionLengthSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [=](double value) {
+    //     elasticSectionLength = value;
+    // });
 
     // Load CSV Button
-    loadCSVButton = new QPushButton("Load CSV", this);
-    connect(loadCSVButton, &QPushButton::clicked, this, &StreamerDialog::loadCSVFile);
+    // loadCSVButton = new QPushButton("Load CSV", this);
+    // connect(loadCSVButton, &QPushButton::clicked, this, &StreamerDialog::loadCSVFile);
 
     // Save CSV Button
-    saveCSVButton = new QPushButton("Save CSV", this);
-    connect(saveCSVButton, &QPushButton::clicked, this, &StreamerDialog::saveToCSV);
+    // saveCSVButton = new QPushButton("Save CSV", this);
+    // connect(saveCSVButton, &QPushButton::clicked, this, &StreamerDialog::saveToCSV);
 
     finishButton = new QPushButton("Finish", this);
     connect(finishButton, &QPushButton::clicked, this, &StreamerDialog::onFinishButtonClicked);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(tabWidget);
-    mainLayout->addWidget(elasticSectionLengthLabel);
-    mainLayout->addWidget(elasticSectionLengthSpinBox);
+    // mainLayout->addWidget(elasticSectionLengthLabel);
+    // mainLayout->addWidget(elasticSectionLengthSpinBox);
     // mainLayout->addWidget(loadCSVButton);
     // mainLayout->addWidget(saveCSVButton);
     mainLayout->addWidget(finishButton);
@@ -87,9 +87,9 @@ StreamerDialog::StreamerDialog(QWidget* parent)
 
 void StreamerDialog::onFinishButtonClicked()
 {
-    qDebug() << "StreamerDialog::onFinishButtonClicked";
+    // qDebug() << "StreamerDialog::onFinishButtonClicked";
     createChansValues();
-    elasticSectionLength = elasticSectionLengthSpinBox->value();
+    elasticSectionLength = 0;
     leadingDamperLength = elasticSectionLength;
     endDamperLength = 0;
     totalLength = leadingDamperLength + endDamperLength + chans.last() - chans.first();
@@ -197,12 +197,12 @@ void StreamerDialog::createChansValues()
         float dCh = multiChannelComboBoxDistance->currentText().toFloat(&ok);
         if (ok) {
             for (uint i = 0; i < numOfChannels; i++) {
-                chans.append(elasticSectionLength+i*dCh);
+                chans.append(i*dCh);
             }
         } else { //1&2
             dCh = 1;
             for (uint i = 0; i < 24; i++) {
-                chans.append(elasticSectionLength+i*dCh);
+                chans.append(i*dCh);
             }
             dCh = 2;
             for (uint i = 0; i < 24; i++) {
@@ -214,30 +214,30 @@ void StreamerDialog::createChansValues()
         switch(singleChannelComboBox->currentIndex()){
         case 0:
             numOfChannels = 2;
-            chans.append(leadingDamperLength);
+            chans.append(0);
             chans.append(chans[0] + 0.8);
             qDebug() << "1x8";
             break;
         case 1:
             numOfChannels = 3;
-            chans.append(leadingDamperLength);
+            chans.append(0);
             chans.append(chans[0] + 0.8);
             chans.append(chans[1] + 1.6);
             qDebug() << "1x16";
             break;
         case 2:
             numOfChannels = 3;
-            chans.append(leadingDamperLength);
+            chans.append(0);
             chans.append(chans[0] + 0.8);
             chans.append(chans[1] + 2.4);
             qDebug() << "1x24";
             break;
         case 3:
             numOfChannels = 4;
-            chans[0] = leadingDamperLength;
-            chans[1] = chans[0] + 0.8;
-            chans[2] = chans[1] + 2.4;
-            chans[3] = chans[2] + 4;
+            chans.append(0);
+            chans.append(chans[0] + 0.8);
+            chans.append(chans[1] + 2.4);
+            chans.append(chans[2] + 4);
             qDebug() << "1x48";
             break;
         case 4:

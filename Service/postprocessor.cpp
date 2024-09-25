@@ -6,25 +6,41 @@ int PostProcessor::runPP() {
     int nmeaFilesFound;
     int* trash = 0;
     int res = 1;
-
     p190->createP190File();
 
 
     getDataFromSegy(); //getting pairs
-    logmsg("Pairs generated");
+    // logmsg("Pairs generated");
     fillItemsVectors(); //getting items (with and without connection)
     // findNmeaFiles(); //getting list of files for items with con
 
     QStringList nmeaValues;
     for (SegYReader::Pair pair :pairs) {
+        float commonDummyAzimuth = -1;
         for (FixedItem* item: vectorWithCon) {
-            nmeaValues = findNmaeForSegy(pair, item->connection->file, trash);
+            nmeaValues = findNmeaForSegy(pair, item->connection->file, trash);
             NmeaParser::NmeaGGAData first = nmeaParser.parseNmeaGGA(nmeaValues[0]);
             NmeaParser::NmeaGGAData second = nmeaParser.parseNmeaGGA(nmeaValues[1]);
+            if (nmeaValues.size() == 3) {
+                if (!nmeaValues[2].isEmpty()){
+                    NmeaParser::NmeaRMCData rmc = nmeaParser.parseNmeaRMC(nmeaValues[2]);
+                    item->lastRMCData = rmc;
+                    commonDummyAzimuth = rmc.azimuth;
+                }
+            }
             NmeaParser::NmeaGGAData truePosition = this->calcTruePosition(first, second,
                 pair.time, nmeaParser.getTimeFromNmeaGGA(nmeaValues[0]),
                 nmeaParser.getTimeFromNmeaGGA(nmeaValues[1]));
             item->lastGGAData = truePosition;
+            item->azimuthOfMovement = commonDummyAzimuth;
+        }
+        if (commonDummyAzimuth == -1) {
+            qDebug() << "we have no azimuth" <<  __FUNCTION__;
+        }
+        for (FixedItem* item: vectorNoCon) {
+            item->azimuthOfMovement = commonDummyAzimuth;
+        }
+        for (FixedItem* item: vectorWithCon) {
             item->calcItemCoordinates();
         }
         for (FixedItem* item: vectorNoCon) {
@@ -42,13 +58,14 @@ void PostProcessor::getDataFromSegy()
 
     SegYReader sr;
     sr.readPathWithSegy(this->segyStorage);
-    logmsg("Seg-Y reading started");
+    // logmsg("Seg-Y reading started");
     for (int i = 0; i < sr.times.size(); i++) {
         pairs.push_back(sr.pairs.at(i));
         // logmsg("read from sgy. FFID - " + QString::number(pairs.at(i).ffid) + " time - " +
         //        pairs.at(i).time.toString("hh:mm:ss.zzz"));
+        // qDebug() << pairs[i].ffid << pairs[i].time;
     }
-    logmsg("Seg-Y reading finished");
+    // logmsg("Seg-Y reading finished");
 }
 
 void PostProcessor::setSegyStorage(const QDir &newSegyStorage)
@@ -80,20 +97,20 @@ int PostProcessor::findNmeaFiles()
     return 1;
 }
 
-QStringList PostProcessor::findNmaeForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos) {
+QStringList PostProcessor::findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos) {
     QTime time = pair.time;
     QString lowerNmea;
     QString higherNmea;
     int currentPosition = *pos;
 
-    // Move the file pointer to the last found position
-    // nmeaFile.seek(currentPosition);
-
-    // Create a text stream to read the file
+    QStringList res;
     QTextStream in(nmeaFile);
     QString line;
 
+    QString RMCData = "";
     while (in.readLineInto(&line)) {
+        qDebug() << line << __LINE__;
+
         if (line[3] == 'G' && line[4] == 'G' && line[5] == 'A') {
             // Assuming you have a function that extracts QTime from NMEA string
             QTime nmeaTime = nmeaParser.getTimeFromNmeaGGA(line);
@@ -107,15 +124,19 @@ QStringList PostProcessor::findNmaeForSegy(SegYReader::Pair pair, QFile* nmeaFil
                 break; // Stop searching once we find the first higher string
             }
         } else if (line[3] == 'R' && line[4] == 'M' && line[5] == 'C') {
-
+            RMCData = line;
         }
     }
-    logmsg(lowerNmea+ " " + higherNmea + " time " + time.toString("hh:mm:ss.zzz"));
+    // logmsg(lowerNmea+ " " + higherNmea + " time " + time.toString("hh:mm:ss.zzz"));
     // Update the position
-    *pos = currentPosition;
+    // *pos = currentPosition;
 
     // Return the result as a QStringList
-    return QStringList() << lowerNmea << higherNmea;
+    qDebug() << lowerNmea << higherNmea << RMCData;
+    res.push_back(lowerNmea);
+    res.push_back(higherNmea);
+    if (!RMCData.isEmpty()) res.push_back(RMCData);
+    return res;
 }
 
 NmeaParser::NmeaGGAData PostProcessor::calcTruePosition(NmeaParser::NmeaGGAData first,

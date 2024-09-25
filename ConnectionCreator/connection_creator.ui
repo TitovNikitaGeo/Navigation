@@ -28,7 +28,7 @@
       <x>0</x>
       <y>0</y>
       <width>221</width>
-      <height>131</height>
+      <height>141</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -42,7 +42,7 @@
       <property name="geometry">
        <rect>
         <x>150</x>
-        <y>60</y>
+        <y>70</y>
         <width>49</width>
         <height>16</height>
        </rect>
@@ -55,7 +55,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>60</y>
+        <y>70</y>
         <width>113</width>
         <height>24</height>
        </rect>
@@ -68,7 +68,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>20</y>
+        <y>30</y>
         <width>113</width>
         <height>24</height>
        </rect>
@@ -81,13 +81,48 @@
       <property name="geometry">
        <rect>
         <x>150</x>
-        <y>20</y>
+        <y>30</y>
         <width>49</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
        <string>IP</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="TCP_RB">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>91</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TCP</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="UDP_RB">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>0</y>
+        <width>91</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>UDP</string>
       </property>
      </widget>
     </widget>
@@ -190,9 +225,9 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>140</y>
-      <width>211</width>
+      <width>221</width>
       <height>31</height>
      </rect>
     </property>

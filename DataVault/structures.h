@@ -38,16 +38,22 @@ struct StreamerInfo{
     TowedItemInfo towedInfo;
     uint numOfChannels;
     QVector<float> chans; //distance between channels
+    StreamerInfo(TowedItemInfo towedInfo,
+        uint numOfChannels, QVector<float> chans)
+        : towedInfo(towedInfo), numOfChannels(numOfChannels), chans(chans){}
 };
 
 struct BuoyInfo{
     TowedItemInfo towedInfo;
     float AnthenaHeight;
     float towingDepth;
+    BuoyInfo(TowedItemInfo info, float AnthenaHeight, float towingDepth) :
+        towedInfo(info), AnthenaHeight(AnthenaHeight), towingDepth(towingDepth){};
 };
 
 struct SourceInfo{
     TowedItemInfo info;
+    SourceInfo(TowedItemInfo info) : info(info){};
 };
 
 

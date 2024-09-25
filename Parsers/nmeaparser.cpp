@@ -74,6 +74,11 @@ NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { 
 NmeaParser::NmeaRMCData NmeaParser::parseNmeaRMC(const QString &nmeaSentence)
 {
     NmeaRMCData rmcData {-1,-1};
+    if (nmeaSentence.startsWith("$GPHDT")) {
+        // rmcData.azimuth = nmeaSentence.mid(7,4).toFloat();
+        rmcData.azimuth = nmeaSentence.mid(nmeaSentence.indexOf(',')+1).toFloat();
+        return rmcData;
+    }
 
     // Проверяем, что строка начинается с "$GPRMC"
     if (!nmeaSentence.startsWith("$GPRMC") && !nmeaSentence.startsWith("$GNRMC")) {

@@ -163,3 +163,21 @@ QJsonObject ItemsLoader::connectionToJson(Connection *conn) {
     }
     return obj;
 }
+
+bool ItemsLoader::saveJsonObjectToFile(QJsonObject &jsonObject, QString &filePath) {
+    // Convert QJsonObject to QJsonDocument
+    QJsonDocument jsonDoc(jsonObject);
+
+    // Open the file in write mode
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Could not open file for writing:" << file.errorString();
+        return false;
+    }
+
+    // Write the JSON document to the file
+    file.write(jsonDoc.toJson());
+    file.close(); // Close the file
+
+    return true;
+}

@@ -16,9 +16,10 @@ P190_creator::~P190_creator()
 QStringList P190_creator::createShotBlock()
 {
     QStringList res;
-    QStringList mainBlock = createMainInfoBlock();
+    QStringList mainBlock = createMainInfoBlock(this->FFID);
+    // createMainInfoBlock()
     QStringList streamerBlock = createStreamerBlock();
-    qDebug() << "P190 createShotBlock()";
+    // qDebug() << "P190 createShotBlock()";
     // if (!outputFile->isOpen()) outputFile->open(QIODevice::Append);
     for (QString l: mainBlock) {
         qDebug() << l;
@@ -215,6 +216,11 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
 void P190_creator::setPath(const QDir &newPath)
 {
     path = newPath;
+}
+
+void P190_creator::setFFID(int newFFID)
+{
+    FFID = newFFID;
 }
 
 void P190_creator::setItemStoragePtr(ItemsStorage *Vault)

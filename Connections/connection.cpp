@@ -29,10 +29,15 @@ void Connection::write_nmea_data(QByteArray nmea_data){
             *datastream << nmea_data;
             lastRecievedGGA = QString(nmea_data);
             logmsg(nmea_data);
-            qDebug() << filename.right(filename.lastIndexOf('/')) <<"Connection::write_nmea_data GGA UPDATED";
+            // qDebug() << filename.right(filename.lastIndexOf('/')) <<"Connection::write_nmea_data GGA UPDATED";
         }else if(data_condition == 3){
             lastRecievedRMC = QString(nmea_data);
-            qDebug() << "Connection::write_nmea_data RMC UPDATED";
+            *datastream << nmea_data;
+            // logmsg(nmea_data);
+            // qDebug() << "Connection::write_nmea_data RMC UPDATED";
+        } else if (data_condition == 2) {
+            *datastream << nmea_data;
+            lastRecievedRMC = QString(nmea_data);
         } else {
             qDebug() << "BAD PACKAGE" << nmea_data;
             return;
@@ -74,6 +79,10 @@ void Connection::create_file_for_nmea(QString filename){
 int Connection::check_nmea_data(QByteArray nmea_data) {
     int res = 1;
     if (nmea_data.length() < 70){
+        QByteArray hdt = nmea_data.mid(3, 3);
+        if (hdt == "HDT") {
+            return 2;
+        }
         qDebug() << "too short check_nmea_data" << nmea_data;
         return 0; // possible package without all data
     }
@@ -85,10 +94,10 @@ int Connection::check_nmea_data(QByteArray nmea_data) {
         qDebug() << "NOT \r\n check_nmea_data";
         return 0; ///not full package
     }
-    if (!check_sum_nmea(nmea_data)) {
-        qDebug() << "checksum wrong check_nmea_data";
-        return 0; //
-    }
+    // if (!check_sum_nmea(nmea_data)) {
+    //     qDebug() << "checksum wrong check_nmea_data";
+    //     return 0; //
+    // }
     if (nmea_data.length() > 89) return 2; // possible double data
     QByteArray rmc = nmea_data.mid(3, 3);
     if (rmc == "RMC") {

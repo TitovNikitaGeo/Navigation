@@ -36,17 +36,17 @@ public:
 
 
     void setP190(P190_creator *newP190);
+    QVector<SegYReader::Pair> pairs;
 
-private:
-    QStringList findNmaeForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos);
+    QStringList findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos);
     NmeaParser::NmeaGGAData calcTruePosition(NmeaParser::NmeaGGAData first,
         NmeaParser::NmeaGGAData second, QTime trueTime, QTime firstTime, QTime secondTime);
 
     ItemsStorage* MyVault;
-    QVector<SegYReader::Pair> pairs;
     NmeaParser nmeaParser;
 
     P190_creator* p190;
+private:
 };
 
 #endif // POSTPROCESSOR_H

@@ -16,10 +16,13 @@ INCLUDEPATH += ./Connections
 INCLUDEPATH += ./Parsers
 INCLUDEPATH += ./Service
 INCLUDEPATH += ./Data
+INCLUDEPATH += ./Data/Params
 INCLUDEPATH += ./DataReader
+INCLUDEPATH += ./Test
 
 
 SOURCES += \
+    Connections/connection_udp.cpp \
     Connections/depthsensors.cpp \
     Connections/sender.cpp \
     DataVault/itemsloader.cpp \
@@ -38,6 +41,7 @@ SOURCES += \
     DataReader/segyreader.cpp \
     Service/logger.cpp \
     Service/postprocessor.cpp \
+    Test/test_postprocessing.cpp \
     main.cpp \
     mainwindow.cpp \
     Drawing/mygraphicview.cpp \
@@ -49,6 +53,7 @@ SOURCES += \
     ConnectionCreator/connection_creator.cpp
 
 HEADERS += \
+    Connections/connection_udp.h \
     Connections/depthsensors.h \
     Connections/sender.h \
     DataVault/itemsloader.h \
@@ -69,6 +74,7 @@ HEADERS += \
     DataReader/segyreader.h \
     Service/logger.h \
     Service/postprocessor.h \
+    Test/test_postprocessing.h \
     mainwindow.h \
     Drawing/mygraphicview.h \
     Connections/connection.h \

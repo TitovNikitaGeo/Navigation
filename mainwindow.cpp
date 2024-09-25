@@ -70,17 +70,22 @@ MainWindow::MainWindow(QWidget *parent)
     setPathForAllFiles();    
     logger->createLogFile();
 
-
-
+    ///КоСТЫЛЬ ААААААААААААААААААА
+    setSegyReader();
 }
 void MainWindow::timeToCollectData()
 {
-
-    if (coordinator->calcCoors()) {
-        p190Creator->createShotBlock();
+    static NmeaParser p;
+    int FFID = pairs[curSegyFile].ffid;
+    QTime TIME = pairs[curSegyFile].time;
+    for (auto i: Vault->ItemsVault) {
+        i->calcItemCoordinates();
+        if (TIME.msecsTo(p.parseNmeaGGA(i->connection->lastRecievedGGA).dateTime.time()) < 1000) {
+            p190Creator->setFFID(FFID);
+            p190Creator->createShotBlock();
+            break;
+        }
     }
-    logmsg("timer tick");
-
 }
 
 MainWindow::~MainWindow()
@@ -90,6 +95,7 @@ MainWindow::~MainWindow()
     delete DrawingAreaTopView;
     delete Vault;
     delete ui;
+    // logger->
     exit(0);
 }
 
@@ -193,12 +199,14 @@ void MainWindow::setMenuBar(QMenuBar *menuBar)
 
     // Создание действия "Сохранить параметры"
     QAction *saveAction = new QAction("Save configuration", fileMenu);
-    QObject::connect(saveAction, &QAction::triggered, menuBar->parent(), []() {
+    QObject::connect(saveAction, &QAction::triggered, menuBar->parent(), [this]() {
         QString fileName = QFileDialog::getSaveFileName(nullptr, "Save configuration", "", "Config Files (*.json);;All Files (*)");
         if (!fileName.isEmpty()) {
             // Логика сохранения параметров в файл
             QMessageBox::information(nullptr, "Save configuration", QString("Configuration saved at %1").arg(fileName));
-
+            QJsonObject params = ItemsLoader::instance().
+                     writeToJSON(this->Vault->ItemsVault);
+            ItemsLoader::saveJsonObjectToFile(params, fileName);
         }
     });
     fileMenu->addAction(saveAction);
@@ -250,6 +258,12 @@ void MainWindow::setPathForAllFiles()
     logger->setPath(dir);
 }
 
+void MainWindow::loadConfig()
+{
+
+
+}
+
 void MainWindow::saveConfig()
 {
 
@@ -263,6 +277,17 @@ void MainWindow::postProcessing(QDir pathNmea, QDir pathSegy)
     processor.setSegyStorage(pathSegy);
     processor.getDataFromSegy();
     processor.setMyVault(this->Vault);
+}
+
+void MainWindow::setSegyReader()
+{
+    sr = new SegYReader();
+    sr->readPathWithSegy(QDir("C:\\Users\\sabrahar\\Desktop\\FINAL\\test20000-30000"));
+    for (auto i:sr->pairs) {
+        pairs.append(i);
+        qDebug() << i.ffid << i.time;
+    }
+
 }
 
 
@@ -571,7 +596,7 @@ void MainWindow::on_pushButton_clicked()
         timerRunsFlag = 1;
         coordinator->wireFixedItems();
         p190Creator->createP190File();
-        MyTimer->start(1000);
+        MyTimer->start(200);
         // qDebug() << "start";
     } else {
         timerRunsFlag = 0;

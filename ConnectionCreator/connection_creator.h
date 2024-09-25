@@ -51,6 +51,7 @@ private:
 
 #include "connection_com.h"
 #include "connection_net.h"
+#include "connection_udp.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

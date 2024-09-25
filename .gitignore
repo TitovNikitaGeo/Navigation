@@ -1,6 +1,7 @@
 /build/*
 *.pro.user*
 *.user
-Ship.pro.user
+/Ship.pro.user
 *.user
 /release/*
+Ship.pro.user
