@@ -77,6 +77,7 @@ NmeaParser::NmeaRMCData NmeaParser::parseNmeaRMC(const QString &nmeaSentence)
     if (nmeaSentence.startsWith("$GPHDT")) {
         // rmcData.azimuth = nmeaSentence.mid(7,4).toFloat();
         rmcData.azimuth = nmeaSentence.mid(nmeaSentence.indexOf(',')+1).toFloat();
+        qDebug() << __FUNCTION__ << rmcData.azimuth;
         return rmcData;
     }
 

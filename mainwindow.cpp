@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     MyTimer = new QTimer(this);
     connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
-    // MyTimer->start(1000);
 
     ///Just for init settings of widgets
     emit on_RBFixed_clicked();
@@ -282,12 +281,12 @@ void MainWindow::postProcessing(QDir pathNmea, QDir pathSegy)
 void MainWindow::setSegyReader()
 {
     sr = new SegYReader();
-    sr->readPathWithSegy(QDir("C:\\Users\\sabrahar\\Desktop\\FINAL\\test20000-30000"));
+    sr->readPathWithSegy(QDir("C:\\Users\\sabrahar\\Desktop\\FINAL\\20240923_UHRS_48\\RAW"));
+
     for (auto i:sr->pairs) {
         pairs.append(i);
-        qDebug() << i.ffid << i.time;
+        qDebug() << i.ffid << i.time << __FUNCTION__;
     }
-
 }
 
 
@@ -305,6 +304,7 @@ void MainWindow::on_RBFixed_clicked()
 
 
 void MainWindow::on_RBTowed_clicked()
+
 {
     ui->ComboBoxItemType->setDisabled(false);
     ui->ComboBoxWiredWith->setDisabled(false);
@@ -596,6 +596,7 @@ void MainWindow::on_pushButton_clicked()
         timerRunsFlag = 1;
         coordinator->wireFixedItems();
         p190Creator->createP190File();
+        return;
         MyTimer->start(200);
         // qDebug() << "start";
     } else {

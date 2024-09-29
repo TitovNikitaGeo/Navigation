@@ -49,8 +49,11 @@ StreamerDialog::StreamerDialog(QWidget* parent)
         }
     });
 
-    tabWidget->addTab(singleChannelTab, "Single channel");
     tabWidget->addTab(multiChannelTab, "Multi channel");
+    tabWidget->addTab(singleChannelTab, "Single channel");
+    multiChannelComboBoxDistance->setCurrentIndex(2);
+    // multiChannelComboBoxDistance->setCurrentIndex(1);
+    multiChannelComboBoxChannels->setCurrentIndex(1);
 
     // New Elastic Section Length SpinBox and Label
     // QLabel *elasticSectionLengthLabel = new QLabel("Elastic Section Length", this);
@@ -70,6 +73,7 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     // saveCSVButton = new QPushButton("Save CSV", this);
     // connect(saveCSVButton, &QPushButton::clicked, this, &StreamerDialog::saveToCSV);
 
+    multiChannelTab->setFocus();
     finishButton = new QPushButton("Finish", this);
     connect(finishButton, &QPushButton::clicked, this, &StreamerDialog::onFinishButtonClicked);
 
@@ -81,8 +85,9 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     // mainLayout->addWidget(saveCSVButton);
     mainLayout->addWidget(finishButton);
     mainLayout->setAlignment(finishButton, Qt::AlignRight); // Align finish button to the right
-    this->multiChannelTab->setFocus();
     setLayout(mainLayout);
+
+
 }
 
 void StreamerDialog::onFinishButtonClicked()

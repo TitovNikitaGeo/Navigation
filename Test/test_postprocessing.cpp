@@ -7,9 +7,9 @@ testPostprocessing::testPostprocessing() {
 int testPostprocessing::testSearchingNmea()
 {
     QVector<FixedItem*> items = createItems();
-    QString sdir = "C:/Users/sabrahar/Desktop/test20000-30000";
+    QString sdir = "C:/Users/sabrahar/Desktop/FINAL/20240923_UHRS_48/RAW";
     QDir segydir(sdir);
-    QString ndir = "C:/Users/sabrahar/Desktop/7_05__22_09";
+    QString ndir = "C:/Users/sabrahar/Desktop/FINAL";
     QDir nmeadir(ndir);
 
     PostProcessor pr;
@@ -20,15 +20,27 @@ int testPostprocessing::testSearchingNmea()
     pr.getDataFromSegy();
     QVector<SegYReader::Pair> pair(pr.pairs);
 
-    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/7_05__22_09/end_buoy.nmea");
-    int pos = 0;
-    if (!endBuoyFile->isOpen())endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+    int posbouy = 0;
+    int posSTP = 0;
+
+    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/buoy_1.nmea");
+    if (!endBuoyFile->isOpen()) endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QFile* STPFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/streamerTP.nmea");
+    if (!STPFile->isOpen()) STPFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+    // qDebug() << QTime::currentTime();
     for (SegYReader::Pair i: pr.pairs) {
         // qDebug() << i.time<< pr.findNmeaForSegy(i, endBuoyFile, &pos);
         // qDebug() << i.time << i.ffid;
         // endBuoyFile->close();
-        QStringList res = pr.findNmeaForSegy(i, endBuoyFile, &pos);
+        QStringList res_buoy = pr.findNmeaForSegy(i, endBuoyFile, &posbouy);
+        QStringList res_STP = pr.findNmeaForSegy(i, STPFile, &posSTP);
+        qDebug() <<res_buoy << "res_buoy";
+        qDebug() <<res_STP << "res_STP";
+        // break;
         // NmeaParser::NmeaGGAData GGAData = pr
+        // qDebug() << QTime::currentTime();
     }
     delete endBuoyFile;
     return 1;

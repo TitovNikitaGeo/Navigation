@@ -7,8 +7,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setWindowIcon(QIcon(":/Data/icon.ico"));
-    // testPostprocessing test;
-    // return 666;
+    testPostprocessing test;
+    return 666;
 
 
     MainWindow w;

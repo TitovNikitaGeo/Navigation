@@ -97,6 +97,54 @@ int PostProcessor::findNmeaFiles()
     return 1;
 }
 
+/*QStringList PostProcessor::findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos) {
+    QTime time = pair.time;
+    QString lowerNmea;
+    QString higherNmea;
+    int currentPosition = *pos;
+
+    QStringList res;
+    // nmeaFile->open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream in(nmeaFile);
+    // in.read((currentPosition));
+    QString line;
+
+    QString RMCData = "";
+    while (in.readLineInto(&line)) {
+        // qDebug() << line << __LINE__;
+
+        if (line[3] == 'G' && line[4] == 'G' && line[5] == 'A') {
+            // Assuming you have a function that extracts QTime from NMEA string
+            QTime nmeaTime = nmeaParser.getTimeFromNmeaGGA(line);
+            // Check if the NMEA time is lower or higher than the specified time
+            if (nmeaTime.msecsSinceStartOfDay() < time.msecsSinceStartOfDay()) {
+                lowerNmea = line; // Update the lower NMEA string
+                currentPosition = in.pos(); // Update current position
+                continue;
+            } else if (nmeaTime.msecsSinceStartOfDay() > time.msecsSinceStartOfDay() && higherNmea.isEmpty()) {
+                qDebug() << nmeaTime.msecsSinceStartOfDay() << time.msecsSinceStartOfDay() << __LINE__;
+                higherNmea = line; // Get the first higher NMEA string
+                // currentPosition = nmeaFile->pos(); // Update current position
+                break; // Stop searching once we find the first higher string
+            }
+        } else if (line[3] == 'R' && line[4] == 'M' && line[5] == 'C') {
+            RMCData = line;
+        } else if (line[3] == 'H' && line[4] == 'D' && line[5] == 'T') {
+            RMCData = line;
+        }
+    }
+
+    // *pos = currentPosition;
+    // qDebug() <<"POS" << currentPosition;
+    // Return the result as a QStringList
+    // qDebug() << lowerNmea << higherNmea << RMCData;
+
+    res.push_back(lowerNmea);
+    res.push_back(higherNmea);
+    if (!RMCData.isEmpty()) res.push_back(RMCData);
+    return res;
+}*/
+
 QStringList PostProcessor::findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos) {
     QTime time = pair.time;
     QString lowerNmea;
@@ -106,38 +154,36 @@ QStringList PostProcessor::findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFil
     QStringList res;
     QTextStream in(nmeaFile);
     QString line;
-
     QString RMCData = "";
-    while (in.readLineInto(&line)) {
-        qDebug() << line << __LINE__;
 
-        if (line[3] == 'G' && line[4] == 'G' && line[5] == 'A') {
-            // Assuming you have a function that extracts QTime from NMEA string
+    while (in.readLineInto(&line)) {
+        // Print debug information for troubleshooting
+        qDebug() << "Processing Line:" << line;
+
+        if (line.mid(3, 3) == "GGA") {
             QTime nmeaTime = nmeaParser.getTimeFromNmeaGGA(line);
-            // Check if the NMEA time is lower or higher than the specified time
-            if (nmeaTime < time) {
-                lowerNmea = line; // Update the lower NMEA string
-                currentPosition = nmeaFile->pos(); // Update current position
-            } else if (nmeaTime > time && higherNmea.isEmpty()) {
-                higherNmea = line; // Get the first higher NMEA string
-                currentPosition = nmeaFile->pos(); // Update current position
-                break; // Stop searching once we find the first higher string
+            qDebug() << "NMEA Time:" << nmeaTime << "Pair Time:" << time << "Line:" << line;
+
+            if (nmeaTime.msecsSinceStartOfDay() < time.msecsSinceStartOfDay()) {
+                lowerNmea = line;  // Update lower NMEA
+                currentPosition = in.pos();  // Update current position
+            } else if (nmeaTime.msecsSinceStartOfDay() > time.msecsSinceStartOfDay() && higherNmea.isEmpty()) {
+                higherNmea = line;  // Capture first higher NMEA
+                break;  // Exit loop after finding higher NMEA
             }
-        } else if (line[3] == 'R' && line[4] == 'M' && line[5] == 'C') {
-            RMCData = line;
+        } else if (line.mid(3, 3) == "RMC" || line.mid(3, 3) == "HDT") {
+            RMCData = line;  // Capture RMC or HDT data
         }
     }
-    // logmsg(lowerNmea+ " " + higherNmea + " time " + time.toString("hh:mm:ss.zzz"));
-    // Update the position
-    // *pos = currentPosition;
 
-    // Return the result as a QStringList
-    qDebug() << lowerNmea << higherNmea << RMCData;
+    *pos = currentPosition;  // Update file position
     res.push_back(lowerNmea);
     res.push_back(higherNmea);
     if (!RMCData.isEmpty()) res.push_back(RMCData);
+
     return res;
 }
+
 
 NmeaParser::NmeaGGAData PostProcessor::calcTruePosition(NmeaParser::NmeaGGAData first,
     NmeaParser::NmeaGGAData second, QTime trueTime, QTime firstTime, QTime secondTime)

@@ -15,7 +15,7 @@ bool SegYReader::readFile() {
         return false;
     }
 
-    file.seek(3600); // Skip the textual file header (3600 bytes)
+    file.seek(3600); // Skip the textual and binary file headers (3600 bytes)
 
     readTraceHeader(file);
 
@@ -25,6 +25,8 @@ bool SegYReader::readFile() {
 void SegYReader::readPathWithSegy(QDir path)
 {
     for (QString i: path.entryList()) {
+        // qDebug() << i;
+
         setFilePath(path.path()+"/"+i);
         readFile();
     }

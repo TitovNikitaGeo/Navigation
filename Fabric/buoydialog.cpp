@@ -31,7 +31,7 @@ BuoyDialog::BuoyDialog(ItemsStorage* vault, bool needConnection) : MyVault(vault
     spinBox2 = new QDoubleSpinBox();
     spinBox2->setRange(0.0, 5.0);
     spinBox2->setSingleStep(0.1);
-    spinBox2->setValue(0.15);
+    spinBox2->setValue(0.50);
 
     spinBoxLayout->addWidget(spinBoxLabel1);
     spinBoxLayout->addWidget(spinBox1);
