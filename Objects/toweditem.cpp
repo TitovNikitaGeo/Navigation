@@ -41,10 +41,15 @@ void TowedItem::calcIFNotConnected()
         if (QString(metaObject()->className()) == "Streamer") {
             Streamer* strm = dynamic_cast<Streamer*>(this);
             if (strm->endBuoy != nullptr) {
-                strm->realAzimuthOfTowingRadians =
-                    qAtan((strm->towingPoint->x_coor - strm->endBuoy->x_coor)/
-                    (strm->towingPoint->y_coor - strm->endBuoy->y_coor));
-                qDebug() << qRadiansToDegrees( strm->realAzimuthOfTowingRadians )<< __FUNCTION__;
+                strm->realAzimuthOfTowingRadians = atan2(strm->towingPoint->x_coor - strm->endBuoy->x_coor,
+                                                    strm->towingPoint->y_coor - strm->endBuoy->y_coor);
+                if (strm->realAzimuthOfTowingRadians < 0) {
+                    strm->realAzimuthOfTowingRadians += 2*M_PI;
+                }
+                // strm->realAzimuthOfTowingRadians =
+                //     ((strm->towingPoint->x_coor - strm->endBuoy->x_coor)/
+                //     (strm->towingPoint->y_coor - strm->endBuoy->y_coor));
+                // qDebug() << qRadiansToDegrees( strm->realAzimuthOfTowingRadians )<< __FUNCTION__;
                 azRad = strm->realAzimuthOfTowingRadians;
                 // qDebug() <<azRad;
                 // qDebug() << strm->towingPoint->x_coor << strm->towingPoint->y_coor << "STP";

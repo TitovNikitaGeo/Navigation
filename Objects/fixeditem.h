@@ -11,6 +11,8 @@
 #include "nmeaparser.h"
 #include "connection.h"
 #include "logger.h"
+#include "CircularBuffer.h"
+
 
 class FixedItem : public QObject
 {
@@ -34,8 +36,8 @@ public:
     ///for scheme
 
     /// for real coordinates
-    float x_coor;
-    float y_coor;
+    double x_coor;
+    double y_coor;
     float latitude;
     float longitude;
     float height;
@@ -66,12 +68,17 @@ public:
     QVector<FixedItem*> vectorOfConnected;
 
     void setItemForCalculations(FixedItem *newItemForCalculations);
-
+    static float realAzimuthOfTowingRadians;
 public slots:
 
     void newNmeaArived(QString msg);
 protected:
+    bool amIItemForCalculating = false;
     FixedItem* ItemForCalculations;
+    static CircularBuffer sharedCircularBuffer;
 };
+
+
+
 
 #endif // FIXEDITEM_H

@@ -56,6 +56,7 @@ HEADERS += \
     Connections/connection_udp.h \
     Connections/depthsensors.h \
     Connections/sender.h \
+    DataVault/CircularBuffer.h \
     DataVault/itemsloader.h \
     DataVault/itemsstorage.h \
     DataVault/structures.h \

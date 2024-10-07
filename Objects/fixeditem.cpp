@@ -1,6 +1,8 @@
 #include "fixeditem.h"
 
 
+CircularBuffer FixedItem::sharedCircularBuffer(20);
+
 FixedItem::FixedItem() {}
 
 FixedItem::FixedItem(float x,float y,float z, QString name) :
@@ -9,7 +11,7 @@ FixedItem::FixedItem(float x,float y,float z, QString name) :
     itemType = "Fixed";
     // qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
     // logmsg(itemType+" Item Created");
-
+    CircularBuffer& buffer = FixedItem::sharedCircularBuffer;
 }
 
 FixedItem::~FixedItem() {
@@ -38,14 +40,26 @@ void FixedItem::calcIfConnected()
     latitude = lastGGAData.coordinate.latitude();
     longitude = lastGGAData.coordinate.longitude();
     height = lastGGAData.height;
-    azimuthOfMovement = lastRMCData.azimuth;
+    if (QString(metaObject()->className()) == "FixedItem") {
+        if (amIItemForCalculating) {
+            sharedCircularBuffer.add(lastGGAData.coordinate);
+            qDebug() << name << "I added to CircBuffer" << lastGGAData.coordinate;
+        }
+
+    azimuthOfMovement = sharedCircularBuffer.calculateAzimuth();
+    qDebug() << this->name <<"azimuthOfMovement"<<qRadiansToDegrees(azimuthOfMovement);
+    }
 }
 
 void FixedItem::calcIFNotConnected()
 {
-    azimuthOfMovement = ItemForCalculations->azimuthOfMovement;
-    // NmeaParser::NmeaGGAData coor = ItemForCalculations->lastGGAData;
-    double azRad = qDegreesToRadians(azimuthOfMovement);
+    if (QString(metaObject()->className()) == "FixedItem") {
+        azimuthOfMovement = sharedCircularBuffer.calculateAzimuth();
+    } else {
+        azimuthOfMovement = ItemForCalculations->azimuthOfMovement;
+    }
+        // NmeaParser::NmeaGGAData coor = ItemForCalculations->lastGGAData;
+    double azRad = azimuthOfMovement;
     x_coor = ItemForCalculations->x_coor + (y-ItemForCalculations->y)*qCos(azRad) +
              (x-ItemForCalculations->x)*qSin(azRad);
     y_coor = ItemForCalculations->y_coor - (y-ItemForCalculations->y)*qSin(azRad) +
@@ -123,4 +137,6 @@ void FixedItem::newNmeaArived(QString msg) //
 void FixedItem::setItemForCalculations(FixedItem *newItemForCalculations)
 {
     ItemForCalculations = newItemForCalculations;
+    newItemForCalculations->amIItemForCalculating = true;
+
 }

@@ -14,8 +14,10 @@ class testPostprocessing
 public:
     testPostprocessing();
     int testSearchingNmea23();
+    int testSearchingNmea23WithOnboard();
     int testSearchingNmea22();
     QVector<FixedItem*> createItems2309();
+    QVector<FixedItem*> createItems2309WithOnboard();
     QVector<FixedItem*> createItems2209();
 
     QVector<FixedItem*> testItems;

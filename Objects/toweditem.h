@@ -40,7 +40,7 @@ public:
 
     void printPos();
 
-    static float realAzimuthOfTowingRadians;
+
 protected:
     float boardHeight = 0;
 
