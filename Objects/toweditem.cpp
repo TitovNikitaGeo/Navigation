@@ -1,5 +1,8 @@
 #include "toweditem.h"
 #include "buoy.h"
+#include "streamer.h"
+
+float TowedItem::realAzimuthOfTowingRadians = -1;
 
 TowedItem::TowedItem() {}
 
@@ -11,6 +14,9 @@ TowedItem::TowedItem(QString Name,
     this->name = Name;
 
     this->towingPoint = towingPoint;
+    if (QString(towingPoint->metaObject()->className()) == "Streamer") {
+        wireLength += dynamic_cast<Streamer*>(towingPoint)->getTotalLength();
+    }
     itemType = "Towed";
     float angleInRadians = angle * M_PI/180;
     x = towingPoint->x + wireLength*sin(angleInRadians);
@@ -30,10 +36,28 @@ TowedItem::~TowedItem() {
 
 void TowedItem::calcIFNotConnected()
 {
-    qDebug() << "TowedItem::calcIFNotConnected()" << this->metaObject()->className();
-    if (towingPoint != nullptr){
-        azimuthOfMovement = towingPoint->azimuthOfMovement;
-        double azRad = qDegreesToRadians(azimuthOfMovement);
+    double azRad = -1;
+    if (towingPoint != nullptr) {
+        if (QString(metaObject()->className()) == "Streamer") {
+            Streamer* strm = dynamic_cast<Streamer*>(this);
+            if (strm->endBuoy != nullptr) {
+                strm->realAzimuthOfTowingRadians =
+                    qAtan((strm->towingPoint->x_coor - strm->endBuoy->x_coor)/
+                    (strm->towingPoint->y_coor - strm->endBuoy->y_coor));
+                qDebug() << qRadiansToDegrees( strm->realAzimuthOfTowingRadians )<< __FUNCTION__;
+                azRad = strm->realAzimuthOfTowingRadians;
+                // qDebug() <<azRad;
+                // qDebug() << strm->towingPoint->x_coor << strm->towingPoint->y_coor << "STP";
+                // qDebug() << strm->endBuoy->x_coor << strm->endBuoy->y_coor << "ENDBUOY";
+                // qDebug() << __FUNCTION__;
+
+            }
+            strm->calcChansCoors();
+            // azimuthOfMovement = towingPoint->azimuthOfMovement;
+            // azRad = azimuthOfMovement;
+        } else {
+            azRad = realAzimuthOfTowingRadians;
+        }
 
         if (towingPoint->itemType == "Buoy") {
             Buoy* tmp = dynamic_cast<Buoy*>(towingPoint);
@@ -45,20 +69,25 @@ void TowedItem::calcIFNotConnected()
 
         } else if(QString(towingPoint->metaObject()->className()) == "FixedItem") {
             height = towingPoint->height - boardHeight; //высота борта больше не захардкожена
-            qDebug() << towingPoint->height << boardHeight << height;
         } else {
             height = towingPoint->height;
         }
+        // qDebug() << x_coor << y_coor << "BEFORE";
+
         x_coor = towingPoint->x_coor + (y-towingPoint->y)*qCos(azRad) +
                  (x-towingPoint->x)*qSin(azRad);
         y_coor = towingPoint->y_coor - (y-towingPoint->y)*qSin(azRad) +
                  (x-towingPoint->x)*qCos(azRad);
+
+        // qDebug() << x_coor << y_coor << "AFTER";
+        // exit(666);
+
         QGeoCoordinate tmp = parser.UTMtoGeo(QPointF(x_coor, y_coor));
         this->latitude = tmp.latitude();
         this->longitude = tmp.longitude();
 
     } else {
-        qDebug() << "TowedItem::calcItemCoordinates";
+        qDebug() << __FUNCTION__;
         qDebug() << "Если вы здесь, то буквируемое утройство оторвалось";
         qDebug() << "Или вы где-то ошиблись...";
         qDebug() << "...Например, в выборе софта";
@@ -104,6 +133,19 @@ QString TowedItem::getLastRMC()
 void TowedItem::setBoardHeight(float newBoardHeight)
 {
     boardHeight = newBoardHeight;
+}
+
+void TowedItem::printPos()
+{
+    qDebug() <<"-----------------------FixedItem::printPos()";
+    qDebug() <<name;
+    qDebug() << "Height:" << qSetRealNumberPrecision(3) << height  ;
+    qDebug() << "UTM East:" << qSetRealNumberPrecision(10)<< x_coor ;
+    qDebug() << "UTM North:" << qSetRealNumberPrecision(10) << y_coor;
+    qDebug() << "Geo East:" << longitude;
+    qDebug() << "Geo Notrh:" << latitude;
+    qDebug() << "Azimuth of movement" << azimuthOfMovement;
+    qDebug() << "Real Azimuth Of Towing" << qRadiansToDegrees(realAzimuthOfTowingRadians);
 }
 
 

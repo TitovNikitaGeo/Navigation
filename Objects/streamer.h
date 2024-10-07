@@ -37,6 +37,7 @@ public:
     float depth;
     void calcStreamerDepth();
     float totalLength;
+    Buoy* endBuoy = nullptr;
 private:
     uint NumChanels;
     QVector<float> chans;
@@ -44,7 +45,6 @@ private:
 
 
     float endDepth;
-    Buoy* endBuoy = nullptr;
 
     float realLen;
     float heightDifference;

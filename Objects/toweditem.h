@@ -38,6 +38,9 @@ public:
     // QString itemType;
     void setBoardHeight(float newBoardHeight);
 
+    void printPos();
+
+    static float realAzimuthOfTowingRadians;
 protected:
     float boardHeight = 0;
 

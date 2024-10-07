@@ -46,6 +46,7 @@ NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { 
 
             double latitude = convertToDegrees(latitudeValue, latitudeDirection); //получение географических градусов
             double longitude = convertToDegrees(longitudeValue, longitudeDirection); //в норм формате
+
             float height = heightValue.toFloat();
 
             int hours = timeValue.mid(0, 2).toInt();
@@ -68,6 +69,7 @@ NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { 
         }
     }
 
+    // qDebug() << data.coordinate.latitude() << data.coordinate.longitude();
     return data;
 }
 
@@ -77,7 +79,7 @@ NmeaParser::NmeaRMCData NmeaParser::parseNmeaRMC(const QString &nmeaSentence)
     if (nmeaSentence.startsWith("$GPHDT")) {
         // rmcData.azimuth = nmeaSentence.mid(7,4).toFloat();
         rmcData.azimuth = nmeaSentence.mid(nmeaSentence.indexOf(',')+1).toFloat();
-        qDebug() << __FUNCTION__ << rmcData.azimuth;
+        // qDebug() << __FUNCTION__ << rmcData.azimuth;
         return rmcData;
     }
 

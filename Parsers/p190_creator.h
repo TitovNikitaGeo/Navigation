@@ -50,10 +50,14 @@ public:
 
     void setFFID(int newFFID);
 
+    ItemsStorage *getMyVault() const;
+    void setMyVault(ItemsStorage *newMyVault);
+
 private:
     int currentBuoyNumber;
     int FFID;
 
+    QDateTime dummyTimeForItemsWithNoTime;
 
     QDateTime curDateTime;
     QString fileName;

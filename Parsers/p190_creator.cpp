@@ -22,10 +22,10 @@ QStringList P190_creator::createShotBlock()
     // qDebug() << "P190 createShotBlock()";
     // if (!outputFile->isOpen()) outputFile->open(QIODevice::Append);
     for (QString l: mainBlock) {
-        qDebug() << l;
+        // qDebug() << l;
     }
     for (QString l: streamerBlock) {
-        qDebug() << l;
+        // qDebug() << l;
     }
     res.append(mainBlock);
     res.append(streamerBlock);
@@ -94,7 +94,7 @@ void P190_creator::writeToFile(QStringList data) {
         for (QString str: data) {
             if (str.isEmpty() || str.length() < 20) continue;
             outputFile->write(QByteArray(str.toUtf8()) + "\n");
-            logmsg(str);
+            // logmsg(str);
                 // outputFile->write("\n");
         }
         outputFile->close();
@@ -107,6 +107,7 @@ QStringList P190_creator::createStreamerBlock() {
     for (FixedItem* item: MyVault->ItemsVault) {
         if (QString(item->metaObject()->className()) == "Streamer") {
             Streamer* strm = dynamic_cast<Streamer*>(item);
+            // qDebug() << "REAL AZIMUTH OF TOWING" << strm->realAzimuthOfTowingRadians;
             // QString tmp(80, ' ');
             QString tmp = "R";
             for (uint i = 0; i < strm->getChanCount(); ++i) {
@@ -151,21 +152,21 @@ QStringList P190_creator::createMainInfoBlock() {
 }
 
 QStringList P190_creator::createMainInfoBlock(int ffid) {
-    this->currentBuoyNumber = 0;
+    currentBuoyNumber = 0;
     QStringList res;
     QString tmp;
-    int pointNumber = ffid;
+    // int pointNumber = ffid;
     for (FixedItem* item: MyVault->ItemsVault) {
         if (QString(item->metaObject()->className()) == "Streamer") {
             continue;
         }
-        tmp = createMainRow__new(item, pointNumber, currentBuoyNumber);
+        tmp = createMainRow__new(item, ffid, currentBuoyNumber);
         currentBuoyNumber++;
         if (tmp.isEmpty()) continue;
         res.append(tmp);
         // qDebug() <<tmp << "createMainInfoBlock() ";
     }
-    ++pointNumber;
+    // ++pointNumber;
 
     return res;
 }
@@ -178,6 +179,7 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
     QChar SourceID = '1';
     QChar TailBuoyID = QChar(tailBuoy);
     QDateTime dt = item->lastGGAData.dateTime;
+    if (dt.isValid()) dummyTimeForItemsWithNoTime = dt;
     if(QString(item->metaObject()->className()) == "FixedItem") {
         if (item->x == 0 && item->y == 0 && item->z == 0) {
             type = 'V';
@@ -191,9 +193,11 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
         TailBuoyID = '1';
     } else if (QString(item->metaObject()->className()) == "Source") {
         type = 'S';
+        TailBuoyID = ' ';
     }
     if (!dt.isValid()) {
-        dt = this->curDateTime;
+        // dt = this->curDateTime;
+        dt = dummyTimeForItemsWithNoTime;
     }
     res.replace(0, 1, type);
     res.replace(1, 12, lineName);
@@ -221,6 +225,16 @@ void P190_creator::setPath(const QDir &newPath)
 void P190_creator::setFFID(int newFFID)
 {
     FFID = newFFID;
+}
+
+ItemsStorage *P190_creator::getMyVault() const
+{
+    return MyVault;
+}
+
+void P190_creator::setMyVault(ItemsStorage *newMyVault)
+{
+    MyVault = newMyVault;
 }
 
 void P190_creator::setItemStoragePtr(ItemsStorage *Vault)

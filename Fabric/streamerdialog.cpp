@@ -43,7 +43,7 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     connect(multiChannelComboBoxChannels, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index){
         multiChannelComboBoxDistance->clear();
         if (index == 1) { // 48 channels selected
-            multiChannelComboBoxDistance->addItems({"1", "2", "1&2", "3.125"});
+            multiChannelComboBoxDistance->addItems({"1&2","1", "2",  "3.125"});
         } else { // 24 channels selected
             multiChannelComboBoxDistance->addItems({"1", "2", "3.125"});
         }
@@ -196,7 +196,7 @@ void StreamerDialog::saveToCSV() {
 void StreamerDialog::createChansValues()
 {
     chans.clear();//на случай если несколько раз окно вызываем
-    if (tabWidget->currentIndex() == 1) { //multichannel streamer
+    if (tabWidget->currentIndex() == 0) { //multichannel streamer
         bool ok;
         numOfChannels = multiChannelComboBoxChannels->currentText().toUInt();
         float dCh = multiChannelComboBoxDistance->currentText().toFloat(&ok);

@@ -65,6 +65,8 @@ public:
     NmeaParser parser;
     QVector<FixedItem*> vectorOfConnected;
 
+    void setItemForCalculations(FixedItem *newItemForCalculations);
+
 public slots:
 
     void newNmeaArived(QString msg);

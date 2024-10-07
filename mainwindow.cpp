@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
     logger->createLogFile();
 
     ///КоСТЫЛЬ ААААААААААААААААААА
-    setSegyReader();
+    // setSegyReader();
 }
 void MainWindow::timeToCollectData()
 {

@@ -59,20 +59,20 @@ void FixedItem::calcIFNotConnected()
 
 void FixedItem::printPos()
 {
-    // qDebug() <<"-----------------------FixedItem::printPos()";
-    // qDebug() <<name;
-    // qDebug() << "Height:" << qSetRealNumberPrecision(3) << height  ;
-    // qDebug() << "UTM East:" << qSetRealNumberPrecision(10)<< x_coor ;
-    // qDebug() << "UTM North:" << qSetRealNumberPrecision(10) << y_coor;
-    // qDebug() << "Geo East:" << this->longitude;
-    // qDebug() << "Geo Notrh:" << this->latitude;
-    // qDebug() << "Azimuth of movement" << azimuthOfMovement;
-    logmsg(name + "\nHeight " + QString::number(height) +
-           "\nUTM East:" + QString::number(x_coor) +
-           "\nUTM North:" + QString::number(y_coor) +
-           "\nGeo East:" + QString::number(this->longitude) +
-           "\nGeo Notrh:" + QString::number(this->latitude) +
-           "Azimuth of movement" + QString::number(azimuthOfMovement));
+    qDebug() <<"-----------------------FixedItem::printPos()";
+    qDebug() <<name;
+    qDebug() << "Height:" << qSetRealNumberPrecision(3) << height  ;
+    qDebug() << "UTM East:" << qSetRealNumberPrecision(10)<< x_coor ;
+    qDebug() << "UTM North:" << qSetRealNumberPrecision(10) << y_coor;
+    qDebug() << "Geo East:" << longitude;
+    qDebug() << "Geo Notrh:" << latitude;
+    qDebug() << "Azimuth of movement" << azimuthOfMovement;
+    // logmsg(name + "\nHeight " + QString::number(height) +
+    //        "\nUTM East:" + QString::number(x_coor) +
+    //        "\nUTM North:" + QString::number(y_coor) +
+    //        "\nGeo East:" + QString::number(this->longitude) +
+    //        "\nGeo Notrh:" + QString::number(this->latitude) +
+    //        "Azimuth of movement" + QString::number(azimuthOfMovement));
 
 
 }
@@ -118,4 +118,9 @@ void FixedItem::newNmeaArived(QString msg) //
 {
     // NmeaParser::NmeaGGAData data = parser.parseNmeaGGA(msg);
     // parser.printNmeaGGAData(data);
+}
+
+void FixedItem::setItemForCalculations(FixedItem *newItemForCalculations)
+{
+    ItemForCalculations = newItemForCalculations;
 }

@@ -43,6 +43,7 @@ public:
         NmeaParser::NmeaGGAData second, QTime trueTime, QTime firstTime, QTime secondTime);
 
     ItemsStorage* MyVault;
+    QVector<FixedItem*> items;
     NmeaParser nmeaParser;
 
     P190_creator* p190;
