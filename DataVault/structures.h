@@ -9,27 +9,27 @@
 #define STRUCTURES_H
 
 struct SchemeCoordinates{
-    float x;
-    float y;
-    float z;
-    SchemeCoordinates(float x, float y, float z) :
+    double x;
+    double y;
+    double z;
+    SchemeCoordinates(double x, double y, double z) :
         x(x), y(y), z(z) {};
 };
 
 struct FixedItemInfo{
     SchemeCoordinates SchemeCoors;
     QString ItemName;
-    FixedItemInfo(float x, float y, float z, QString name) :
+    FixedItemInfo(double x, double y, double z, QString name) :
         SchemeCoors(x,y,z), ItemName(name) {};
 };
 
 struct TowedItemInfo{
     FixedItem* toWhoIsWired;
-    float wireLength;
-    float angleToWired;
+    double wireLength;
+    double angleToWired;
     QString name;
-    TowedItemInfo(FixedItem* twiw, float wireLength,
-                  float angleToWired, QString Name) :
+    TowedItemInfo(FixedItem* twiw, double wireLength,
+                  double angleToWired, QString Name) :
         toWhoIsWired(twiw), wireLength(wireLength),
         angleToWired(angleToWired), name(Name){};
 };
@@ -37,17 +37,17 @@ struct TowedItemInfo{
 struct StreamerInfo{
     TowedItemInfo towedInfo;
     uint numOfChannels;
-    QVector<float> chans; //distance between channels
+    QVector<double> chans; //distance between channels
     StreamerInfo(TowedItemInfo towedInfo,
-        uint numOfChannels, QVector<float> chans)
+        uint numOfChannels, QVector<double> chans)
         : towedInfo(towedInfo), numOfChannels(numOfChannels), chans(chans){}
 };
 
 struct BuoyInfo{
     TowedItemInfo towedInfo;
-    float AnthenaHeight;
-    float towingDepth;
-    BuoyInfo(TowedItemInfo info, float AnthenaHeight, float towingDepth) :
+    double AnthenaHeight;
+    double towingDepth;
+    BuoyInfo(TowedItemInfo info, double AnthenaHeight, double towingDepth) :
         towedInfo(info), AnthenaHeight(AnthenaHeight), towingDepth(towingDepth){};
 };
 

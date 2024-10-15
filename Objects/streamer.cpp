@@ -5,7 +5,7 @@ Streamer::Streamer(QObject *parent)
 {}
 
 Streamer::Streamer(QString Name, FixedItem *towingPoint,
-    float angleToWired, float wireLength, uint NumChanels, QVector<float> chans)
+    double angleToWired, double wireLength, uint NumChanels, QVector<double> chans)
     : TowedItem(Name, towingPoint, angleToWired, wireLength)
 {
     this->NumChanels = NumChanels;
@@ -28,40 +28,27 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
 
 void Streamer::calcChansCoors()
 {
-    float azRad = azimuthOfMovement*M_PI/180;
+    double azRad = azimuthOfMovement*M_PI/180;
+
     if (endBuoy != nullptr) {
-        realLen = pow(((x_coor - endBuoy->x_coor)*(x_coor - endBuoy->x_coor) +
-                 (y_coor - endBuoy->y_coor)*(y_coor - endBuoy->y_coor)), 0.5); //real length of streamer
+
+        realLen = pow(((x_coor - getChan(getChanCount()-1)->x_coor)*(x_coor - getChan(getChanCount()-1)->x_coor) +
+                       (y_coor - getChan(getChanCount()-1)->y_coor)*(y_coor - getChan(getChanCount()-1)->y_coor)), 0.5) - endBuoy->wireLength; //real length of streamer
         heightDifference = (endBuoy->height - endBuoy->AnthenaHeight - endBuoy->towingDepth) -  height; //difference of height
         //of streamer begin and streamer end
         dh = heightDifference/realLen;
 
-        // float realAz = qAtan((x_coor - endBuoy->x_coor)/(y_coor - endBuoy->y_coor)); //азимут от начала косы до буя
-        float realAz = realAzimuthOfTowingRadians;
-        // realAzimuthOfTowingRadians = realAz;
+        distanceCalcCoef = totalLength >= realLen? 1.0: realLen/totalLength;
+        ChannelsVector[0]->x_coor = this->x_coor;
+        ChannelsVector[0]->y_coor = this->y_coor;
 
-        float distanceCalcCoef = realLen >= totalLength? 1.0: realLen/endBuoy->wireLength;
-        for(int i = 0; i < ChannelsVector.size(); i++) {
+        // qDebug() << x_coor << y_coor << towingPoint->x_coor << towingPoint->y_coor << __FUNCTION__;
+
+        for(int i = 1; i < ChannelsVector.size(); i++) {
             ChannelsVector[i]->height = this->height + chans[i]* dh;
-            ChannelsVector[i]->x_coor = this->x_coor - (distanceCalcCoef)*chans[i]*qSin(realAz);
-            ChannelsVector[i]->y_coor = this->y_coor - (distanceCalcCoef)*chans[i]*qCos(realAz);
-
-            // qDebug() << i << ChannelsVector[i]->x_coor << ChannelsVector[i]->y_coor;
-            // if (QString(towingPoint->metaObject()->className()) == "Buoy") {
-            //     Buoy* leadBuoy = dynamic_cast<Buoy*>(towingPoint);
-            //     // ChannelsVector[i]->depth = leadBuoy->towingDepth + (endBuoy->towingDepth - leadBuoy->towingDepth) * (chans[i]/realLen);
-            // } else {
-            //     // ChannelsVector[i]->depth = this->endBuoy->height - ChannelsVector[i]->height - this->endBuoy->AnthenaHeight - this->endBuoy->towingDepth;
-            // }
+            ChannelsVector[i]->x_coor = x_coor + (1)*(chans[i]) *qSin(realAzimuthOfTowingRadians);
+            ChannelsVector[i]->y_coor = y_coor + (1)*(chans[i]) *qCos(realAzimuthOfTowingRadians);
         }
-    } else {
-        for(int i = 0; i < ChannelsVector.size(); i++) {
-            ChannelsVector[i]->x_coor = this->x_coor - chans[i]*qSin(azRad);
-            ChannelsVector[i]->y_coor = this->y_coor - chans[i]*qCos(azRad);
-            ChannelsVector[i]->height = height;
-            // if (towingPoint->)
-        }
-
     }
     calcStreamerDepth();
 
@@ -101,7 +88,7 @@ Streamer::Channel* Streamer::getChan(uint number)
     if (number < 1){
         qDebug() << number<<" is out of channels range";
         return nullptr;
-    } else if(number > NumChanels) {
+    } else if(number > ChannelsVector.size()) {
         return ChannelsVector.at(ChannelsVector.size() - 1);
     } else {
         return ChannelsVector.at(number-1);
@@ -113,12 +100,12 @@ uint Streamer::getChanCount()
     return this->NumChanels;
 }
 
-QVector<float> Streamer::getChans() const
+QVector<double> Streamer::getChans() const
 {
     return chans;
 }
 
-void Streamer::setTotalLength(float newTotalLength)
+void Streamer::setTotalLength(double newTotalLength)
 {
     totalLength = newTotalLength;
 }
@@ -128,7 +115,7 @@ void Streamer::setEndBuoy(Buoy *newEndBuoy)
     endBuoy = newEndBuoy;
 }
 
-float Streamer::getTotalLength()
+double Streamer::getTotalLength()
 {
     return totalLength;
 }
@@ -137,7 +124,7 @@ void Streamer::calcStreamerDepth()
 {
     if (QString(towingPoint->metaObject()->className()) == "Buoy") {
         Buoy* leadBuoy = dynamic_cast<Buoy*>(towingPoint);
-        float leadEndDepthDif = leadBuoy->towingDepth - this->endBuoy->towingDepth;
+        double leadEndDepthDif = leadBuoy->towingDepth - this->endBuoy->towingDepth;
         for (int i = 0; i < NumChanels; i++) {
             ChannelsVector[i]->depth = leadBuoy->towingDepth + leadEndDepthDif*(chans[i]/realLen);
         }
@@ -146,6 +133,11 @@ void Streamer::calcStreamerDepth()
             ChannelsVector[i]->depth = endBuoy->towingDepth;
         }
     }
+}
+
+double Streamer::getDistanceCalcCoef() const
+{
+    return distanceCalcCoef;
 }
 
 Streamer::Channel::Channel(uint myNumber)
@@ -157,15 +149,18 @@ Streamer::Channel::Channel(uint myNumber)
 
 QString Streamer::Channel::getUTMPos()
 {
+    // QLocale locale(QLocale::C);
     QString res(22, ' ');
-    // res +=
-    res.replace(4, 9,floatToQString(x_coor, 10,2));
-    res.replace(13, 8,floatToQString(y_coor, 10,2));
+    res.replace(4, 9,floatToQString(x_coor, 9,1));
+    res.replace(13, 8,floatToQString(y_coor, 9,1));
+    // qDebug() <<locale.toString(y_coor, 'f', 10)<<doubleToQString(y_coor, 10,2) << __FUNCTION__;
+
     res.replace(22, 4,floatToQString(depth, 4, 1));
 
     for (int i = 0; i < 4; i++) {
-        res[i] = floatToQString(myNumber, 4, 0)[i];
+        res[i] = floatToQString(myNumber, 4, -1)[i];
     }
+    // qDebug() << res;
     return res;
 }
 

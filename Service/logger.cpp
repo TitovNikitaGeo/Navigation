@@ -18,8 +18,8 @@ consoleOutput = false;
 
 Logger::~Logger()
 {
-    logStream->flush();
-    logFile->close();
+    // logStream->flush();
+    // logFile->close();
 }
 
 void Logger::setPath(const QDir &newPath)

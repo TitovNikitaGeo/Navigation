@@ -20,7 +20,7 @@ Q_OBJECT
 private:
     friend class Fabric;
     friend class Coordinator;
-    FixedItem(float x,float y,float z, QString name);
+    FixedItem(double x,double y,double z, QString name);
     void calcIfConnected();
     virtual void calcIFNotConnected();
 
@@ -30,17 +30,17 @@ public:
 
     void calcItemCoordinates();
     ///for scheme
-    float x;
-    float y;
-    float z;
+    double x;
+    double y;
+    double z;
     ///for scheme
 
     /// for real coordinates
     double x_coor;
     double y_coor;
-    float latitude;
-    float longitude;
-    float height;
+    double latitude;
+    double longitude;
+    double height;
     double azimuthOfMovement;
     NmeaParser::NmeaGGAData lastGGAData = {{0,0}, {0,0}, QDateTime(),0};
     NmeaParser::NmeaRMCData lastRMCData = {0,0};
@@ -68,7 +68,10 @@ public:
     QVector<FixedItem*> vectorOfConnected;
 
     void setItemForCalculations(FixedItem *newItemForCalculations);
-    static float realAzimuthOfTowingRadians;
+    static double realAzimuthOfTowingRadians;
+
+
+    bool showAzDistToObj(FixedItem* to);
 public slots:
 
     void newNmeaArived(QString msg);

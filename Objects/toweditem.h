@@ -13,7 +13,7 @@ private:
     friend class Buoy;
     friend class Source;
     TowedItem(QString name, FixedItem* towingPoint,
-              float angleToWired, float wireLength);
+              double angleToWired, double wireLength);
 public:
     TowedItem();
     ~TowedItem();
@@ -25,8 +25,8 @@ public:
     void printSelfInfo();
 
     FixedItem* towingPoint;
-    float angle; //Angle to ship Dir
-    float wireLength;
+    double angle; //Angle to ship Dir
+    double wireLength;
 
 
     ///funcs for working with connections
@@ -36,13 +36,13 @@ public:
     QVector<FixedItem*> vectorOfConnections; // not used for now
     // QString name;
     // QString itemType;
-    void setBoardHeight(float newBoardHeight);
+    void setBoardHeight(double newBoardHeight);
 
     void printPos();
 
 
 protected:
-    float boardHeight = 0;
+    double boardHeight = 0;
 
 
 };

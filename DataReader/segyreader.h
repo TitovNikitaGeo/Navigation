@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QTime>
+#include "functions.h"
 
 class SegYReader
 {
@@ -18,7 +19,8 @@ public:
     struct Pair{
         int ffid;
         QTime time;
-        Pair(int ffid, QTime time) :ffid(ffid), time(time){};
+        int julianDay;
+        Pair(int ffid, QTime time, int julianDay) :ffid(ffid), time(time), julianDay(julianDay){};
     };
 
     QVector<int> ffids;

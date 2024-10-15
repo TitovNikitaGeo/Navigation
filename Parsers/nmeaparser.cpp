@@ -19,12 +19,13 @@ QTime NmeaParser::getTimeFromNmeaGGA(const QString &nmeaSentence)
             int hours = timeValue.mid(0, 2).toInt();
             int minutes = timeValue.mid(2, 2).toInt();
             int seconds = timeValue.mid(4, 2).toInt();
-            int milliseconds = timeValue.mid(7, 2).toInt();
+            int milliseconds = timeValue.mid(7, 2).toInt()*10;
             if (QTime::isValid(hours, minutes, seconds, milliseconds)) {
                 time = QTime(hours, minutes, seconds, milliseconds);
             }
         }
     }
+    // qDebug() << time << __FUNCTION__;
     return time;
 }
 
@@ -175,7 +176,7 @@ QPointF NmeaParser::GeoToUTM(const QGeoCoordinate &coordinate) { //перево�
     double LatRad = coordinate.latitude() * M_PI / 180.0;
     double LongRad = coordinate.longitude() * M_PI / 180.0;
     double LongOriginRad;
-    ZoneNumber = std::floor((coordinate.longitude() + 180) / 6) + 1;;
+    ZoneNumber = std::floor((coordinate.longitude() + 180) / 6) + 1;
     // qDebug() << "GeoToUTM zone number " << ZoneNumber;
     LongOriginRad = ((ZoneNumber - 1) * 6 - 180 + 3) * M_PI / 180.0;
     N = a / std::sqrt(1 - eccSquared * std::sin(LatRad) * std::sin(LatRad));

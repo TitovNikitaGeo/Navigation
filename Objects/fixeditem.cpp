@@ -1,11 +1,11 @@
 #include "fixeditem.h"
 
-
-CircularBuffer FixedItem::sharedCircularBuffer(20);
+double FixedItem::realAzimuthOfTowingRadians = -1;
+CircularBuffer FixedItem::sharedCircularBuffer(3);
 
 FixedItem::FixedItem() {}
 
-FixedItem::FixedItem(float x,float y,float z, QString name) :
+FixedItem::FixedItem(double x,double y,double z, QString name) :
     x(x), y(y), z(z), name(name)
 {
     itemType = "Fixed";
@@ -40,34 +40,57 @@ void FixedItem::calcIfConnected()
     latitude = lastGGAData.coordinate.latitude();
     longitude = lastGGAData.coordinate.longitude();
     height = lastGGAData.height;
-    if (QString(metaObject()->className()) == "FixedItem") {
-        if (amIItemForCalculating) {
-            sharedCircularBuffer.add(lastGGAData.coordinate);
-            qDebug() << name << "I added to CircBuffer" << lastGGAData.coordinate;
-        }
+    if (amIItemForCalculating) {
+        sharedCircularBuffer.add(lastGGAData.coordinate);
+        // qDebug() << name << "I added to CircBuffer" << lastGGAData.coordinate;
+    }
 
     azimuthOfMovement = sharedCircularBuffer.calculateAzimuth();
-    qDebug() << this->name <<"azimuthOfMovement"<<qRadiansToDegrees(azimuthOfMovement);
-    }
+    // qDebug() << this->name <<"azimuthOfMovement"<<qRadiansToDegrees(azimuthOfMovement);
 }
 
 void FixedItem::calcIFNotConnected()
 {
     if (QString(metaObject()->className()) == "FixedItem") {
         azimuthOfMovement = sharedCircularBuffer.calculateAzimuth();
+        if (azimuthOfMovement == -1) {
+            azimuthOfMovement = this->realAzimuthOfTowingRadians;
+        }
     } else {
         azimuthOfMovement = ItemForCalculations->azimuthOfMovement;
     }
         // NmeaParser::NmeaGGAData coor = ItemForCalculations->lastGGAData;
-    double azRad = azimuthOfMovement;
+    // double azRad = azimuthOfMovement;
+    double azRad = sharedCircularBuffer.calculateAzimuth();
+    if (azRad > 2*M_PI) azRad -= 2*M_PI;
+    // qDebug() << qRadiansToDegrees( azRad) << "азимут для рассчета координат"<<__FUNCTION__;
+
     x_coor = ItemForCalculations->x_coor + (y-ItemForCalculations->y)*qCos(azRad) +
              (x-ItemForCalculations->x)*qSin(azRad);
     y_coor = ItemForCalculations->y_coor - (y-ItemForCalculations->y)*qSin(azRad) +
              (x-ItemForCalculations->x)*qCos(azRad);
-    QGeoCoordinate tmp = parser.UTMtoGeo(QPointF(x_coor, y_coor));
+
+    // this->showAzDistToObj(ItemForCalculations);
+
+
+
+    QGeoCoordinate curGeoCoordinate = parser.UTMtoGeo(QPointF(x_coor, y_coor));
+    // qDebug() << x_coor << QString::number(y_coor) << name;
+    // qDebug() << ItemForCalculations->x_coor << QString::number(ItemForCalculations->y_coor) << ItemForCalculations->name;
+    // qDebug() << curGeoCoordinate.azimuthTo(ItemForCalculations->lastGGAData.coordinate) << curGeoCoordinate.distanceTo(ItemForCalculations->lastGGAData.coordinate)<< "dist and az by Geo";
+    // qDebug() << (M_PI/2 - qAtan2(dy, dx))* (180.0 / M_PI) << qSqrt(dx * dx + dy * dy) << "dist and az by UTM";
+    // qDebug() <<"_______________";
     // qDebug() << x_coor << y_coor <<"FixedItem::calcIFNotConnected()";
-    this->latitude = tmp.latitude();
-    this->longitude = tmp.longitude();
+
+
+
+
+
+
+
+
+    latitude = curGeoCoordinate.latitude();
+    longitude = curGeoCoordinate.longitude();
     height = ItemForCalculations->height - (z - ItemForCalculations->z);
 }
 
@@ -139,4 +162,20 @@ void FixedItem::setItemForCalculations(FixedItem *newItemForCalculations)
     ItemForCalculations = newItemForCalculations;
     newItemForCalculations->amIItemForCalculating = true;
 
+}
+
+bool FixedItem::showAzDistToObj(FixedItem *to)
+{
+    QPointF pOther(to->x_coor, to->y_coor);
+    QPointF pMy(x_coor, y_coor);
+    double dist = pow(((pMy.x() - pOther.x()) * (pMy.x() - pOther.x()) + ((pMy.y() - pOther.y()) * (pMy.y() - pOther.y()))),0.5);
+    // if (dist > 190 && dist < 205) return false;
+    double deltaX = pMy.x() - pOther.x();
+    double deltaY = pMy.y() - pOther.y();
+    double azimuthDegrees = (M_PI + qAtan2(deltaX, deltaY)) * 180 / M_PI;
+    if (azimuthDegrees < 0) {
+        azimuthDegrees += 360.0;
+    }
+    qDebug() << "Between " << name << " and " << to->name << dist << "Azimuth = " << azimuthDegrees;
+    return true;
 }

@@ -15,6 +15,7 @@ P190_creator::~P190_creator()
 
 QStringList P190_creator::createShotBlock()
 {
+    if (-1 == FFID) return QStringList();
     QStringList res;
     QStringList mainBlock = createMainInfoBlock(this->FFID);
     // createMainInfoBlock()
@@ -35,12 +36,35 @@ QStringList P190_creator::createShotBlock()
 
 
 
-///STUB. DO NOT OPEN
+
+QStringList P190_creator::createHeader(int dayNumber) {
+    QString filePath = ":/Data/SurveyInfo.txt";
+    QFile file(filePath);
+    QStringList header;
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+
+        // Читаем строки из файла и добавляем их в QStringList
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            header << line;
+        }
+
+        file.close();
+    } else {
+        // Обработка ошибки, если файл не удалось открыть
+        qWarning("Cannot open file for reading: %s", qPrintable(file.errorString()));
+    }
+    header[7] = replaceDates(header[7]);
+    header[8] = replaceDates(header[8]);
+
+
+    return header;
+}
+
 QStringList P190_creator::createHeader() {
     QString filePath = ":/Data/SurveyInfo.txt";
-    qDebug() << filePath <<__FUNCTION__;
-
-    // Открываем файл
     QFile file(filePath);
     QStringList header;
 
@@ -62,31 +86,38 @@ QStringList P190_creator::createHeader() {
     header[8] = replaceDates(header[8]);
 
     return header;
-}
+};
+
 
 
 void P190_creator::createP190File() {
-
-    // QString dirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    // QDir dir(dirPath + "/Ship_logs");
-    // qDebug() << dir;
+    if (headerIsWritten || dayOfSurvey == -1) {
+        return;
+    }
     QDir dir = path; //setted in MainWindow
-    qDebug() << dir.absolutePath();
     fileName = createFileName();
-
     outputFile = new QFile(dir.absolutePath() + "/" + fileName);
-    qDebug() <<outputFile->fileName();
-
     outputFile->open(QIODevice::Append);
     QStringList list = createHeader();
     for (QString l:list) {
-        // *outputStream << QByteArray(l.toStdString().c_str()) << "\n";
         outputFile->write(QByteArray(l.toUtf8()));
         outputFile->write("\n");
-        // qDebug() << l <<"wrote to" << outputFile->fileName();
     }
     outputFile->close();
-};
+}
+
+void P190_creator::createP190File(int dayNumber)
+{
+    if (!headerIsWritten) {
+        this->dayOfSurvey = dayNumber;
+        createP190File();
+        headerIsWritten = true;
+    } else {
+        return;
+    }
+}
+
+
 
 
 void P190_creator::writeToFile(QStringList data) {
@@ -184,8 +215,24 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
         if (item->x == 0 && item->y == 0 && item->z == 0) {
             type = 'V';
             SourceID = ' ';
+            TailBuoyID = ' ';
             if (item->lastGGAData.dateTime.isValid()) curDateTime = item->lastGGAData.dateTime;
-        } else {
+        }   else if (item->name == "BoomerTP") {
+            type = 'Z';
+            SourceID = '1';
+            TailBuoyID = ' ';
+            return "";
+        }   else if (item->name == "StreamerTP") {
+            type = 'X';
+            SourceID = '1';
+            TailBuoyID = ' ';
+            return "";
+        }   else if (item->name == "ship buoy") {
+            type = 'X';
+            SourceID = '1';
+            TailBuoyID = ' ';
+            return "";
+        }   else {
             return "";
         }
     } else if(QString(item->metaObject()->className()) == "Buoy") {
@@ -199,6 +246,7 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
         // dt = this->curDateTime;
         dt = dummyTimeForItemsWithNoTime;
     }
+    // dt.date() = dateOfSurvey;
     res.replace(0, 1, type);
     res.replace(1, 12, lineName);
     res.replace(16, 1, VesselID);
@@ -209,8 +257,8 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
         toString(QGeoCoordinate::CoordinateFormat::DegreesWithHemisphere).remove("°").remove(' '));
     res.replace(46, 9, floatToQString(item->x_coor, 8,2));
     res.replace(55, 9, floatToQString(item->y_coor, 9,2));
-    res.replace(64, 5, floatToQString(item->height, 5,2));
-    res.replace(70, 3, QString("%1").arg(dt.date().dayOfYear(), 3, 10, QChar('0')));
+    res.replace(64, 5, floatToQString(item->height, 5,1));
+    res.replace(70, 3, QString("%1").arg(dayOfSurvey, 3, 10, QChar('0')));
     res.replace(73, 2, QString("%1").arg(dt.time().hour(), 2, 10, QChar('0')));
     res.replace(75, 2, QString("%1").arg(dt.time().minute(), 2, 10, QChar('0')));
     res.replace(77, 2, QString("%1").arg(dt.time().second(), 2, 10, QChar('0')));
@@ -235,6 +283,11 @@ ItemsStorage *P190_creator::getMyVault() const
 void P190_creator::setMyVault(ItemsStorage *newMyVault)
 {
     MyVault = newMyVault;
+}
+
+void P190_creator::setDayOfSurvey(int newDayOfSurvey)
+{
+    dayOfSurvey = newDayOfSurvey;
 }
 
 void P190_creator::setItemStoragePtr(ItemsStorage *Vault)
@@ -283,7 +336,7 @@ QString P190_creator::convertCoordinates(const QString &input)
 
 QString P190_creator::replaceDates(QString& input) {
     // Define the current date in the desired format (dd.MM.yyyy)
-    QDate date = QDate::currentDate();
+    QDate date = QDate(2024, 1,1).addDays(this->dayOfSurvey-1);
     QString currentDate = date.toString("dd.MM.yyyy");
     QString modifiedInput = input;
     QString month = QString::number(date.month());

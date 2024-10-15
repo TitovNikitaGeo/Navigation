@@ -33,10 +33,14 @@ public:
     QStringList createStreamerBlock();
     QStringList createMainInfoBlock();
     QStringList createMainInfoBlock(int ffid);
-    QStringList createHeader();
     QString createMainRow(FixedItem* item, int pointNumber, int tailBuoy);
 
     void createP190File(); /// create file, write header
+    void createP190File(int dayNumber);
+
+    QStringList createHeader();
+    QStringList createHeader(int dayNumber);
+
     void writeP190Block(); /// writing streamer and reciever blocks
     void writeToFile(QStringList);
 
@@ -53,6 +57,8 @@ public:
     ItemsStorage *getMyVault() const;
     void setMyVault(ItemsStorage *newMyVault);
 
+    void setDayOfSurvey(int newDayOfSurvey);
+
 private:
     int currentBuoyNumber;
     int FFID;
@@ -60,6 +66,8 @@ private:
     QDateTime dummyTimeForItemsWithNoTime;
 
     QDateTime curDateTime;
+    int dayOfSurvey = -1;
+
     QString fileName;
     QFile* outputFile;
     QTextStream* outputStream;
@@ -70,6 +78,9 @@ private:
     QString lineName = "AA10AA0707077";
     QChar tailBuoy; //ну и костыль. руки бы оторвать разрабу
     // QString floatToQString(float value, int totalLength, int decimalPlaces);
+
+
+    bool headerIsWritten = false;
 
     QString replaceDates(QString& input);
 signals:

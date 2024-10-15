@@ -41,6 +41,7 @@ SOURCES += \
     DataReader/segyreader.cpp \
     Service/logger.cpp \
     Service/postprocessor.cpp \
+    Test/test_itemsloading.cpp \
     Test/test_postprocessing.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -75,6 +76,7 @@ HEADERS += \
     DataReader/segyreader.h \
     Service/logger.h \
     Service/postprocessor.h \
+    Test/test_itemsloading.h \
     Test/test_postprocessing.h \
     mainwindow.h \
     Drawing/mygraphicview.h \

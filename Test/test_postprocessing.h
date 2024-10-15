@@ -13,15 +13,41 @@ class testPostprocessing
 {
 public:
     testPostprocessing();
+
+    double getDistance(NmeaParser::NmeaGGAData prev, NmeaParser::NmeaGGAData next);
+
     int testSearchingNmea23();
     int testSearchingNmea23WithOnboard();
     int testSearchingNmea22();
+    int testSearchingNmea23EndBuoyOnlyFans();
+
     QVector<FixedItem*> createItems2309();
     QVector<FixedItem*> createItems2309WithOnboard();
+    QVector<FixedItem*> createItems2309EndBuoyOnlyFans();
+
     QVector<FixedItem*> createItems2209();
 
     QVector<FixedItem*> testItems;
     QVector<SegYReader::Pair>readFileAndGeneratePairs(const QString& fileName);
+
+    double shortestDistanceToLine(const QPointF& point, const QPointF& lineStart, const QPointF& lineEnd);
+
+
+    QDate getDateFromDayOfYear(int dayOfYear) {
+        // Проверяем, что номер дня находится в допустимом диапазоне
+        if (dayOfYear < 1 || dayOfYear > 366) {
+            qWarning() << "Номер дня должен быть от 1 до 366.";
+            return QDate(); // Возвращаем некорректную дату
+        }
+        int year = QDate::currentDate().year();
+        // Получаем первую дату года
+        QDate firstDayOfYear(year, 1, 1);
+
+        // Возвращаем дату, прибавляя номер дня минус один
+        QDate ret = firstDayOfYear.addDays(dayOfYear-1);
+        // qDebug() << ret <<__FUNCTION__;
+        return ret;
+    }
 };
 
 #endif // TEST_POSTPROCESSING_H

@@ -285,7 +285,6 @@ void MainWindow::setSegyReader()
 
     for (auto i:sr->pairs) {
         pairs.append(i);
-        qDebug() << i.ffid << i.time << __FUNCTION__;
     }
 }
 

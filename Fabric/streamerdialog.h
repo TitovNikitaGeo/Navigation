@@ -25,12 +25,12 @@ public:
 
     QString retrunValue = "";
     uint numOfChannels = 0;
-    QVector<float> chans = {};
-    float elasticSectionLength = 12.5;
-    float totalLength;
+    QVector<double> chans = {};
+    double elasticSectionLength = 12.5;
+    double totalLength;
 
-    float leadingDamperLength;
-    float endDamperLength;
+    double leadingDamperLength;
+    double endDamperLength;
     void saveToCSV();
 
 

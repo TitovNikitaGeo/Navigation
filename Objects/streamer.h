@@ -13,7 +13,7 @@ class Streamer : public TowedItem
     class Channel;
 private:
     friend class Fabric;
-    Streamer(QString name, FixedItem *towingPoint, float angleToWired, float wireLength, uint NumChannels, QVector<float> chans);
+    Streamer(QString name, FixedItem *towingPoint, double angleToWired, double wireLength, uint NumChannels, QVector<double> chans);
 
 
 public:
@@ -26,30 +26,33 @@ public:
 
     Channel* getChan(uint number);
     uint getChanCount();
-    QVector<float> getChans() const;
+    QVector<double> getChans() const;
 
-    void setTotalLength(float newTotalLength);
+    void setTotalLength(double newTotalLength);
 
     void setEndBuoy(Buoy *newEndBuoy);
 
-    float getTotalLength();
+    double getTotalLength();
 
-    float depth;
+    double depth;
     void calcStreamerDepth();
-    float totalLength;
+    double totalLength;
     Buoy* endBuoy = nullptr;
+    double getDistanceCalcCoef() const;
+
 private:
     uint NumChanels;
-    QVector<float> chans;
+    QVector<double> chans;
     QVector<Channel*> ChannelsVector;
 
 
-    float endDepth;
+    double endDepth;
 
-    float realLen;
-    float heightDifference;
-    float dh;
+    double realLen;
+    double heightDifference;
+    double dh;
 
+    double distanceCalcCoef;
 
 
     ///inner class for channels
@@ -60,7 +63,7 @@ private:
         Channel(uint myNumber);
 
         QString getUTMPos();
-        float depth;
+        double depth;
 
     private:
         uint myNumber;

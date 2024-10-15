@@ -38,6 +38,8 @@ public:
     void setP190(P190_creator *newP190);
     QVector<SegYReader::Pair> pairs;
 
+    QVector<SegYReader::Pair> preparePairs(QVector<SegYReader::Pair> in);
+
     QStringList findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos);
     NmeaParser::NmeaGGAData calcTruePosition(NmeaParser::NmeaGGAData first,
         NmeaParser::NmeaGGAData second, QTime trueTime, QTime firstTime, QTime secondTime);
