@@ -29,8 +29,8 @@ QTime NmeaParser::getTimeFromNmeaGGA(const QString &nmeaSentence)
     return time;
 }
 
-NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { //разбиваем NMEA на части
-    NmeaGGAData data;
+NmeaParser::CoordinateData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { //разбиваем NMEA на части
+    CoordinateData data;
 
     if (nmeaSentence.startsWith("$GPGGA") || nmeaSentence.startsWith("$GNGGA")) {
         QStringList parts = nmeaSentence.split(',');
@@ -53,7 +53,8 @@ NmeaParser::NmeaGGAData NmeaParser::parseNmeaGGA(const QString &nmeaSentence) { 
             int hours = timeValue.mid(0, 2).toInt();
             int minutes = timeValue.mid(2, 2).toInt();
             int seconds = timeValue.mid(4, 2).toInt();
-            QTime time(hours, minutes, seconds);
+            int milliseconds = timeValue.mid(7, 2).toInt()*10;
+            QTime time(hours, minutes, seconds, milliseconds);
             QDateTime dateTime(QDateTime::currentDateTime().date(), time);
 
 
@@ -146,7 +147,7 @@ double NmeaParser::convertToDegrees(const QString &nmeaValue, const QString &dir
     return decimalDegrees;
 }
 
-void NmeaParser::printNmeaGGAData(NmeaGGAData data) {
+void NmeaParser::printNmeaGGAData(CoordinateData data) {
     if (data.coordinate.isValid()) {
         qDebug() << "Широта:" << data.coordinate.latitude();
         qDebug() << "Долгота:" << data.coordinate.longitude();
@@ -243,7 +244,7 @@ QGeoCoordinate NmeaParser::UTMtoGeo(const QPointF &coordinate) { //из utm в �
     return QGeoCoordinate(lat, lon);
 }
 
-bool NmeaParser::isValid(NmeaGGAData nmeaGGA) {
+bool NmeaParser::isValid(CoordinateData nmeaGGA) {
     int res = 1;
     if (nmeaGGA.coorUTM.rx() == 0 || nmeaGGA.coorUTM.ry() == 0) res = 0;
     if (!nmeaGGA.dateTime.isValid()) res = 0;

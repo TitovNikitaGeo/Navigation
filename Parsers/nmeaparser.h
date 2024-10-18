@@ -18,7 +18,7 @@ public:
         RMC
     };
 
-    struct NmeaGGAData {
+    struct CoordinateData {
         QGeoCoordinate coordinate;
         QPointF coorUTM;
         QDateTime dateTime;
@@ -32,17 +32,17 @@ public:
     explicit NmeaParser(QObject *parent = nullptr);
 
     QTime getTimeFromNmeaGGA(const QString &nmeaSentence);
-    NmeaGGAData parseNmeaGGA(const QString &nmeaSentence);
+    CoordinateData parseNmeaGGA(const QString &nmeaSentence);
     NmeaRMCData parseNmeaRMC(const QString &nmeaSentence);
 
     QPointF GeoToUTM(const QGeoCoordinate &coordinate);
 
-    void printNmeaGGAData(NmeaGGAData data);
+    void printNmeaGGAData(CoordinateData data);
     void printNmeaRMCData(NmeaRMCData data);
 
     QGeoCoordinate UTMtoGeo(const QPointF &coordinate);
 
-    static bool isValid(NmeaGGAData nmeaGGA);
+    static bool isValid(CoordinateData nmeaGGA);
     static bool isValid(NmeaRMCData nmeaRMC);
 private:
     double convertToDegrees(const QString &nmeaValue, const QString &direction);

@@ -13,8 +13,9 @@ class Streamer : public TowedItem
     class Channel;
 private:
     friend class Fabric;
+    friend class ItemsLoader;
     Streamer(QString name, FixedItem *towingPoint, double angleToWired, double wireLength, uint NumChannels, QVector<double> chans);
-
+    Streamer(QString name, FixedItem *towingPoint, double angleToWired, double wireLength, uint NumChannels, QString chanStep);
 
 public:
     explicit Streamer(QObject *parent = nullptr);
@@ -40,8 +41,11 @@ public:
     Buoy* endBuoy = nullptr;
     double getDistanceCalcCoef() const;
 
+    QString channelStep = "1";
 private:
     uint NumChanels;
+
+
     QVector<double> chans;
     QVector<Channel*> ChannelsVector;
 

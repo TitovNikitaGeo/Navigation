@@ -41,14 +41,16 @@ Streamer* Fabric::CreateItem(StreamerInfo info)
         info.chans = dialog.chans;
         info.numOfChannels = dialog.numOfChannels;
         ///streamer params dialog
+        // Streamer* streamer = new Streamer(info.towedInfo.name,
+        //     info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
+        //     info.towedInfo.wireLength, info.numOfChannels, info.chans);
         Streamer* streamer = new Streamer(info.towedInfo.name,
             info.towedInfo.toWhoIsWired, info.towedInfo.angleToWired,
-            info.towedInfo.wireLength, info.numOfChannels, info.chans);
+            info.towedInfo.wireLength, info.numOfChannels, dialog.dChString);
     return streamer;
     } else{
         return nullptr;
     }
-
 }
 
 

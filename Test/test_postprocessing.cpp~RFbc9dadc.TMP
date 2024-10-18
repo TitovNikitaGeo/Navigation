@@ -1,7 +1,355 @@
 #include "test_postprocessing.h"
+
+testPostprocessing::testPostprocessing() {
+    // testSearchingNmea22();
+    testSearchingNmea23WithOnboard();
+    // testSearchingNmea23EndBuoyOnlyFans();
+}
+
+
+
+
+int testPostprocessing::testSearchingNmea23WithOnboard()
+{
+    Logger::instance();
+    QVector<FixedItem*> items;
+    items = createItems2309WithOnboard();
+    PostProcessor pr;
+    ItemsStorage* Vault = new ItemsStorage;
+
+    QStringList perpendiculars;
+    QFile perpendicularsFile("./perpendiculars.txt");
+    perpendicularsFile.open(QIODevice::WriteOnly);
+
+
+    Streamer* strm;
+
+    for (auto i: items) {
+        pr.items.push_back(i);
+        Vault->ItemsVault.push_back(i);
+        // qDebug() << i->name;
+    }
+    pr.p190->setMyVault(Vault);
+
+    QString sdir = "C:/Users/sabrahar/Desktop/FINAL/20240923_UHRS_48/RAW";
+    QDir segydir(sdir);
+    QString ndir = "C:/Users/sabrahar/Desktop/FINAL";
+    QDir nmeadir(ndir);
+
+    pr.p190->createP190File();
+    pr.pairs = readFileAndGeneratePairs("C:/Users/sabrahar/Desktop/FINAL/240923_geom.txt");
+
+    NmeaParser parser;
+
+    int posbouy = 0;
+    int posSTP = 0;
+
+    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024endBuoy.nmea");
+    if (!endBuoyFile->isOpen()) endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QFile* vesBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024OnboardBuoy.nmea");
+    if (!vesBuoyFile->isOpen()) vesBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+
+    for (SegYReader::Pair pair: pr.pairs) {
+        // qDebug() << pair.dateTime;
+        // continue;
+        NmeaParser::NmeaRMCData RMCSTP;
+
+        QStringList res_endbuoy = pr.findNmeaForSegy(pair, endBuoyFile, &posbouy);
+        QStringList res_vesbuoy = pr.findNmeaForSegy(pair, vesBuoyFile, &posSTP);
+        NmeaParser::NmeaGGAData GGAendbuoy_first = parser.parseNmeaGGA(res_endbuoy[0]);
+        NmeaParser::NmeaGGAData GGAvesBuoy_first = parser.parseNmeaGGA(res_vesbuoy[0]);
+        NmeaParser::NmeaGGAData GGAendbuoy_second = parser.parseNmeaGGA(res_endbuoy[1]);
+        NmeaParser::NmeaGGAData GGAvesBuoy_second= parser.parseNmeaGGA(res_vesbuoy[1]);
+        if (res_vesbuoy.size() == 3) {
+            RMCSTP= parser.parseNmeaRMC(res_vesbuoy[2]);
+        }
+
+
+        if (GGAendbuoy_first.dateTime.time().secsTo(pair.time) > 10) {
+            // items[0]->hasConnection = false;
+            qDebug() << items[0]->name << "connection false";
+            qDebug() << pair.time;
+        // } else {
+            // items[0]->hasConnection = true;
+            // qDebug() << items[0]->name << "connection true";
+            // qDebug() << pair.time;
+        }
+        NmeaParser::NmeaGGAData GGAendbuoyTrue = pr.calcTruePosition(GGAendbuoy_first,GGAendbuoy_second,pair.time, GGAendbuoy_first.dateTime.time(),GGAendbuoy_second.dateTime.time());
+        NmeaParser::NmeaGGAData GGAvesBuoyTrue = pr.calcTruePosition(GGAvesBuoy_first,GGAvesBuoy_second,pair.time, GGAvesBuoy_first.dateTime.time(),GGAvesBuoy_second.dateTime.time());
+
+
+        items[0]->lastGGAData = GGAendbuoyTrue; //endBuoy
+        items[1]->lastGGAData = GGAvesBuoyTrue; //shipBuoy
+
+        for (auto i: items) {
+            i->calcItemCoordinates();
+            if (QString(i->metaObject()->className()) == "Streamer") {
+                strm = dynamic_cast<Streamer*>(i);
+                if (pair.ffid / 100 == 0) {
+                }
+                // qDebug() << ;
+            }
+        }
+
+        float dist = shortestDistanceToLine(QPointF(items[5]->x_coor, items[5]->y_coor), QPointF(strm->getChan(1)->x_coor, strm->getChan(1)->y_coor),
+                                            QPointF(strm->getChan(48)->x_coor,strm->getChan(48)->y_coor));
+
+        if (dist < 6) {
+            QPointF(items[5]->x_coor, items[5]->y_coor);
+            QPointF(strm->getChan(1)->x_coor, strm->getChan(1)->y_coor);
+        }
+        if (pair.ffid > 0) {
+            perpendiculars.append(QString(pair.time.toString() + "\t" + QString::number(dist)).replace('.', ',') + "\n");
+        }
+
+        // if (items[2]->showAzDistToObj(items[4])) {
+        //     items[5]->showAzDistToObj(items[3]);
+
+        //     qDebug() << "\n";
+        //     qDebug() << "================";
+        // }
+
+        // if (dynamic_cast<Streamer*>(items[3])->getDistanceCalcCoef() != 1) {
+        //     qDebug() << dynamic_cast<Streamer*>(items[3])->getDistanceCalcCoef();
+        //     qDebug() << pair.time;
+
+        // }
+
+        // if (items[5]->showAzDistToObj(items[3])){
+        //     qDebug() << pair.ffid << pair.time;
+        //     qDebug() <<"END"+res_endbuoy[0]<<"\nVES"+res_vesbuoy[0];
+        // }
+
+        pr.p190->setDayOfSurvey(pair.julianDay);
+        pr.p190->setFFID(pair.ffid);
+        pr.p190->createShotBlock();
+        // break;
+        // NmeaParser::NmeaGGAData GGAData = pr
+    }
+    for (QString i:perpendiculars) {
+        perpendicularsFile.write(i.toStdString().c_str());
+    }
+    // delete endBuoyFile;
+    return 1;
+}
+
+int testPostprocessing::testSearchingNmea22()
+{
+    Logger::instance();
+    QVector<FixedItem*> items = createItems2209();
+    PostProcessor pr;
+    ItemsStorage* Vault = new ItemsStorage;
+
+    Streamer* strm;
+
+    QStringList perpendiculars;
+    QFile perpendicularsFile("./perpendiculars.txt");
+    perpendicularsFile.open(QIODevice::WriteOnly);
+
+    for (auto i: items) {
+        pr.items.push_back(i);
+        Vault->ItemsVault.push_back(i);
+    }
+    pr.p190->setMyVault(Vault);
+
+    QString ndir = "C:/Users/sabrahar/Desktop/FINAL";
+    QDir nmeadir(ndir);
+
+    pr.p190->createP190File();
+    pr.pairs = readFileAndGeneratePairs("C:/Users/sabrahar/Desktop/FINAL/240922_geom.txt");
+
+    NmeaParser parser;
+
+    int posbouy = 0;
+    int posSTP = 0;
+    float dist;
+    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/22092024endBuoy.nmea");
+    if (!endBuoyFile->isOpen()) endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QFile* vesBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/22092024OnboardBuoy.nmea");
+    if (!vesBuoyFile->isOpen()) vesBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+    NmeaParser::NmeaGGAData GGAvesBuoyPrev = {{0,0}, {0,0},QDateTime(), 1};
+
+    for (SegYReader::Pair pair: pr.pairs) {
+        NmeaParser::NmeaRMCData RMCSTP;
+
+
+        QStringList res_endbuoy = pr.findNmeaForSegy(pair, endBuoyFile, &posbouy);
+        QStringList res_vesbuoy = pr.findNmeaForSegy(pair, vesBuoyFile, &posSTP);
+        NmeaParser::NmeaGGAData GGAendbuoy_first = parser.parseNmeaGGA(res_endbuoy[0]);
+        NmeaParser::NmeaGGAData GGAvesBuoy_first = parser.parseNmeaGGA(res_vesbuoy[0]);
+        NmeaParser::NmeaGGAData GGAendbuoy_second = parser.parseNmeaGGA(res_endbuoy[1]);
+        NmeaParser::NmeaGGAData GGAvesBuoy_second= parser.parseNmeaGGA(res_vesbuoy[1]);
+        if (res_vesbuoy.size() == 3) {
+            RMCSTP= parser.parseNmeaRMC(res_vesbuoy[2]);
+        }
+
+
+        // qDebug() << GGAbuoy_first.dateTime.time() << GGASTP_first.dateTime.time();
+        NmeaParser::NmeaGGAData GGAendbuoyTrue = pr.calcTruePosition(GGAendbuoy_first,GGAendbuoy_second,pair.time, GGAendbuoy_first.dateTime.time(),GGAendbuoy_second.dateTime.time());
+        NmeaParser::NmeaGGAData GGAvesBuoyTrue = pr.calcTruePosition(GGAvesBuoy_first,GGAvesBuoy_second,pair.time, GGAvesBuoy_first.dateTime.time(),GGAvesBuoy_second.dateTime.time());
+
+        // qDebug() << GGAvesBuoyTrue.coordinate << GGAvesBuoyTrue.coorUTM;
+
+        //checking distance
+        dist = getDistance(GGAvesBuoyPrev, GGAvesBuoyTrue);
+        if (dist>=0 && dist < 0.5){
+            // qDebug() << dist << pair.ffid << pair.time;
+            // qDebug() << res_endbuoy[0] << "\n" << res_endbuoy[1];
+            // qDebug() << res_vesbuoy[0] << "\n" << res_vesbuoy[1];
+            // qDebug() << GGAvesBuoyPrev.coorUTM << GGAvesBuoyTrue.coorUTM;
+            // qDebug() << "__________________________";
+        } else {
+            // qDebug() << dist << " IS GOOD";
+        }
+        GGAvesBuoyPrev.coordinate = QGeoCoordinate(GGAvesBuoyTrue.coordinate);
+        GGAvesBuoyPrev.coorUTM = QPointF(GGAvesBuoyTrue.coorUTM);
+        // qDebug() << GGAvesBuoyPrev.coordinate;
+
+
+
+        items[0]->lastGGAData = GGAendbuoyTrue; //endBuoy
+        items[1]->lastGGAData = GGAvesBuoyTrue; //shipBuoy
+
+
+
+        for (auto i: items) {
+            i->calcItemCoordinates();
+            if (QString(i->metaObject()->className()) == "Streamer") {
+                strm = dynamic_cast<Streamer*>(i);
+                if (pair.ffid % 100 == 0) {
+                    // Streamer* strm = dynamic_cast<Streamer*>(i);
+                    // qDebug() << "FAKE AZIMUTH"<<GGAendbuoyTrue.coordinate.azimuthTo(GGAvesBuoyTrue.coordinate);
+                    // qDebug() << "REAL AZIMUTH OF TOWING" << qRadiansToDegrees(strm->realAzimuthOfTowingRadians);
+                    // qDebug() <<"FFID" << pair.ffid;
+                }
+            }
+        }
+        float dist = shortestDistanceToLine(QPointF(items[5]->x_coor, items[5]->y_coor), QPointF(strm->x_coor, strm->y_coor),
+                                            QPointF(strm->getChan(48)->x_coor,strm->getChan(48)->y_coor));
+
+        perpendiculars.append(QString(pair.time.toString() + "\t" + QString::number(dist)).replace('.', ',') + "\n");
+        if (abs(dist-6.9) > 1) {
+            qDebug() << dist << pair.ffid << pair.time;
+            qDebug() <<"distance";
+        }
+
+        // qDebug() << dist;
+        // qDebug() <<"distance";
+        // if (dist > 7 || dist < 6.8) {
+        //     qWarning() << "DISTANCE";
+        // }
+        // break;
+        pr.p190->setDayOfSurvey(pair.julianDay);
+        pr.p190->setFFID(pair.ffid);
+        pr.p190->createShotBlock();
+        // break;
+        // NmeaParser::NmeaGGAData GGAData = pr
+    }
+    for (QString i:perpendiculars) {
+        perpendicularsFile.write(i.toStdString().c_str());
+    }
+
+
+    delete endBuoyFile;
+    return 1;
+}
+
+
+
+int testPostprocessing::testSearchingNmea23EndBuoyOnlyFans()
+{
+    NmeaParser::NmeaGGAData shipBuoylast;
+    NmeaParser::NmeaGGAData StreamerTPLast;
+    NmeaParser::NmeaGGAData BoomerTPLast;
+    Streamer* strm;
+
+    Logger::instance();
+    QVector<FixedItem*> items = createItems2309EndBuoyOnlyFans();
+    PostProcessor pr;
+    ItemsStorage* Vault = new ItemsStorage;
+
+    for (auto i: items) {
+        pr.items.push_back(i);
+        Vault->ItemsVault.push_back(i);
+    }
+    pr.p190->setMyVault(Vault);
+
+    QString ndir = "C:/Users/sabrahar/Desktop/FINAL";
+    QDir nmeadir(ndir);
+
+    pr.p190->createP190File();
+    pr.pairs = readFileAndGeneratePairs("C:/Users/sabrahar/Desktop/FINAL/20240923_geom_without_onboard.txt");
+
+    NmeaParser parser;
+
+    int posbouy = 0;
+    int posSTP = 0;
+
+    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024endBuoy.nmea");
+    if (!endBuoyFile->isOpen()) endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+    // QFile* vesBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024OnboardBuoy.nmea");
+    // if (!vesBuoyFile->isOpen()) vesBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
+
+
+    for (SegYReader::Pair pair: pr.pairs) {
+
+        QStringList res_endbuoy = pr.findNmeaForSegy(pair, endBuoyFile, &posbouy);
+        NmeaParser::NmeaGGAData GGAendbuoy_first = parser.parseNmeaGGA(res_endbuoy[0]);
+        NmeaParser::NmeaGGAData GGAendbuoy_second = parser.parseNmeaGGA(res_endbuoy[1]);
+
+        NmeaParser::NmeaGGAData GGAendbuoyTrue = pr.calcTruePosition(GGAendbuoy_first,GGAendbuoy_second, pair.time, GGAendbuoy_first.dateTime.time(),GGAendbuoy_second.dateTime.time());
+
+
+
+
+        items[0]->lastGGAData = GGAendbuoyTrue; //endBuoy
+
+        for (auto i: items) {
+            i->calcItemCoordinates();
+            if (QString(i->metaObject()->className()) == "Streamer") {
+                strm = dynamic_cast<Streamer*>(i);
+                if (pair.ffid / 100 == 0 || true) {
+                    // qDebug() << "REAL AZIMUTH OF TOWING" << qRadiansToDegrees(strm->realAzimuthOfTowingRadians);
+                    // qDebug() <<"FFID" << pair.ffid;
+                }
+            }
+            if (i->name == "shipBuoy") {
+                shipBuoylast = i->lastGGAData;
+                // qDebug() << shipBuoylast.coordinate.distanceTo(GGAendbuoyTrue.coordinate);
+                // qDebug() << shipBuoylast.coordinate.azimuthTo(GGAendbuoyTrue.coordinate);
+                // qDebug() <<i->name;
+                // qDebug() <<
+            } else if (i->name == "BoomerTP") {
+                BoomerTPLast = i->lastGGAData;
+            } else if (i->name == "StreamerTP") {
+                StreamerTPLast = i->lastGGAData;
+            }
+
+        }
+
+        qDebug() << shortestDistanceToLine(QPointF(items[5]->x_coor, items[5]->y_coor), QPointF(strm->x_coor, strm->y_coor),
+                                   QPointF(strm->getChan(48)->x_coor,strm->getChan(48)->y_coor));
+        qDebug() <<"distance";
+
+
+        pr.p190->setFFID(pair.ffid);
+        pr.p190->createShotBlock();
+        // break;
+        // NmeaParser::NmeaGGAData GGAData = pr
+    }
+    delete endBuoyFile;
+    return 1;
+}
+
+
 QVector<FixedItem *> testPostprocessing::createItems2309WithOnboard()
 {
-    QVector<double> chans;
+    QVector<float> chans;
     for (int i = 0; i < 24; i++) {
         chans.append(i+1);
     }
@@ -17,21 +365,20 @@ QVector<FixedItem *> testPostprocessing::createItems2309WithOnboard()
     shipBuoy->connection = shipBuoyConnection;
 
 
-    FixedItem* StreamerTP = fb.CreateItem(FixedItemInfo(0.00,0,0,"StreamerTP"), false);
+    FixedItem* StreamerTP = fb.CreateItem(FixedItemInfo(0.01,0,0,"StreamerTP"), false);
     StreamerTP->setItemForCalculations(shipBuoy);
 
 
     FixedItem* BoomerTP = fb.CreateItem(FixedItemInfo(0.45,-6.9,0,"BoomerTP"), false);
-    BoomerTP->setItemForCalculations(shipBuoy);
+    BoomerTP->setItemForCalculations(StreamerTP);
 
     Source* boomer = fb.CreateItem(SourceInfo(TowedItemInfo(BoomerTP, 75.0, 0, "boomer")), false);
     Streamer* streamer = fb.CreateItem(StreamerInfo(TowedItemInfo(StreamerTP, 85.5, 0, "Streamer"), 48, chans));
 
-
     Buoy* endBuoy = fb.CreateItem(BuoyInfo(TowedItemInfo(streamer, 40.4, 0, "endbuoy"), 1, 0.5), false);
     endBuoy->hasConnection = true;
-    // endBuoy->setItemForCalculations(streamer);
-    // shipBuoy->setItemForCalculations(endBuoy);
+    endBuoy->setItemForCalculations(streamer);
+    shipBuoy->setItemForCalculations(endBuoy);
 
     streamer->setEndBuoy(endBuoy);
     Connection_com* conEnd = new Connection_com();
@@ -52,7 +399,7 @@ QVector<FixedItem *> testPostprocessing::createItems2309WithOnboard()
 
 QVector<FixedItem *> testPostprocessing::createItems2309EndBuoyOnlyFans()
 {
-    QVector<double> chans;
+    QVector<float> chans;
     for (int i = 0; i < 24; i++) {
         chans.append(i+1);
     }
@@ -105,7 +452,7 @@ QVector<FixedItem *> testPostprocessing::createItems2309EndBuoyOnlyFans()
 
 QVector<FixedItem*> testPostprocessing::createItems2209()
 {
-    QVector<double> chans;
+    QVector<float> chans;
     for (int i = 0; i < 24; i++) {
         chans.append(i+1);
     }
@@ -156,363 +503,6 @@ QVector<FixedItem*> testPostprocessing::createItems2209()
     return res;
 
 }
-
-
-
-
-testPostprocessing::testPostprocessing() {
-    // testSearchingNmea22();
-    // testSearchingNmea23WithOnboard();
-    // testSearchingNmea23EndBuoyOnlyFans();
-}
-
-
-
-
-int testPostprocessing::testSearchingNmea23WithOnboard()
-{
-    Logger::instance();
-    QVector<FixedItem*> items;
-    items = createItems2309WithOnboard();
-    // for (auto i: items) {
-    //     qDebug() << i->name;
-    // }
-    // exit(123);
-    PostProcessor pr;
-    ItemsStorage* Vault = new ItemsStorage;
-
-    QStringList perpendiculars;
-    QFile perpendicularsFile("./perpendiculars.txt");
-    perpendicularsFile.open(QIODevice::WriteOnly);
-
-
-    Streamer* strm;
-
-    for (auto i: items) {
-        pr.items.push_back(i);
-        Vault->ItemsVault.push_back(i);
-        // qDebug() << i->name;
-    }
-    pr.p190Creator->setMyVault(Vault);
-
-    QString sdir = "C:/Users/sabrahar/Desktop/FINAL/20240923_UHRS_48/RAW";
-    QDir segydir(sdir);
-    QString ndir = "C:/Users/sabrahar/Desktop/FINAL";
-    QDir nmeadir(ndir);
-
-    pr.pairs = readFileAndGeneratePairs("C:/Users/sabrahar/Desktop/FINAL/240923_geom.txt");
-
-    NmeaParser parser;
-
-    int posbouy = 0;
-    int posSTP = 0;
-
-    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024endBuoy.nmea");
-    if (!endBuoyFile->isOpen()) endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QFile* vesBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024OnboardBuoy.nmea");
-    if (!vesBuoyFile->isOpen()) vesBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
-
-
-    for (SegYReader::Pair pair: pr.pairs) {
-
-        // qDebug() << pair.dateTime;
-        // continue;
-        NmeaParser::NmeaRMCData RMCSTP;
-
-        QStringList res_endbuoy = pr.findNmeaForSegy(pair, endBuoyFile, &posbouy);
-        QStringList res_vesbuoy = pr.findNmeaForSegy(pair, vesBuoyFile, &posSTP);
-        NmeaParser::CoordinateData GGAendbuoy_first = parser.parseNmeaGGA(res_endbuoy[0]);
-        NmeaParser::CoordinateData GGAvesBuoy_first = parser.parseNmeaGGA(res_vesbuoy[0]);
-        NmeaParser::CoordinateData GGAendbuoy_second = parser.parseNmeaGGA(res_endbuoy[1]);
-        NmeaParser::CoordinateData GGAvesBuoy_second= parser.parseNmeaGGA(res_vesbuoy[1]);
-        if (res_vesbuoy.size() == 3) {
-            RMCSTP= parser.parseNmeaRMC(res_vesbuoy[2]);
-        }
-
-
-        if (GGAendbuoy_first.dateTime.time().secsTo(pair.time) > 10) {
-            qDebug() << items[0]->name << "connection false";
-            qDebug() << pair.time;
-        }
-        NmeaParser::CoordinateData GGAendbuoyTrue = pr.calcTruePosition(GGAendbuoy_first,GGAendbuoy_second,pair.time, GGAendbuoy_first.dateTime.time(),GGAendbuoy_second.dateTime.time());
-        NmeaParser::CoordinateData GGAvesBuoyTrue = pr.calcTruePosition(GGAvesBuoy_first,GGAvesBuoy_second,pair.time, GGAvesBuoy_first.dateTime.time(),GGAvesBuoy_second.dateTime.time());
-
-
-        items[0]->lastGGAData = GGAendbuoyTrue; //endBuoy
-        items[1]->lastGGAData = GGAvesBuoyTrue; //shipBuoy
-
-        for (auto i: items) {
-            i->calcItemCoordinates();
-            if (QString(i->metaObject()->className()) == "Streamer") {
-                strm = dynamic_cast<Streamer*>(i);
-                if (pair.ffid / 100 == 0) {
-                }
-            }
-        }
-
-        double dist = shortestDistanceToLine(QPointF(items[5]->x_coor, items[5]->y_coor), QPointF(strm->getChan(1)->x_coor,strm->getChan(1)->y_coor),
-                                            QPointF(strm->getChan(48)->x_coor,strm->getChan(48)->y_coor));
-        // dist = shortestDistanceToLine(QPointF(items[1]->x_coor, items[1]->y_coor), QPointF(items[2]->x_coor, items[2]->y_coor),
-        //                               QPointF(items[4]->x_coor, items[4]->y_coor));
-        // dist = pow((items[5]->x_coor - strm->x_coor)*(items[5]->x_coor - strm->x_coor) + (items[5]->y_coor - strm->y_coor)*(items[5]->y_coor - strm->y_coor), 0.5);
-
-        if (pair.ffid > 0) {
-            perpendiculars.append(QString(pair.time.toString() + "\t" + QString::number(dist)).replace('.', ',') + "\n");
-        }
-
-        if (items[1]->showAzDistToObj(items[2])){
-            items[1]->showAzDistToObj(items[4]);
-            items[2]->showAzDistToObj(items[4]);
-            items[1]->showAzDistToObj(items[0]);
-            items[2]->showAzDistToObj(items[3]);
-            items[4]->showAzDistToObj(items[5]);
-            items[2]->showAzDistToObj(items[0]);
-            items[1]->showAzDistToObj(items[3]);
-            items[5]->showAzDistToObj(items[3]);
-            qDebug() << qRadiansToDegrees( items[2]->azimuthOfMovement) << "movement";
-            qDebug() << qRadiansToDegrees(items[3]->realAzimuthOfTowingRadians)<< "towing\n";
-
-            // qDebug() << pair.ffid << pair.time;
-            // qDebug() <<"END"+res_endbuoy[0]<<"\nVES"+res_vesbuoy[0];
-        }
-        pr.p190Creator->createP190File(pair.julianDay);
-        pr.p190Creator->setDayOfSurvey(pair.julianDay);
-        pr.p190Creator->setFFID(pair.ffid);
-        pr.p190Creator->createShotBlock();
-        // break;
-        // NmeaParser::NmeaGGAData GGAData = pr
-    }
-    for (QString i:perpendiculars) {
-        perpendicularsFile.write(i.toStdString().c_str());
-    }
-    // delete endBuoyFile;
-    return 1;
-}
-
-int testPostprocessing::testSearchingNmea22()
-{
-    Logger::instance();
-    QVector<FixedItem*> items = createItems2209();
-    PostProcessor pr;
-    ItemsStorage* Vault = new ItemsStorage;
-
-    Streamer* strm;
-
-    QStringList perpendiculars;
-    QFile perpendicularsFile("./perpendiculars.txt");
-    perpendicularsFile.open(QIODevice::WriteOnly);
-
-    for (auto i: items) {
-        pr.items.push_back(i);
-        Vault->ItemsVault.push_back(i);
-    }
-    pr.p190Creator->setMyVault(Vault);
-
-    // QString ndir = "C:/Users/sabrahar/Desktop/FINAL";
-    // QDir nmeadir(ndir);
-
-    pr.p190Creator->createP190File();
-    pr.pairs = readFileAndGeneratePairs("C:/Users/sabrahar/Desktop/FINAL/240922_geom.txt");
-
-    NmeaParser parser;
-
-    int posbouy = 0;
-    int posSTP = 0;
-    double dist;
-    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/22092024endBuoy.nmea");
-    if (!endBuoyFile->isOpen()) endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QFile* vesBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/22092024OnboardBuoy.nmea");
-    if (!vesBuoyFile->isOpen()) vesBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
-
-    NmeaParser::CoordinateData GGAvesBuoyPrev = {{0,0}, {0,0},QDateTime(), 1};
-
-    for (SegYReader::Pair pair: pr.pairs) {
-        NmeaParser::NmeaRMCData RMCSTP;
-
-
-        QStringList res_endbuoy = pr.findNmeaForSegy(pair, endBuoyFile, &posbouy);
-        QStringList res_vesbuoy = pr.findNmeaForSegy(pair, vesBuoyFile, &posSTP);
-        NmeaParser::CoordinateData GGAendbuoy_first = parser.parseNmeaGGA(res_endbuoy[0]);
-        NmeaParser::CoordinateData GGAvesBuoy_first = parser.parseNmeaGGA(res_vesbuoy[0]);
-        NmeaParser::CoordinateData GGAendbuoy_second = parser.parseNmeaGGA(res_endbuoy[1]);
-        NmeaParser::CoordinateData GGAvesBuoy_second= parser.parseNmeaGGA(res_vesbuoy[1]);
-        // if (res_vesbuoy.size() == 3) {
-        //     RMCSTP= parser.parseNmeaRMC(res_vesbuoy[2]);
-        // }
-
-
-        // qDebug() << GGAbuoy_first.dateTime.time() << GGASTP_first.dateTime.time();
-        NmeaParser::CoordinateData GGAendbuoyTrue = pr.calcTruePosition(GGAendbuoy_first,GGAendbuoy_second,pair.time, GGAendbuoy_first.dateTime.time(),GGAendbuoy_second.dateTime.time());
-        NmeaParser::CoordinateData GGAvesBuoyTrue = pr.calcTruePosition(GGAvesBuoy_first,GGAvesBuoy_second,pair.time, GGAvesBuoy_first.dateTime.time(),GGAvesBuoy_second.dateTime.time());
-
-        // qDebug() << GGAvesBuoyTrue.coordinate << GGAvesBuoyTrue.coorUTM;
-
-        //checking distance
-        dist = getDistance(GGAvesBuoyPrev, GGAvesBuoyTrue);
-        if (dist>=0 && dist < 0.5){
-            // qDebug() << dist << pair.ffid << pair.time;
-            // qDebug() << res_endbuoy[0] << "\n" << res_endbuoy[1];
-            // qDebug() << res_vesbuoy[0] << "\n" << res_vesbuoy[1];
-            // qDebug() << GGAvesBuoyPrev.coorUTM << GGAvesBuoyTrue.coorUTM;
-            // qDebug() << "__________________________";
-        } else {
-            // qDebug() << dist << " IS GOOD";
-        }
-        GGAvesBuoyPrev.coordinate = QGeoCoordinate(GGAvesBuoyTrue.coordinate);
-        GGAvesBuoyPrev.coorUTM = QPointF(GGAvesBuoyTrue.coorUTM);
-        // qDebug() << GGAvesBuoyPrev.coordinate;
-
-
-
-        items[0]->lastGGAData = GGAendbuoyTrue; //endBuoy
-        items[1]->lastGGAData = GGAvesBuoyTrue; //shipBuoy
-
-
-
-        for (auto i: items) {
-            i->calcItemCoordinates();
-            if (QString(i->metaObject()->className()) == "Streamer") {
-                strm = dynamic_cast<Streamer*>(i);
-                if (pair.ffid % 100 == 0) {
-                    // Streamer* strm = dynamic_cast<Streamer*>(i);
-                    // qDebug() << "FAKE AZIMUTH"<<GGAendbuoyTrue.coordinate.azimuthTo(GGAvesBuoyTrue.coordinate);
-                    // qDebug() << "REAL AZIMUTH OF TOWING" << qRadiansToDegrees(strm->realAzimuthOfTowingRadians);
-                    // qDebug() <<"FFID" << pair.ffid;
-                }
-            }
-        }
-        double dist = shortestDistanceToLine(QPointF(items[5]->x_coor, items[5]->y_coor), QPointF(strm->x_coor, strm->y_coor),
-                                            QPointF(strm->getChan(48)->x_coor,strm->getChan(48)->y_coor));
-
-        if (pair.ffid > 0) {
-            perpendiculars.append(QString(pair.time.toString() + "\t" + QString::number(dist)).replace('.', ',') + "\n");
-        }
-
-        if (items[1]->showAzDistToObj(items[2])){
-            items[1]->showAzDistToObj(items[4]);
-            items[2]->showAzDistToObj(items[4]);
-            items[1]->showAzDistToObj(items[0]);
-            items[2]->showAzDistToObj(items[3]);
-            items[4]->showAzDistToObj(items[5]);
-            items[2]->showAzDistToObj(items[0]);
-            items[1]->showAzDistToObj(items[3]);
-            items[5]->showAzDistToObj(items[3]);
-            qDebug() << qRadiansToDegrees( items[2]->azimuthOfMovement) << "movement";
-            qDebug() << qRadiansToDegrees(items[3]->realAzimuthOfTowingRadians)<< "towing\n";
-
-            // qDebug() << pair.ffid << pair.time;
-            // qDebug() <<"END"+res_endbuoy[0]<<"\nVES"+res_vesbuoy[0];
-        }
-
-
-        pr.p190Creator->createP190File(pair.julianDay);
-        pr.p190Creator->setDayOfSurvey(pair.julianDay);
-        pr.p190Creator->setFFID(pair.ffid);
-        pr.p190Creator->createShotBlock();
-        // break;
-        // NmeaParser::NmeaGGAData GGAData = pr
-    }
-    for (QString i:perpendiculars) {
-        perpendicularsFile.write(i.toStdString().c_str());
-    }
-
-
-    delete endBuoyFile;
-    return 1;
-}
-
-
-
-int testPostprocessing::testSearchingNmea23EndBuoyOnlyFans()
-{
-    NmeaParser::CoordinateData shipBuoylast;
-    NmeaParser::CoordinateData StreamerTPLast;
-    NmeaParser::CoordinateData BoomerTPLast;
-    Streamer* strm;
-
-    Logger::instance();
-    QVector<FixedItem*> items = createItems2309EndBuoyOnlyFans();
-    PostProcessor pr;
-    ItemsStorage* Vault = new ItemsStorage;
-
-    for (auto i: items) {
-        pr.items.push_back(i);
-        Vault->ItemsVault.push_back(i);
-    }
-    pr.p190Creator->setMyVault(Vault);
-
-    QString ndir = "C:/Users/sabrahar/Desktop/FINAL";
-    QDir nmeadir(ndir);
-
-    pr.p190Creator->createP190File();
-    pr.pairs = readFileAndGeneratePairs("C:/Users/sabrahar/Desktop/FINAL/20240923_geom_without_onboard.txt");
-
-    NmeaParser parser;
-
-    int posbouy = 0;
-    int posSTP = 0;
-
-    QFile* endBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024endBuoy.nmea");
-    if (!endBuoyFile->isOpen()) endBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
-
-    // QFile* vesBuoyFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/23092024OnboardBuoy.nmea");
-    // if (!vesBuoyFile->isOpen()) vesBuoyFile->open(QIODevice::ReadOnly | QIODevice::Text);
-
-
-    for (SegYReader::Pair pair: pr.pairs) {
-
-        QStringList res_endbuoy = pr.findNmeaForSegy(pair, endBuoyFile, &posbouy);
-        NmeaParser::CoordinateData GGAendbuoy_first = parser.parseNmeaGGA(res_endbuoy[0]);
-        NmeaParser::CoordinateData GGAendbuoy_second = parser.parseNmeaGGA(res_endbuoy[1]);
-
-        NmeaParser::CoordinateData GGAendbuoyTrue = pr.calcTruePosition(GGAendbuoy_first,GGAendbuoy_second, pair.time, GGAendbuoy_first.dateTime.time(),GGAendbuoy_second.dateTime.time());
-
-
-
-
-        items[0]->lastGGAData = GGAendbuoyTrue; //endBuoy
-
-        for (auto i: items) {
-            i->calcItemCoordinates();
-            if (QString(i->metaObject()->className()) == "Streamer") {
-                strm = dynamic_cast<Streamer*>(i);
-                if (pair.ffid / 100 == 0 || true) {
-                    // qDebug() << "REAL AZIMUTH OF TOWING" << qRadiansToDegrees(strm->realAzimuthOfTowingRadians);
-                    // qDebug() <<"FFID" << pair.ffid;
-                }
-            }
-            if (i->name == "shipBuoy") {
-                shipBuoylast = i->lastGGAData;
-                // qDebug() << shipBuoylast.coordinate.distanceTo(GGAendbuoyTrue.coordinate);
-                // qDebug() << shipBuoylast.coordinate.azimuthTo(GGAendbuoyTrue.coordinate);
-                // qDebug() <<i->name;
-                // qDebug() <<
-            } else if (i->name == "BoomerTP") {
-                BoomerTPLast = i->lastGGAData;
-            } else if (i->name == "StreamerTP") {
-                StreamerTPLast = i->lastGGAData;
-            }
-
-        }
-
-        qDebug() << shortestDistanceToLine(QPointF(items[5]->x_coor, items[5]->y_coor), QPointF(strm->x_coor, strm->y_coor),
-                                   QPointF(strm->getChan(48)->x_coor,strm->getChan(48)->y_coor));
-        qDebug() <<"distance";
-
-
-        pr.p190Creator->setFFID(pair.ffid);
-        pr.p190Creator->createShotBlock();
-        // break;
-        // NmeaParser::NmeaGGAData GGAData = pr
-    }
-    delete endBuoyFile;
-    return 1;
-}
-
-
-
 
 
 QVector<SegYReader::Pair> testPostprocessing::readFileAndGeneratePairs(const QString& fileName) {
@@ -574,7 +564,7 @@ double testPostprocessing::shortestDistanceToLine(const QPointF &point, const QP
 }
 
 
-double testPostprocessing::getDistance(NmeaParser::CoordinateData prev, NmeaParser::CoordinateData next)
+float testPostprocessing::getDistance(NmeaParser::NmeaGGAData prev, NmeaParser::NmeaGGAData next)
 {
     if (prev.coordinate.isValid()) {
         return prev.coordinate.distanceTo(next.coordinate);

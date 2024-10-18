@@ -224,13 +224,15 @@ void MainWindow::setMenuBar(QMenuBar *menuBar)
     // Создание действия "Постпроцессинг"
     QAction *postProcessingAction = new QAction("Start postprocessing", fileMenu);
     QObject::connect(postProcessingAction, &QAction::triggered, menuBar->parent(), [this]() {
-        QString dirWithNmea = QFileDialog::getExistingDirectory(
-            nullptr, "Select folder with raw Nmea data", pathForAllFiles.absolutePath(),           // Default directory
-            QFileDialog::DontResolveSymlinks);
-        QString dirWithSegy = QFileDialog::getExistingDirectory(nullptr, "Select folder with Seg-Y",
-        pathForAllFiles.absolutePath(),           // Default directory
-        QFileDialog::DontResolveSymlinks);
-        postProcessing(dirWithNmea, dirWithSegy);
+        // QString dirWithNmea = QFileDialog::getExistingDirectory(
+        //     nullptr, "Select folder with raw Nmea data", pathForAllFiles.absolutePath(),           // Default directory
+        //     QFileDialog::DontResolveSymlinks);
+        // QString dirWithSegy = QFileDialog::getExistingDirectory(nullptr, "Select folder with Seg-Y",
+        // pathForAllFiles.absolutePath(),           // Default directory
+        // QFileDialog::DontResolveSymlinks);
+        // postProcessing(dirWithNmea, dirWithSegy);
+        PostProcessorView* postProcView = new PostProcessorView();
+        postProcView->show();
 
     });
     fileMenu->addAction(postProcessingAction);

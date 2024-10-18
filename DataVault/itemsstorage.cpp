@@ -8,9 +8,9 @@ ItemsStorage::ItemsStorage() {
 }
 
 ItemsStorage::~ItemsStorage() {
-    for (FixedItem* element: ItemsVault){
-        delete element;
-    }
+    // for (FixedItem* element: ItemsVault){
+    //     delete element;
+    // }
 }
 
 void ItemsStorage::SaveItem(FixedItem* NewItem){

@@ -15,6 +15,7 @@ public:
     FixedItem* getItem(QString name);
     void DeleteItem(QString Name);
 
+
     QVector<FixedItem*> ItemsVault;
     ~ItemsStorage();
 };

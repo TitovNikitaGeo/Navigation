@@ -12,8 +12,9 @@
 class ItemsLoader : public QObject
 {
     Q_OBJECT
-    explicit ItemsLoader(QObject *parent = nullptr);
+
 public:
+    explicit ItemsLoader(QObject *parent = nullptr);
     static ItemsLoader& instance();
     static Connection* jsonToConnection(const QJsonObject &obj);
     static QVector<FixedItem*> readFromJSON(QFile* file);
@@ -21,6 +22,9 @@ public:
     static QJsonObject connectionToJson(Connection *conn);
     static QJsonDocument createJsonDoc(QJsonObject obj);
     static bool saveJsonObjectToFile(QJsonObject &jsonObject, QString &filePath);
+    static FixedItem* createItemFromJson(QJsonValue jsonObject);
+    static void setCreationPriority(QVector<FixedItem*> &ItemsVault);
+
     // static bool saveJsonObjectToFile(const QJsonObject &jsonObject, const QString &filePath);
 signals:
 };

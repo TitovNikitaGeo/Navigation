@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QFileDialog>
+#include <QFile>
 
 #include "DataReader/segyreader.h"
 #include "coordinator.h"
@@ -10,13 +11,14 @@
 #include "logger.h"
 #include "itemsstorage.h"
 #include "nmeaparser.h"
+#include "itemsloader.h"
 
 class PostProcessor
 {
 public:
     PostProcessor();
 
-    int runPP();
+    int mainProcess();
 
     void getDataFromSegy();
     void setMyVault(ItemsStorage *newMyVault);
@@ -26,10 +28,7 @@ public:
     void setNmeaStorage(const QDir &newNmeaStorage);
     void setSegyStorage(const QDir &newSegyStorage);
 
-    QVector<FixedItem*> vectorWithCon;
-    QVector<FixedItem*> vectorNoCon;
     QVector<QFile*> NmeaFiles;
-
 
     void fillItemsVectors();
     int findNmeaFiles();
@@ -41,14 +40,28 @@ public:
     QVector<SegYReader::Pair> preparePairs(QVector<SegYReader::Pair> in);
 
     QStringList findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos);
-    NmeaParser::NmeaGGAData calcTruePosition(NmeaParser::NmeaGGAData first,
-        NmeaParser::NmeaGGAData second, QTime trueTime, QTime firstTime, QTime secondTime);
+    NmeaParser::CoordinateData calcTruePosition(NmeaParser::CoordinateData first,
+        NmeaParser::CoordinateData second, QTime trueTime, QTime firstTime, QTime secondTime);
 
+    QVector<FixedItem*> vectorWithCon;
+    QVector<FixedItem*> vectorNoCon;
     ItemsStorage* MyVault;
-    QVector<FixedItem*> items;
     NmeaParser nmeaParser;
+    P190_creator* p190Creator;
 
-    P190_creator* p190;
+
+//взаимодействие с интерфейсом PostProcessorView
+    ItemsStorage Vault;
+    QVector<FixedItem*> items;
+    int itemsWithConnection = 1;
+
+    QFile* jsonSchemeFile;
+    QVector<QFile*> nmeaFiles;
+    QVector<QFile*> ppkFiles;
+    QFile ffidTimeSourceTxtFile;
+    QFile ffidTimeSourceDirFile;
+
+    float percentageP190Creation = 0;
 private:
 };
 

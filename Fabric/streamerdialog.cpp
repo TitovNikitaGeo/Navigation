@@ -43,9 +43,9 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     connect(multiChannelComboBoxChannels, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index){
         multiChannelComboBoxDistance->clear();
         if (index == 1) { // 48 channels selected
-            multiChannelComboBoxDistance->addItems({"1&2","1", "2",  "3.125"});
+            multiChannelComboBoxDistance->addItems({"1&2","1", "2", "3.125", "6.25"});
         } else { // 24 channels selected
-            multiChannelComboBoxDistance->addItems({"1", "2", "3.125"});
+            multiChannelComboBoxDistance->addItems({"1", "2", "3.125", "6.25"});
         }
     });
 
@@ -204,6 +204,7 @@ void StreamerDialog::createChansValues()
             for (uint i = 0; i < numOfChannels; i++) {
                 chans.append(i*dCh);
             }
+            dChString = QString::number(dCh);
         } else { //1&2
             dCh = 1;
             for (uint i = 0; i < 24; i++) {
@@ -213,6 +214,7 @@ void StreamerDialog::createChansValues()
             for (uint i = 0; i < 24; i++) {
                 chans.append(chans[23]+i*dCh + 2);
             }
+            dChString = "1&2";
         }
     } else{ //HRStreamer-1
         // float dCh = 0.2;

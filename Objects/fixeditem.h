@@ -20,10 +20,10 @@ Q_OBJECT
 private:
     friend class Fabric;
     friend class Coordinator;
+    friend class ItemsLoader;
     FixedItem(double x,double y,double z, QString name);
     void calcIfConnected();
     virtual void calcIFNotConnected();
-
 public:
     FixedItem();
     ~FixedItem();
@@ -42,7 +42,7 @@ public:
     double longitude;
     double height;
     double azimuthOfMovement;
-    NmeaParser::NmeaGGAData lastGGAData = {{0,0}, {0,0}, QDateTime(),0};
+    NmeaParser::CoordinateData lastGGAData = {{0,0}, {0,0}, QDateTime(),0};
     NmeaParser::NmeaRMCData lastRMCData = {0,0};
 
 
@@ -72,6 +72,15 @@ public:
 
 
     bool showAzDistToObj(FixedItem* to);
+
+    int creationPriority = -1;
+    //присядь путник, я тебе расскажу про легендарный костыль
+    //давным давно, была нужда создававать такие объекты на основе JSON возникла проблема
+    //ведь многие объекты имели в себе ссылки на другие объекты
+    //и придуман был приоритет порядка создания, что разрешал этот вопрос
+    //но как реализовать этот механизм?
+    //1. можно через статик метод хранилища, что сортирует все имеющиеся объекты по а)типу
+    //б)наличию соединений в)последовательностью подключения (
 public slots:
 
     void newNmeaArived(QString msg);

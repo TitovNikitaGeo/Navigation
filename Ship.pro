@@ -39,10 +39,13 @@ SOURCES += \
     Objects/toweditem.cpp \
     Parsers/coordinator.cpp \
     DataReader/segyreader.cpp \
+    Parsers/ppkparser.cpp \
     Service/logger.cpp \
     Service/postprocessor.cpp \
-    Test/test_itemsloading.cpp \
+    Service/postprocessorview.cpp \
     Test/test_postprocessing.cpp \
+    Test/testitemsloading.cpp \
+    Test/testppkparser.cpp \
     main.cpp \
     mainwindow.cpp \
     Drawing/mygraphicview.cpp \
@@ -74,10 +77,13 @@ HEADERS += \
     Parsers/coordinator.h \
     Parsers/functions.h \
     DataReader/segyreader.h \
+    Parsers/ppkparser.h \
     Service/logger.h \
     Service/postprocessor.h \
-    Test/test_itemsloading.h \
+    Service/postprocessorview.h \
     Test/test_postprocessing.h \
+    Test/testitemsloading.h \
+    Test/testppkparser.h \
     mainwindow.h \
     Drawing/mygraphicview.h \
     Connections/connection.h \

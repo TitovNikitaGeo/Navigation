@@ -26,6 +26,40 @@ Streamer::Streamer(QString Name, FixedItem *towingPoint,
     // printSelfInfo();
 }
 
+Streamer::Streamer(QString name, FixedItem *towingPoint, double angleToWired,
+                   double wireLength, uint NumChannels, QString chanStep) : TowedItem(name, towingPoint, angleToWired, wireLength), NumChanels(NumChannels)
+{
+    bool stepIsStable = false;
+    float dChan = 0;
+    itemType = "Streamer";
+
+    channelStep = chanStep;
+
+    chanStep.toDouble(&stepIsStable);
+    if (stepIsStable) {
+        dChan = chanStep.toDouble();
+        for (int i = 0; i < NumChannels; i++) {
+            chans.append(i*dChan);
+        }
+    } else { //1&2 48 chans
+        if (chanStep == "1&2") {
+            for (int i = 0; i < 24; i++) {
+                chans.append(i);
+                // qDebug() << chans[i];
+            }
+            for (int i = 0; i < 24; i++) {
+                chans.append(chans[23] + 2 + i*2);
+                // qDebug() << chans[24+i];
+            }
+        }
+    }
+    for (uint i = 1; i <= NumChanels; i++) {
+        Channel* chan = new Channel(i);
+        ChannelsVector.append(chan);
+    }
+    totalLength =  chans.at(chans.size() - 1);
+}
+
 void Streamer::calcChansCoors()
 {
     double azRad = azimuthOfMovement*M_PI/180;

@@ -33,6 +33,8 @@ public:
     double endDamperLength;
     void saveToCSV();
 
+    QString dChString = "";
+
 
 private:
     QDoubleSpinBox *elasticSectionLengthSpinBox;

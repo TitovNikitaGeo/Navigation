@@ -15,7 +15,7 @@ Connection_com::Connection_com(QString COM_port, int ByteRate, QString filename)
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
 
-    create_file_for_nmea(this->filename); //создание файла
+    if (!filename.isEmpty()) create_file_for_nmea(this->filename); //создание файла
     // Устанавливаем параметры порта
     SerialPort.setPortName(COM_port);
     SerialPort.setBaudRate(ByteRate);

@@ -2,11 +2,13 @@
 #define BUOY_H
 
 #include "toweditem.h"
+#include "streamer.h"
 
 class Buoy : public TowedItem
 {
     Q_OBJECT
     friend class Fabric;
+    friend class ItemsLoader;
     Buoy(QString Name,
          FixedItem* towingPoint, float angleToWired,
          float wireLength,float AnthenaHeight, float towingDepth);

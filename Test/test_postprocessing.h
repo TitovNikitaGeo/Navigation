@@ -14,16 +14,16 @@ class testPostprocessing
 public:
     testPostprocessing();
 
-    double getDistance(NmeaParser::NmeaGGAData prev, NmeaParser::NmeaGGAData next);
+    double getDistance(NmeaParser::CoordinateData prev, NmeaParser::CoordinateData next);
 
     int testSearchingNmea23();
     int testSearchingNmea23WithOnboard();
     int testSearchingNmea22();
     int testSearchingNmea23EndBuoyOnlyFans();
 
+    QVector<FixedItem*> createItems2309EndBuoyOnlyFans();
     QVector<FixedItem*> createItems2309();
     QVector<FixedItem*> createItems2309WithOnboard();
-    QVector<FixedItem*> createItems2309EndBuoyOnlyFans();
 
     QVector<FixedItem*> createItems2209();
 
@@ -32,6 +32,7 @@ public:
 
     double shortestDistanceToLine(const QPointF& point, const QPointF& lineStart, const QPointF& lineEnd);
 
+    // void
 
     QDate getDateFromDayOfYear(int dayOfYear) {
         // Проверяем, что номер дня находится в допустимом диапазоне

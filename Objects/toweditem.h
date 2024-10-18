@@ -12,6 +12,7 @@ private:
     friend class Streamer;
     friend class Buoy;
     friend class Source;
+    friend class ItemsLoader;
     TowedItem(QString name, FixedItem* towingPoint,
               double angleToWired, double wireLength);
 public:

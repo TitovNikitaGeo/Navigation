@@ -30,64 +30,115 @@ QVector<FixedItem *> ItemsLoader::readFromJSON(QFile *file)
     }
 
     QJsonObject jsonObj = jsonDoc.object();
-    QJsonArray itemsArray = jsonObj["items"].toArray();
 
-    for (const QJsonValue &value : itemsArray) {
-        QJsonObject jsonItem = value.toObject();
-        QString itemType = jsonItem["type"].toString();
 
-        FixedItem* item = nullptr;
-
-        if (itemType == "Fixed") {
-            item = new FixedItem();
-            item->x = jsonItem["x"].toDouble();
-            item->y = jsonItem["y"].toDouble();
-            item->z = jsonItem["z"].toDouble();
-        }
-        else if (itemType == "Towed") {
-            TowedItem* towedItem = new TowedItem();
-            towedItem->towingPoint->name = jsonItem["twiw"].toString();
-            towedItem->wireLength = jsonItem["wireLength"].toDouble();
-            item = towedItem;
-        }
-        else if (itemType == "Buoy") {
-            Buoy* buoyItem = new Buoy();
-            buoyItem->towingPoint->name = jsonItem["twiw"].toString();
-            buoyItem->wireLength = jsonItem["wireLength"].toDouble();
-            buoyItem->AnthenaHeight = jsonItem["buoy"].toObject()["AnthenaHeight"].toDouble();
-            buoyItem->towingDepth = jsonItem["buoy"].toObject()["towingDepth"].toDouble();
-            item = buoyItem;
-        }
-        else if (itemType == "Streamer") {
-            // Streamer* streamerItem = new Streamer();
-            QVector<float> chansVector;
-            QJsonArray chansArray = jsonItem["Streamer"].toObject()["Channels"].toArray();
-            for (const QJsonValue &chanValue : chansArray) {
-                chansVector.append(chanValue.toDouble());
+    QVector<QJsonValue> sortedArrayOfJson(jsonObj.size());
+    for (auto i:jsonObj) {
+        sortedArrayOfJson.push_back(i);
+    }
+    for (int i = 0; i < sortedArrayOfJson.size()-1; i++) { //bubble sort by creationPriority
+        for (int j = 0; j < sortedArrayOfJson.size() - 1 - i; j++) {
+            if (sortedArrayOfJson[j]["creationPriority"].toInt() > sortedArrayOfJson[j+1]["creationPriority"].toInt()) {
+                std::swap(sortedArrayOfJson[j], sortedArrayOfJson[j+1]);
             }
-            Streamer* streamerItem = new Streamer();
-            streamerItem->towingPoint->name = jsonItem["twiw"].toString();
-            streamerItem->wireLength = jsonItem["wireLength"].toDouble();
-
-            // for (const QJsonValue &chanValue : chansArray) {
-            //     streamerItem->addChannel(chanValue.toDouble());
-            // }
-            item = streamerItem;
-
-        }
-
-        if (item != nullptr) {
-            item->name = jsonItem["name"].toString();
-            item->itemType = itemType;
-            item->hasConnection = jsonItem["hasConnection"].toBool();
-            if (item->hasConnection) {
-                item->connection = jsonToConnection(jsonItem["connection"].toObject());
-            }
-
-            res.append(item);
         }
     }
+
+    for (auto i = sortedArrayOfJson.begin(); i != sortedArrayOfJson.end(); ++i) { //deleting empty JsonValues
+        if (!(*i)["name"].toString().isNull()) {
+            // qDebug() << *i;
+        } else {
+            sortedArrayOfJson.erase(i);
+        }
+    }
+
+    for (auto i = sortedArrayOfJson.begin(); i != sortedArrayOfJson.end(); ++i) {
+        res.append(createItemFromJson(*i));
+        // qDebug();
+    }
+
     return res;
+}
+
+FixedItem* ItemsLoader::createItemFromJson(QJsonValue jsonObject)
+{
+    static ItemsStorage vault;
+
+    static bool ifStreamerNeedsEndBuoy = false;
+    static Streamer* streamerNeedsEndBuoy;
+    static QString endBuoyNameForStreamer;
+
+    FixedItem* item = nullptr;
+
+    QJsonObject jsonItem = jsonObject.toObject();
+    QString itemType = jsonItem["type"].toString();
+    QString name = jsonItem["name"].toString();
+    int creationPriority = jsonItem["creationPriority"].toInt(-1);
+    //общие параметры для всех объектов
+
+
+    if (itemType == "Fixed") {
+        FixedItemInfo info(jsonItem["x"].toDouble(0),
+                           jsonItem["y"].toDouble(0),jsonItem["z"].toDouble(0),name);
+        item = new FixedItem(info.SchemeCoors.x, info.SchemeCoors.y,info.SchemeCoors.z,name);
+
+        if (jsonObject["hasConnection"].toBool()) {
+            item->hasConnection = true;
+            item->connection = jsonToConnection(jsonObject["connection"].toObject());
+        } else {
+            item->ItemForCalculations = vault.ItemsVault[0];
+        }
+        vault.SaveItem(item);
+    } else {
+        QJsonObject jsonTowedItem = jsonItem["TowedInfo"].toObject();
+        //общие параметры для всех буксируемых объектов
+        QString towingPointName = jsonTowedItem["Towing point"].toString();
+        double wireLength = jsonTowedItem["wireLength"].toDouble();
+
+
+
+        if (itemType == "Towed") {
+            TowedItem* towedItem = new TowedItem(name, vault.getItem(towingPointName), NULL, wireLength);
+            item = towedItem;
+        } else if (itemType == "Source") {
+            Source* sourceItem = new Source(name, vault.getItem(towingPointName), NULL, wireLength);
+            item = sourceItem;
+        } else if (itemType == "Buoy") {
+            QJsonObject jsonBuoyItem = jsonTowedItem["buoy"].toObject();
+            Buoy* buoyItem = new Buoy(name, vault.getItem(towingPointName), NULL,
+                wireLength, jsonBuoyItem["AnthenaHeight"].toDouble(), jsonBuoyItem["towingDepth"].toDouble());
+            item = buoyItem;
+            if (ifStreamerNeedsEndBuoy && buoyItem->name == endBuoyNameForStreamer) {
+                streamerNeedsEndBuoy->setEndBuoy(buoyItem);
+            }
+
+        } else if (itemType == "Streamer") {
+            QJsonObject jsonStreamerItem = jsonTowedItem["Streamer"].toObject();
+            Streamer* streamerItem = new Streamer(name, vault.getItem(towingPointName),
+                NULL, wireLength, jsonStreamerItem["NumChanels"].toInt(0), jsonStreamerItem["Step between Channels"].toString());
+            item = streamerItem;
+            if (jsonStreamerItem["hasEndBuoy"].toBool()) {
+                ifStreamerNeedsEndBuoy = true;
+                streamerNeedsEndBuoy = streamerItem;
+                endBuoyNameForStreamer = jsonStreamerItem["endBuoyName"].toString();
+            }
+        }
+    }
+    if (item != nullptr) {
+        //общие параметры для соединения
+        vault.SaveItem(item);
+        item->name = jsonItem["name"].toString();
+        item->itemType = itemType;
+        item->hasConnection = jsonItem["hasConnection"].toBool();
+        if (item->hasConnection) {
+            item->connection = jsonToConnection(jsonItem["connection"].toObject());
+        }
+    }
+    item->creationPriority = creationPriority;
+    // qDebug() << item->name << item->itemType << item->creationPriority << __FUNCTION__;
+    qDebug();
+    return item;
+
 }
 
 Connection* ItemsLoader::jsonToConnection(const QJsonObject &obj) {
@@ -113,47 +164,100 @@ Connection* ItemsLoader::jsonToConnection(const QJsonObject &obj) {
 
 QJsonObject ItemsLoader::writeToJSON(QVector<FixedItem *> ItemsVector)
 {
+    setCreationPriority(ItemsVector);
     QJsonObject obj;
-    QJsonObject jsonFixed;
-    for (FixedItem* item: ItemsVector) {
+    QJsonObject jsonFixed; //for (int i = ItemsVector.size() - 1; i >= 0; i--) {
+    for (int i = 0; i < ItemsVector.size(); i++) {
+        FixedItem* item = ItemsVector.at(i);
         jsonFixed["name"] = item->name;
+        // qDebug() << "Parameter written: name =" << item->name;
+
+        jsonFixed["creationPriority"] = item->creationPriority;
         jsonFixed["type"] = item->itemType;
+        // qDebug() << "Parameter written: type =" << item->itemType;
+
         jsonFixed["hasConnection"] =  item->hasConnection;
+        // qDebug() << "Parameter written: hasConnection =" << item->hasConnection;
+
+
         if (item->hasConnection) {
             jsonFixed["connection"] = connectionToJson(item->connection);
+            // qDebug() << "Parameter written: connection (complex object)";
         }
+
         if (item->itemType == "Fixed") {
             jsonFixed["x"] = item->x;
+            // qDebug() << "Parameter written: x =" << item->x;
+
             jsonFixed["y"] = item->y;
-            jsonFixed["z"] = item->z;
-        } else if (item->itemType == "Towed" || item->itemType =="Buoy" || item->itemType == "Streamer") {
+            // qDebug() << "Parameter written: y =" << item->y;
+
+        } else if (item->itemType == "Towed" || item->itemType =="Buoy"
+                   || item->itemType == "Streamer"|| item->itemType == "Source") {
             QJsonObject jsonTowed;
-            jsonTowed["twiw"] = dynamic_cast<TowedItem*>(item)->towingPoint->name;
-            jsonTowed["wireLength"] = dynamic_cast<TowedItem*>(item)->wireLength;
-            if (item->itemType =="Buoy") {
+            TowedItem* itemTowed = dynamic_cast<TowedItem*>(item);
+            jsonTowed["Towing point"] = itemTowed->towingPoint->name;
+            // qDebug() << "Parameter written:  =" << itemTowed->towingPoint->name;
+
+            jsonTowed["wireLength"] = itemTowed->wireLength;
+            // qDebug() << "Parameter written: wireLength =" << itemTowed->wireLength;
+
+            if (item->itemType == "Buoy") {
                 QJsonObject jsonBuoy;
                 jsonBuoy["AnthenaHeight"] = dynamic_cast<Buoy*>(item)->AnthenaHeight;
+                // qDebug() << "Parameter written: AnthenaHeight =" << dynamic_cast<Buoy*>(item)->AnthenaHeight;
+
                 jsonBuoy["towingDepth"] = dynamic_cast<Buoy*>(item)->towingDepth;
+                // qDebug() << "Parameter written: towingDepth =" << dynamic_cast<Buoy*>(item)->towingDepth;
+
                 jsonTowed["buoy"] = jsonBuoy;
-            } else if(item->itemType == "Streamer") {
+                // qDebug() << "Parameter written: buoy (complex object)";
+            } else if (item->itemType == "Streamer") {
                 QJsonObject jsonStreamer;
                 QJsonArray chans;
                 uint numChans = dynamic_cast<Streamer*>(item)->getChanCount();
-                jsonStreamer["NumChanels"] = (int)numChans;
-                for (float distance: dynamic_cast<Streamer*>(item)->getChans()) {
-                    chans.append(distance);
+
+                if (dynamic_cast<Streamer*>(item)->endBuoy != nullptr) {
+                    jsonStreamer["hasEndBuoy"] = true;
+                    jsonStreamer["endBuoyName"] = dynamic_cast<Streamer*>(item)->endBuoy->name;
+                } else {
+                    jsonStreamer["hasEndBuoy"] = false;
                 }
-                jsonStreamer["Channels"] = chans;
+
+                jsonStreamer["NumChanels"] = (int)numChans;
+                jsonStreamer["Step between Channels"] = dynamic_cast<Streamer*>(item)->channelStep;
+                // qDebug() << "Parameter written: NumChanels =" << numChans;
+                // qDebug() << "Parameter written: Step between Channels =" << dynamic_cast<Streamer*>(item)->channelStep;
+
+                // for (float distance: dynamic_cast<Streamer*>(item)->getChans()) {
+                //     chans.append(distance);
+                //     qDebug() << "Parameter written: Channel distance =" << distance;
+                // }
+
+                // jsonStreamer["Channels"] = chans;
+                // qDebug() << "Parameter written: Channels (array)";
+
                 jsonTowed["Streamer"] = jsonStreamer;
+                jsonStreamer = QJsonObject();
+                // qDebug() << "Parameter written: Streamer (complex object)";
             }
+            jsonFixed["TowedInfo"] = jsonTowed;
+            jsonTowed = QJsonObject();
+
+
         }
+        obj[item->name] = jsonFixed;
+        jsonFixed = QJsonObject();
     }
-    return obj; //QString(item->metaObject()->className()) == "Towed")
+
+    return obj;
 }
+
 
 QJsonObject ItemsLoader::connectionToJson(Connection *conn) {
     QJsonObject obj;
     obj["filename"] = conn->filename;
+
     if (QString(conn->metaObject()->className()) == "Connection_Net") {
         obj["IP"] = dynamic_cast<Connection_Net*>(conn)->getIP_port();
         obj["port"] = dynamic_cast<Connection_Net*>(conn)->getPort();
@@ -161,6 +265,7 @@ QJsonObject ItemsLoader::connectionToJson(Connection *conn) {
         obj["COMport"] = dynamic_cast<Connection_com*>(conn)->getComPort();
         obj["ByteRate"] = dynamic_cast<Connection_com*>(conn)->getByteRate();
     }
+    obj["type"] = QString(conn->metaObject()->className());
     return obj;
 }
 
@@ -180,4 +285,49 @@ bool ItemsLoader::saveJsonObjectToFile(QJsonObject &jsonObject, QString &filePat
     file.close(); // Close the file
 
     return true;
+}
+
+
+
+
+void ItemsLoader::setCreationPriority(QVector<FixedItem *> &ItemsVault)
+{
+    FixedItem* itemForCalculation = nullptr;
+
+    QVector<FixedItem *> firstPriority;
+    QVector<FixedItem *> secondPriority;
+    QVector<TowedItem *> lastPriority;
+
+
+    for (auto i: ItemsVault) { //разделение объектов по приоритету создания (см. объяснение хэддер FixedItem)
+        qDebug() << i->name << i->creationPriority;
+        if (QString(i->metaObject()->className()) == "FixedItem") {
+            if (i->hasConnection && i->connection != nullptr) {
+                itemForCalculation = i;
+                firstPriority.push_back(i);
+                i->creationPriority = 0;
+            } else {
+                secondPriority.push_back(i);
+                i->creationPriority = 1;
+            }
+        } else {
+            lastPriority.push_back(dynamic_cast<TowedItem*>(i));
+        }
+    }
+
+    int timeBreakerFlag = 0;
+    while (timeBreakerFlag < lastPriority.size() + 1) {
+        for (auto i: lastPriority) {
+            if (i->towingPoint->creationPriority == -1) {
+                continue;
+            } else {
+                i->creationPriority = i->towingPoint->creationPriority + 2;
+            }
+        }
+        timeBreakerFlag++;
+    }
+    // for (auto i: ItemsVault) {
+    //     qDebug() << i->name << i->creationPriority;
+    // }
+
 }

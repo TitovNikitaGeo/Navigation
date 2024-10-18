@@ -11,6 +11,7 @@
 #include "logger.h"
 #include "postprocessor.h"
 #include "segyreader.h"
+#include "postprocessorview.h"
 
 
 #include <QMainWindow>

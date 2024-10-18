@@ -33,7 +33,7 @@ private:
 
     QByteArray data;
     QString COM_port;
-    int ByteRate;
+    int ByteRate = 19200;
 
 
 private slots:

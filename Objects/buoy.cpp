@@ -4,6 +4,9 @@ Buoy::Buoy(QString Name, FixedItem *towingPoint, float angleToWired, float wireL
     TowedItem(Name, towingPoint, angleToWired, wireLength), AnthenaHeight(AnthenaHeight), towingDepth(towingDepth)
 {
     this->itemType = "Buoy";
+    if (towingPoint->itemType == "Streamer") {
+        dynamic_cast<Streamer*>(towingPoint)->setEndBuoy(this);
+    }
 }
 
 Buoy::Buoy() {}
