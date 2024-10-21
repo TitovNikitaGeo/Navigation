@@ -6,9 +6,26 @@ PostProcessorView::PostProcessorView(QWidget *parent)
     setupUI();
 }
 
+PostProcessorView *PostProcessorView::getInstance()
+{
+    static PostProcessorView* instance = nullptr;  // Указатель на единственный экземпляр
+
+    if (!instance) {
+        instance = new PostProcessorView();
+    }
+    instance->raise();  // Поднять окно на передний план
+    instance->activateWindow();  // Активировать окно
+    return instance;
+}
+
 
 void PostProcessorView::setupUI() {
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout = new QVBoxLayout(this);
+
+    // Кнопка RUN
+    runButton = new QPushButton("RUN", this);
+    runButton->setEnabled(false);  // Активируется только после получения всех параметров.
+    mainLayout->addWidget(runButton);
 
     // Блок для выбора схемы
     QHBoxLayout* schemeLayout = new QHBoxLayout();
@@ -22,10 +39,6 @@ void PostProcessorView::setupUI() {
     // Подключение кнопки к функции выбора файла
     connect(chooseSchemeButton, &QPushButton::clicked, this, &PostProcessorView::chooseScheme);
 
-    // Кнопка RUN
-    runButton = new QPushButton("RUN", this);
-    runButton->setEnabled(false);  // Активируется только после получения всех параметров.
-    mainLayout->addWidget(runButton);
 
     // Прогресс-бар (по умолчанию скрыт)
     progressBar = new QProgressBar(this);
@@ -54,47 +67,73 @@ void PostProcessorView::setupUI() {
     // Логика проверки заполненности всех полей для активации RUN
     connect(schemeLineEdit, &QLineEdit::textChanged, this, &PostProcessorView::checkReadyToRun);
     connect(ffidLineEdit, &QLineEdit::textChanged, this, &PostProcessorView::checkReadyToRun);
-
+    connect(runButton, &QPushButton::clicked, this, &PostProcessorView::onRunButtonClicked);
 }
 
-void PostProcessorView::sendValuesToPostProc()
+void PostProcessorView::sendValuesToPostProc() //передача параметров из view в model (контроллер идет нахуй)
 {
-
-    QString fileJsonName;
     QVector<QString> nmeaNames;
     QVector<QString> ppkNames;
     QString ffidTimeSourceTxt = "";
     QString ffidTimeSourceDir = "";
 
-    QFile* jsonSchemeFile = new QFile(fileJsonName);
 
-    QVector<QFile*> nmeaFiles;
     for (auto i: nmeaNames) {
-        QFile* nmeaFile = new QFile(i);
-        nmeaFiles.append(nmeaFile);
-
+        QFile* file = new QFile(i);
+        file->open(QIODevice::ReadOnly);
+        postProc.nmeaFiles.append(file);
     }
-
-    QVector<QFile*> ppkFiles;
-    QFile ffidTimeSourceTxtFile;
-    QFile ffidTimeSourceDirFile;
+    for (auto i:ppkNames) {
+        QFile* file = new QFile(i);
+        file->open(QIODevice::ReadOnly);
+        postProc.ppkFiles.append(file);
+    }
+    if (ffidLineEdit->text().endsWith(".txt")) {
+        ffidTimeSourceTxt = ffidLineEdit->text();
+        qDebug() <<ffidTimeSourceTxt <<__FUNCTION__;
+    } else {
+        ffidTimeSourceDir = ffidLineEdit->text();
+        qDebug() <<ffidTimeSourceDir <<__FUNCTION__;;
+    }
+    if (!ffidTimeSourceTxt.isEmpty()) {
+        postProc.ffidTimeSourceTxtFile = ffidTimeSourceTxt;
+    } else if (!ffidTimeSourceDir.isEmpty()) {
+        postProc.ffidTimeSourceDir = ffidTimeSourceDir;
+    } else {
+        qWarning() << __FUNCTION__;
+    }
 }
 
 
-void PostProcessorView::chooseScheme() {
-    QString fileName = QFileDialog::getOpenFileName(this, "Choose scheme", QString(), "*.json");
+void PostProcessorView::chooseScheme() { //выбор съемы и парсинг json файла
+    QString documentsPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString fileName = QFileDialog::getOpenFileName(this, "Choose scheme", documentsPath + "/Ship_logs/json", "*.json");
     if (!fileName.isEmpty()) {
         schemeLineEdit->setText(fileName);
-        // postProc; // Заглушка для парсинга, заполняем items и itemsWithConnection.
+        postProc.jsonSchemeFile = new QFile(fileName);
+        postProc.items = ItemsLoader::readFromJSON(postProc.jsonSchemeFile);
+
+        //заполняем поля postproc (не помню зачем, но хуже не будет)
+        postProc.vectorWithCon.clear();
+        postProc.vectorNoCon.clear();
+        for (FixedItem* i:postProc.items) {
+            if (i->hasConnection) {
+                postProc.vectorWithCon.append(i);
+                postProc.itemsWithConnection++;
+                // qDebug() << __FUNCTION__ << i->name;
+            } else {
+                postProc.vectorNoCon.append(i);
+                // qDebug() << __FUNCTION__ << i->name;
+            }
+        }
+
         createConnectionButtons();
     }
 }
 
 void PostProcessorView::createConnectionButtons() {
+
     // Очистка существующих кнопок
-
-    QVector<QPair<QString, QString>> pairItemFile;
-
     for (auto* btn : nmeaPpkButtons) {
         btn->deleteLater();
     }
@@ -105,17 +144,20 @@ void PostProcessorView::createConnectionButtons() {
     nmeaPpkLineEdits.clear();
 
     // Создание кнопок и полей по количеству itemsWithConnection
-    QHBoxLayout* buttonsLayout = new QHBoxLayout();
+    QVBoxLayout* buttonsLayout = new QVBoxLayout();
+
 
     QVector<QString> namesOfItemsWithConnection;
-    for (auto i:postProc.Vault.ItemsVault){
+    for (auto i: postProc.vectorWithCon){
         if (i->hasConnection) {
             namesOfItemsWithConnection.append(i->name);
+            // qDebug() << i->name << __FUNCTION__;
         }
     }
     for (int i = 0; i < namesOfItemsWithConnection.size(); ++i) {
         QPushButton* nmeaPpkButton =
-            new QPushButton(QString("Choose file %1").arg(namesOfItemsWithConnection[i]), this);
+            new QPushButton(QString("Choose file \"%1\"").arg(namesOfItemsWithConnection[i]), this);
+
         QLineEdit* nmeaPpkLineEdit = new QLineEdit(this);
         nmeaPpkLineEdit->setReadOnly(true);
 
@@ -125,8 +167,10 @@ void PostProcessorView::createConnectionButtons() {
         nmeaPpkButtons.append(nmeaPpkButton);
         nmeaPpkLineEdits.append(nmeaPpkLineEdit);
 
+
         connect(nmeaPpkButton, &QPushButton::clicked, this, [this, nmeaPpkLineEdit]() {
-            QString fileName = QFileDialog::getOpenFileName(this, "Choose NMEA or PPK file", QString(), "*.nmea *.ppk");
+            QString navFilesPath = QDir("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/test").absolutePath(); ///TODO: потом заменить на норм место
+            QString fileName = QFileDialog::getOpenFileName(this, "Choose NMEA or PPK file", navFilesPath, "*.nmea *.ppk");
             if (!fileName.isEmpty()) {
                 nmeaPpkLineEdit->setText(fileName);
                 checkReadyToRun();
@@ -134,18 +178,21 @@ void PostProcessorView::createConnectionButtons() {
         });
         QPair<QString,QString> pair(namesOfItemsWithConnection[i], nmeaPpkLineEdit->text());
         pairItemFile.append(pair);
+        qDebug() << pair.first << pair.second <<__FUNCTION__ << nmeaPpkLineEdit->text();
     }
-    layout()->addItem(buttonsLayout);
+
+    mainLayout->addLayout(buttonsLayout, 1);
+
 }
 
 void PostProcessorView::chooseFfidSource() {
     if (segyRadioButton->isChecked()) {
-        QString dirName = QFileDialog::getExistingDirectory(this, "Choose SEGY directory");
+        QString dirName = QFileDialog::getExistingDirectory(this, "Choose SEGY directory", QString("C:/Users/sabrahar/Desktop/FINAL/"));
         if (!dirName.isEmpty()) {
             ffidLineEdit->setText(dirName);
         }
     } else if (txtRadioButton->isChecked()) {
-        QString fileName = QFileDialog::getOpenFileName(this, "Choose TXT file", QString(), "*.txt");
+        QString fileName = QFileDialog::getOpenFileName(this, "Choose TXT file", QString("C:/Users/sabrahar/Desktop/FINAL/"), "*.txt");
         if (!fileName.isEmpty()) {
             ffidLineEdit->setText(fileName);
         }
@@ -166,8 +213,32 @@ void PostProcessorView::checkReadyToRun() {
 
 
 void PostProcessorView::onRunButtonClicked() {
-    // Инициализация прогресса
+
+    // Инициализация прогресс-бара
+    progressBar->setValue(0);
     progressBar->setVisible(true);
-    float progressValue = 0;
-    progressBar->setValue(progressValue);
+    sendValuesToPostProc();
+    postProc.mainProcess();
+
+
+    //мутим ffid-время-дата
+    // QVector<SegYReader::Pair> pairs;
+    // if (ffidLineEdit->text().endsWith(".txt")) {
+    //     postProc.pairs = postProc.readFileAndGeneratePairs(postProc.ffidTimeSourceTxtFile->fileName());
+    // } else {
+    //     postProc.setSegyStorage(postProc.segyStorage);
+    //     postProc.getDataFromSegy();
+    // }
+    // for (auto i: postProc.pairs) {
+    //     qDebug() << i.ffid << i.time << i.julianDay;
+    // }
+
 }
+
+
+
+
+
+
+
+

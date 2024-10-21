@@ -3,7 +3,7 @@
 QDate getDateFromDayOfYear(int dayOfYear) {
     // Проверяем, что номер дня находится в допустимом диапазоне
     if (dayOfYear < 1 || dayOfYear > 366) {
-        qWarning() << "Номер дня должен быть от 1 до 366.";
+        // qWarning() << "Номер дня должен быть от 1 до 366.";
         return QDate(); // Возвращаем некорректную дату
     }
     int year = QDate::currentDate().year();
@@ -68,7 +68,6 @@ void SegYReader::readTraceHeader(QFile& file) {
     uint32_t ffid = data[9] << 16 | data[10] << 8 | data[11];
 
     uint16_t JulianDay = data[159];
-    qDebug() <<JulianDay << "JULIANDAY";
     uint16_t hours = data[161];
     uint16_t minutes = data[163];
     uint16_t seconds = data[165];

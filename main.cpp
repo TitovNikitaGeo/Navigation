@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
     // testPostprocessing test;
     // testItemsLoading test1;
 
-    testPpkParser test2;
-    return 666;
+    // testPpkParser test2;
+    // return 666;
     MainWindow w;
     w.show();
 

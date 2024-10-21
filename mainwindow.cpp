@@ -231,7 +231,7 @@ void MainWindow::setMenuBar(QMenuBar *menuBar)
         // pathForAllFiles.absolutePath(),           // Default directory
         // QFileDialog::DontResolveSymlinks);
         // postProcessing(dirWithNmea, dirWithSegy);
-        PostProcessorView* postProcView = new PostProcessorView();
+        PostProcessorView* postProcView = PostProcessorView::getInstance();
         postProcView->show();
 
     });

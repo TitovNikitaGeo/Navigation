@@ -20,6 +20,8 @@ public:
 
     int mainProcess();
 
+
+
     void getDataFromSegy();
     void setMyVault(ItemsStorage *newMyVault);
 
@@ -43,8 +45,12 @@ public:
     NmeaParser::CoordinateData calcTruePosition(NmeaParser::CoordinateData first,
         NmeaParser::CoordinateData second, QTime trueTime, QTime firstTime, QTime secondTime);
 
+    QVector<SegYReader::Pair> readFileAndGeneratePairs(const QString& fileName);
+
+
     QVector<FixedItem*> vectorWithCon;
     QVector<FixedItem*> vectorNoCon;
+
     ItemsStorage* MyVault;
     NmeaParser nmeaParser;
     P190_creator* p190Creator;
@@ -53,15 +59,18 @@ public:
 //взаимодействие с интерфейсом PostProcessorView
     ItemsStorage Vault;
     QVector<FixedItem*> items;
-    int itemsWithConnection = 1;
+    int itemsWithConnection = 0;
 
     QFile* jsonSchemeFile;
     QVector<QFile*> nmeaFiles;
     QVector<QFile*> ppkFiles;
-    QFile ffidTimeSourceTxtFile;
-    QFile ffidTimeSourceDirFile;
+    QString ffidTimeSourceTxtFile;
+    QString ffidTimeSourceDir;
 
     float percentageP190Creation = 0;
+    QVector<QPair<QString, QString>> pairItemFile; // имя объекта - имя файла
+
+
 private:
 };
 

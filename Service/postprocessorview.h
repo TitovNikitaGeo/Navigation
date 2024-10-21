@@ -17,9 +17,13 @@
 class PostProcessorView : public QWidget
 {
     Q_OBJECT
-public:
     explicit PostProcessorView(QWidget *parent = nullptr);
 
+public:
+    // PostProcessorView(const &PostProcessorView) = delete;
+    PostProcessorView& operator=(const PostProcessorView&) = delete;
+
+    static PostProcessorView* getInstance();
     void setupUI();
 private:
     //выбранные юзверем в pprv значения для передачи в ppr
@@ -28,6 +32,7 @@ private:
     QVector<QString> ppkNames;
     QString ffidTimeSourceTxt = "";
     QString ffidTimeSourceDir = "";
+    QVector<QPair<QString, QString>> pairItemFile;
 
     QPushButton* chooseSchemeButton;
     QLineEdit* schemeLineEdit;
@@ -39,6 +44,7 @@ private:
     QLineEdit* ffidLineEdit;
     QRadioButton* segyRadioButton;
     QRadioButton* txtRadioButton;
+    QVBoxLayout* mainLayout;
 
 
     PostProcessor postProc;

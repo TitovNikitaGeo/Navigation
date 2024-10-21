@@ -6,14 +6,32 @@ PostProcessor::PostProcessor() {
 
 int PostProcessor::mainProcess()
 {
-    QFile* jsonFile = new QFile(jsonSchemeFile);
-    jsonFile->open(QIODevice::ReadOnly);
-    items = ItemsLoader::readFromJSON(jsonFile);
-    for (auto i: items) {
-        Vault.SaveItem(i);
-    }
+    static int i = 0;
     p190Creator->setMyVault(&Vault);
+    qDebug() <<i++;
 
+
+
+
+    if (!ffidTimeSourceDir.isEmpty()) {
+        // qDebug() << ffidTimeSourceDir << __LINE__;
+        getDataFromSegy();
+    } else if (!ffidTimeSourceTxtFile.isEmpty()) {
+        // qDebug() << ffidTimeSourceTxtFile<<__LINE__;
+        pairs = readFileAndGeneratePairs(ffidTimeSourceTxtFile);
+    } else {
+        qWarning() << "no ffid source";
+        delete this; //по сути суицид если что-то не нравится
+    }
+    // qDebug() << pairs.size() <<"size";
+
+
+
+    // for (auto i: pairs) {
+    //     qDebug() << i.ffid <<i.time <<__LINE__;
+
+    // }
+    // if (ffidTimeSourceTxt.is)
     return 0;
 }
 
@@ -23,7 +41,7 @@ void PostProcessor::getDataFromSegy()
 {
 
     SegYReader sr;
-    sr.readPathWithSegy(this->segyStorage);
+    sr.readPathWithSegy(ffidTimeSourceDir);
     // logmsg("Seg-Y reading started");
     for (int i = 0; i < sr.times.size(); i++) {
         pairs.push_back(sr.pairs.at(i));
@@ -146,6 +164,50 @@ NmeaParser::CoordinateData PostProcessor::calcTruePosition(NmeaParser::Coordinat
     return res;
 }
 
+QVector<SegYReader::Pair> PostProcessor::readFileAndGeneratePairs(const QString &fileName)
+{
+    QVector<SegYReader::Pair> pairs;
+    QFile file(fileName);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cerr << "Cannot open file!" << std::endl;
+        return pairs;
+    }
+
+    QTextStream in(&file);
+    // Пропускаем первую строку с заголовками
+    QString header = in.readLine();
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList fields = line.split('\t');  // Разделитель - табуляция
+
+        if (fields.size() == 6) {
+            int ffid = fields[0].toInt();
+            int julianDay = fields[1].toInt();
+            // qDebug() <<julianDay << __LINE__;
+            int hour = fields[2].toInt();
+            int minute = fields[3].toInt();
+            int second = fields[4].toInt();
+            int microsecond = fields[5].split('.').first().toInt();  // Отбрасываем дробную часть
+            // QDate day = getDateFromDayOfYear(julianDay);
+
+            QTime time = QTime(hour, minute, second, microsecond / 1000);  // Микросекунды преобразуем в миллисекунды
+
+            SegYReader::Pair pair(ffid, time, julianDay);
+            pairs.push_back(pair);
+            // qDebug() << pairs.at(pairs.size() - 1).dateTime; //<< __FUNCTION__
+        }
+    }
+    // for (auto i: pairs) {
+    //     qDebug() << i.time << i.julianDay << __LINE__;
+    // }
+    file.close();
+    return pairs;
+}
+
+
+
 void PostProcessor::setP190(P190_creator *newP190)
 {
     p190Creator = newP190;
@@ -193,54 +255,4 @@ void PostProcessor::setNmeaStorage(const QDir &newNmeaStorage)
     nmeaStorage = newNmeaStorage;
 }
 
-// int PostProcessor::runPP() {
-//     // int nmeaFilesFound;
-//     int* trash = 0;
-//     int res = 1;
-//     p190->createP190File();
-
-
-//     getDataFromSegy(); //getting pairs
-//     // logmsg("Pairs generated");
-//     fillItemsVectors(); //getting items (with and without connection)
-//     // findNmeaFiles(); //getting list of files for items with con
-
-//     QStringList nmeaValues;
-//     for (SegYReader::Pair pair :pairs) {
-//         float commonDummyAzimuth = -1;
-//         for (FixedItem* item: vectorWithCon) {
-//             nmeaValues = findNmeaForSegy(pair, item->connection->file, trash);
-//             NmeaParser::NmeaGGAData first = nmeaParser.parseNmeaGGA(nmeaValues[0]);
-//             NmeaParser::NmeaGGAData second = nmeaParser.parseNmeaGGA(nmeaValues[1]);
-//             if (nmeaValues.size() == 3) {
-//                 if (!nmeaValues[2].isEmpty()){
-//                     NmeaParser::NmeaRMCData rmc = nmeaParser.parseNmeaRMC(nmeaValues[2]);
-//                     item->lastRMCData = rmc;
-//                     commonDummyAzimuth = rmc.azimuth;
-//                 }
-//             }
-//             NmeaParser::NmeaGGAData truePosition = this->calcTruePosition(first, second,
-//                                                                           pair.time, nmeaParser.getTimeFromNmeaGGA(nmeaValues[0]),
-//                                                                           nmeaParser.getTimeFromNmeaGGA(nmeaValues[1]));
-//             item->lastGGAData = truePosition;
-//             item->azimuthOfMovement = commonDummyAzimuth;
-//         }
-//         if (commonDummyAzimuth == -1) {
-//             qDebug() << "we have no azimuth" <<  __FUNCTION__;
-//         }
-//         for (FixedItem* item: vectorNoCon) {
-//             item->azimuthOfMovement = commonDummyAzimuth;
-//         }
-//         for (FixedItem* item: vectorWithCon) {
-//             item->calcItemCoordinates();
-//         }
-//         for (FixedItem* item: vectorNoCon) {
-//             item->calcItemCoordinates();
-//         }
-//         p190->createMainInfoBlock(pair.ffid);
-//         logmsg("P190 block with ffid " + QString::number(pair.ffid) + " created");
-//     }
-
-//     return res;
-// }
 
