@@ -87,7 +87,7 @@ void TowedItem::calcIFNotConnected()
         height = towingPoint->height;
     }
 
-
+    qDebug() << name << towingPoint->name << towingPoint->x_coor<<towingPoint->y_coor;
     x_coor = towingPoint->x_coor + (y-towingPoint->y)*qCos(realAzimuthOfTowingRadians) +
              (x-towingPoint->x)*qSin(realAzimuthOfTowingRadians);
     y_coor = towingPoint->y_coor - (y-towingPoint->y)*qSin(realAzimuthOfTowingRadians) +

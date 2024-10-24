@@ -5,11 +5,17 @@ MyGraphicView::MyGraphicView(QWidget* parent)
 : QGraphicsView(parent), scene(new QGraphicsScene(this))
 {
     setScene(scene);
+    QGraphicsView view(scene);
+    QTransform transform;
+    transform.scale(1, -1);  // Ось Y теперь направлена вниз
+    view.setTransform(transform);
+
     // this->rotate(90);
     drawShip();
     drawAxes();
     getSceneProperties();
     drawCenter();
+    view.show();
     // drawGrid();
 }
 
@@ -120,7 +126,7 @@ void MyGraphicView::drawAxes()
 }
 
 
-void MyGraphicView::drawGrid(){ ///сделать нормально
+void MyGraphicView::drawGrid(){ ///TODO:сделать нормально
     // Horizontal lines
     for (int i = bottom; i <= top; i += (top-bottom)/20)
     {

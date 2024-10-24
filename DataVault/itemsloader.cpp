@@ -54,8 +54,24 @@ QVector<FixedItem *> ItemsLoader::readFromJSON(QFile *file)
 
     for (auto i = sortedArrayOfJson.begin(); i != sortedArrayOfJson.end(); ++i) {
         res.append(createItemFromJson(*i));
-        // qDebug();
     }
+
+    // for (auto i: res) {
+    //     if (i->itemType == "Fixed") {
+    //         qDebug() << i->hasConnection << i->name;
+    //         if (i->ItemForCalculations) qDebug() <<  i->ItemForCalculations->name;
+    //         qDebug();
+    //     }
+    // }
+    ItemsStorage tmp;
+    tmp.setItemForCalculation(res);
+    // for (auto i: res) {
+    //     qDebug() << i->hasConnection << i->name;
+    //     if (i->ItemForCalculations) qDebug() <<  i->ItemForCalculations->name;
+    //     qDebug();
+    // }
+
+
 
     return res;
 }
@@ -67,6 +83,7 @@ FixedItem* ItemsLoader::createItemFromJson(QJsonValue jsonObject)
     static bool ifStreamerNeedsEndBuoy = false;
     static Streamer* streamerNeedsEndBuoy;
     static QString endBuoyNameForStreamer;
+    Fabric fabric;
 
     FixedItem* item = nullptr;
 
@@ -80,38 +97,37 @@ FixedItem* ItemsLoader::createItemFromJson(QJsonValue jsonObject)
     if (itemType == "Fixed") {
         FixedItemInfo info(jsonItem["x"].toDouble(0),
                            jsonItem["y"].toDouble(0),jsonItem["z"].toDouble(0),name);
-        item = new FixedItem(info.SchemeCoors.x, info.SchemeCoors.y,info.SchemeCoors.z,name);
-
-        if (jsonObject["hasConnection"].toBool()) {
-            item->hasConnection = true;
-            item->connection = jsonToConnection(jsonObject["connection"].toObject());
-        } else {
-            item->ItemForCalculations = vault.ItemsVault[0];
-        }
+        // item = new FixedItem(info.SchemeCoors.x, info.SchemeCoors.y,info.SchemeCoors.z,name);
+        item = fabric.CreateItem(info, false); //создаем без подключения, чтобы не вызывать ConnectionCreator
         vault.SaveItem(item);
     } else {
-        QJsonObject jsonTowedItem = jsonItem["TowedInfo"].toObject();
         //общие параметры для всех буксируемых объектов
+        QJsonObject jsonTowedItem = jsonItem["TowedInfo"].toObject();
         QString towingPointName = jsonTowedItem["Towing point"].toString();
         double wireLength = jsonTowedItem["wireLength"].toDouble();
 
 
-
         if (itemType == "Towed") {
-            TowedItem* towedItem = new TowedItem(name, vault.getItem(towingPointName), NULL, wireLength);
+            // TowedItem* towedItem = new TowedItem(name, vault.getItem(towingPointName), NULL, wireLength);
+            TowedItemInfo info(vault.getItem(towingPointName), wireLength, 90, name);
+            TowedItem* towedItem = fabric.CreateItem(info,false);
             item = towedItem;
         } else if (itemType == "Source") {
-            Source* sourceItem = new Source(name, vault.getItem(towingPointName), NULL, wireLength);
+            TowedItemInfo info(vault.getItem(towingPointName), wireLength, 90, name);
+            Source* sourceItem = fabric.CreateItem(SourceInfo(info), false);
+            // Source* sourceItem = new Source(name, vault.getItem(towingPointName), NULL, wireLength);
             item = sourceItem;
         } else if (itemType == "Buoy") {
             QJsonObject jsonBuoyItem = jsonTowedItem["buoy"].toObject();
+            TowedItemInfo info(vault.getItem(towingPointName), wireLength, 90, name);
+            BuoyInfo infoB(info, jsonBuoyItem["AnthenaHeight"].toDouble(), jsonBuoyItem["towingDepth"].toDouble());
+            // Buoy* buoyItem  = fabric.CreateItem(infoB, false);
             Buoy* buoyItem = new Buoy(name, vault.getItem(towingPointName), NULL,
                 wireLength, jsonBuoyItem["AnthenaHeight"].toDouble(), jsonBuoyItem["towingDepth"].toDouble());
             item = buoyItem;
             if (ifStreamerNeedsEndBuoy && buoyItem->name == endBuoyNameForStreamer) {
                 streamerNeedsEndBuoy->setEndBuoy(buoyItem);
             }
-
         } else if (itemType == "Streamer") {
             QJsonObject jsonStreamerItem = jsonTowedItem["Streamer"].toObject();
             Streamer* streamerItem = new Streamer(name, vault.getItem(towingPointName),
@@ -136,7 +152,9 @@ FixedItem* ItemsLoader::createItemFromJson(QJsonValue jsonObject)
     }
     item->creationPriority = creationPriority;
     // qDebug() << item->name << item->itemType << item->creationPriority << __FUNCTION__;
-    qDebug();
+    // qDebug();
+    vault.setItemForCalculation(vault.ItemsVault);
+
     return item;
 
 }

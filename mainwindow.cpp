@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    hideDangerousButtons(); //прячем неугодное от взгяда солнцеликого клиента
+
 
     MyTimer = new QTimer(this);
     connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
@@ -21,11 +23,11 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     ///Settings for MyGraphicView
-    DrawingAreaTopView = new MyGraphicView(this);
-    DrawingAreaSideView = new SideGraphicView(this);
-    ui->verticalLayout->addWidget(DrawingAreaTopView);
-    ui->verticalLayout->addWidget(DrawingAreaSideView);
-    DrawingAreaSideView->hide();
+    // DrawingAreaTopView = new MyGraphicView(this);
+    // DrawingAreaSideView = new SideGraphicView(this);
+    // ui->verticalLayout->addWidget(DrawingAreaTopView);
+    // ui->verticalLayout->addWidget(DrawingAreaSideView);
+    // DrawingAreaSideView->hide();
     ///Settings for MyGraphicView
 
 
@@ -55,8 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     ///for boardHeight setting
-    connect(ui->boardHeightSpinBox, &QDoubleSpinBox::valueChanged,
-            coordinator,&Coordinator::boardDepthChanged);
+    // connect(ui->boardHeightSpinBox, &QDoubleSpinBox::valueChanged,
+    //         coordinator,&Coordinator::boardDepthChanged);
 
     setMenuBar(this->menuBar());
     setWindowTitle("Seismic Navigation");
@@ -68,9 +70,6 @@ MainWindow::MainWindow(QWidget *parent)
     logger = (&Logger::instance());
     setPathForAllFiles();    
     logger->createLogFile();
-
-    ///КоСТЫЛЬ ААААААААААААААААААА
-    // setSegyReader();
 }
 void MainWindow::timeToCollectData()
 {
@@ -118,6 +117,8 @@ void MainWindow::on_DeleteItemPushButton_clicked()
 
 void MainWindow::on_AddItemtPushButton_clicked()
 {
+
+    //
     ///Creating New Obj
     QString oldname = ui->ItemNameLineEdit->text();
     QString name = GetNewDeviceName(oldname);
@@ -129,8 +130,8 @@ void MainWindow::on_AddItemtPushButton_clicked()
     if (ui->RBFixed->isChecked()) { ///getting params for fixed
         float x = ui->XLineEdit->text().toFloat();
         float y = ui->YLineEdit->text().toFloat();
-        float z = ui->ZLineEdit->text().toFloat();
-        FixedItemInfo FixedItemInfo(x,y,z,name);
+        // float z = ui->ZLineEdit->text().toFloat();
+        FixedItemInfo FixedItemInfo(x,y,0,name);
         //newItem =
         createFixedItem(FixedItemInfo);
     } else if (ui->RBTowed->isChecked()) {
@@ -224,13 +225,6 @@ void MainWindow::setMenuBar(QMenuBar *menuBar)
     // Создание действия "Постпроцессинг"
     QAction *postProcessingAction = new QAction("Start postprocessing", fileMenu);
     QObject::connect(postProcessingAction, &QAction::triggered, menuBar->parent(), [this]() {
-        // QString dirWithNmea = QFileDialog::getExistingDirectory(
-        //     nullptr, "Select folder with raw Nmea data", pathForAllFiles.absolutePath(),           // Default directory
-        //     QFileDialog::DontResolveSymlinks);
-        // QString dirWithSegy = QFileDialog::getExistingDirectory(nullptr, "Select folder with Seg-Y",
-        // pathForAllFiles.absolutePath(),           // Default directory
-        // QFileDialog::DontResolveSymlinks);
-        // postProcessing(dirWithNmea, dirWithSegy);
         PostProcessorView* postProcView = PostProcessorView::getInstance();
         postProcView->show();
 
@@ -290,6 +284,15 @@ void MainWindow::setSegyReader()
     }
 }
 
+void MainWindow::hideDangerousButtons()
+{
+    ui->SideViewRB->hide();
+    ui->TopViewRB->hide();
+    ui->DeleteItemPushButton->hide();
+    ui->ReconnectPB->hide();
+    ui->DeleteItemPushButton->hide();
+}
+
 
 
 void MainWindow::on_RBFixed_clicked()
@@ -300,7 +303,7 @@ void MainWindow::on_RBFixed_clicked()
 
     ui->XLineEdit->setDisabled(false);
     ui->YLineEdit->setDisabled(false);
-    ui->ZLineEdit->setDisabled(false);
+    // ui->ZLineEdit->setDisabled(false);
 }
 
 
@@ -313,7 +316,7 @@ void MainWindow::on_RBTowed_clicked()
 
     ui->XLineEdit->setDisabled(true);
     ui->YLineEdit->setDisabled(true);
-    ui->ZLineEdit->setDisabled(true);
+    // ui->ZLineEdit->setDisabled(true);
 }
 
 
@@ -335,13 +338,13 @@ FixedItem* MainWindow::createFixedItem(FixedItemInfo NewItemInfo) {
     addItemToObjectsList(NewItem);
     ///adding obj to table
 
-    ///For now is only for fixed
+    // /For now is only for fixed
     ui->ComboBoxWiredWith->addItem(NewItem->name);
     ///For now is only for fixed
 
     ///adding new object to our Drawing area
-    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
-    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
     ///adding new object to our Drawing area
 
     return NewItem;
@@ -368,9 +371,9 @@ TowedItem* MainWindow::createTowedItem(TowedItemInfo NewItemInfo) {
     ui->ComboBoxWiredWith->addItem(NewItem->name);
 
     ///adding new object to our Drawing area
-    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
-    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
-    drawLineToTowed(NewItem);
+    // DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // drawLineToTowed(NewItem);
     ///adding new object to our Drawing area
 
 
@@ -398,15 +401,15 @@ Streamer* MainWindow::createStreamerItem(StreamerInfo info)
     ui->ComboBoxWiredWith->addItem(NewItem->name);
 
     ///Drawing
-    drawLineToTowed(NewItem);
-    DrawingAreaSideView->drawStreamer(NewItem->x, NewItem->y,
-        NewItem->getChan(NewItem->getChanCount()-1)->x,
-        NewItem->getChan(NewItem->getChanCount()-1)->y,
-        NewItem->getChanCount());
-    DrawingAreaSideView->drawStreamer(NewItem->x, NewItem->z,
-        NewItem->getChan(NewItem->getChanCount()-1)->x,
-        NewItem->getChan(NewItem->getChanCount()-1)->z,
-        NewItem->getChanCount());
+    // drawLineToTowed(NewItem);
+    // DrawingAreaSideView->drawStreamer(NewItem->x, NewItem->y,
+    //     NewItem->getChan(NewItem->getChanCount()-1)->x,
+    //     NewItem->getChan(NewItem->getChanCount()-1)->y,
+    //     NewItem->getChanCount());
+    // DrawingAreaSideView->drawStreamer(NewItem->x, NewItem->z,
+    //     NewItem->getChan(NewItem->getChanCount()-1)->x,
+    //     NewItem->getChan(NewItem->getChanCount()-1)->z,
+    //     NewItem->getChanCount());
 
 
     return NewItem;
@@ -442,9 +445,9 @@ Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
     ui->ComboBoxWiredWith->addItem(NewItem->name);
 
     //drawing
-    drawLineToTowed(NewItem);
-    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
-    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // drawLineToTowed(NewItem);
+    // DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
 
     return NewItem;
 }
@@ -470,9 +473,9 @@ Source* MainWindow::createSourceItem(SourceInfo SourceItemInfo) //метод д�
     ui->ComboBoxWiredWith->addItem(NewItem->name);
 
     //drawing
-    drawLineToTowed(NewItem);
-    DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
-    DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // drawLineToTowed(NewItem);
+    // DrawingAreaTopView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
+    // DrawingAreaSideView->addPoint(NewItem->x,NewItem->y,NewItem->z,NewItem->name);
 
     return NewItem;
 }
@@ -518,13 +521,13 @@ void MainWindow::drawLineToTowed(TowedItem* item) {
         float streamerLength = dynamic_cast<Streamer*>(item->towingPoint)->totalLength;
         DrawingAreaTopView->drawLineToTowed(item->x, item->y,
                                             item->towingPoint->x-streamerLength, item->towingPoint->y);
-        DrawingAreaSideView->drawLineToTowed(item->x, item->z,
-                                             item->towingPoint->x-streamerLength, item->towingPoint->z);
+        // DrawingAreaSideView->drawLineToTowed(item->x, item->z,
+        //                                      item->towingPoint->x-streamerLength, item->towingPoint->z);
     } else {
         DrawingAreaTopView->drawLineToTowed(item->x, item->y,
             item->towingPoint->x, item->towingPoint->y);
-        DrawingAreaSideView->drawLineToTowed(item->x, item->z,
-            item->towingPoint->x, item->towingPoint->z);   
+        // DrawingAreaSideView->drawLineToTowed(item->x, item->z,
+        //     item->towingPoint->x, item->towingPoint->z);
     }
 }
 void MainWindow::drawStreamer(Streamer *item)
@@ -532,9 +535,9 @@ void MainWindow::drawStreamer(Streamer *item)
     DrawingAreaTopView->drawStreamer(item->x, item->y,
         item->getChan(item->getChanCount())->x,
         item->getChan(item->getChanCount())->y, item->getChanCount());
-    DrawingAreaSideView->drawStreamer(item->x, item->z,
-        item->getChan(item->getChanCount())->x,
-        item->getChan(item->getChanCount())->z,item->getChanCount());
+    // DrawingAreaSideView->drawStreamer(item->x, item->z,
+    //     item->getChan(item->getChanCount())->x,
+    //     item->getChan(item->getChanCount())->z,item->getChanCount());
 }
 
 void MainWindow::on_TopViewRB_clicked()

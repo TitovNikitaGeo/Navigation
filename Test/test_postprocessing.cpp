@@ -161,9 +161,11 @@ QVector<FixedItem*> testPostprocessing::createItems2209()
 
 
 testPostprocessing::testPostprocessing() {
-    // testSearchingNmea22();
+    testSearchingNmea22();
     // testSearchingNmea23WithOnboard();
     // testSearchingNmea23EndBuoyOnlyFans();
+    // testPpkFindString();
+
 }
 
 
@@ -289,7 +291,23 @@ int testPostprocessing::testSearchingNmea23WithOnboard()
     // delete endBuoyFile;
     return 1;
 }
+void testPostprocessing::testPpkFindString()
+{
+    int i = 1;
+    PostProcessor pr;
+    auto pairs = readFileAndGeneratePairs("C:/Users/sabrahar/Desktop/FINAL/240922_geom.txt");
+    QFile* ppkFile = new QFile("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/test/GD_buoy_PPK_20240922043218.ppk");
+    // ppkFile->open(QIODevice::ReadOnly);
+    for (auto pair: pairs) {
+        QStringList parts = pr.findPpkForSegy(pair, ppkFile, &i);
+        NmeaParser::CoordinateData first = PpkParser::parseLine(parts[0]);
+        NmeaParser::CoordinateData second = PpkParser::parseLine(parts[1]);
+        NmeaParser::CoordinateData trueCoor = pr.calcTruePosition(first, second, pair.time, first.dateTime.time(), second.dateTime.time());
 
+        // qDebug() << pair.ffid << pair.time;
+        // break;
+    }
+}
 int testPostprocessing::testSearchingNmea22()
 {
     Logger::instance();
@@ -510,6 +528,8 @@ int testPostprocessing::testSearchingNmea23EndBuoyOnlyFans()
     delete endBuoyFile;
     return 1;
 }
+
+
 
 
 

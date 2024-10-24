@@ -20,6 +20,7 @@ public:
     int testSearchingNmea23WithOnboard();
     int testSearchingNmea22();
     int testSearchingNmea23EndBuoyOnlyFans();
+    void testPpkFindString();
 
     QVector<FixedItem*> createItems2309EndBuoyOnlyFans();
     QVector<FixedItem*> createItems2309();

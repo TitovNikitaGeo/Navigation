@@ -27,6 +27,25 @@ void ItemsStorage::DeleteItem(QString Name) {
     }
 }
 
+void ItemsStorage::setItemForCalculation(QVector<FixedItem *> &ItemsVault)
+{
+    // QVector<FixedItem *> withWhoWeWork;
+    FixedItem* itemForCalculation = nullptr;
+    for (auto i: ItemsVault) {
+        if (i->itemType == "Fixed") {
+            if (i->hasConnection) {
+                itemForCalculation = i;
+                break;
+            }
+        }
+    }
+    for (auto i: ItemsVault) {
+        if (i->itemType == "Fixed" && !i->hasConnection) {
+            i->setItemForCalculations(itemForCalculation);
+        }
+    }
+}
+
 FixedItem* ItemsStorage::getItem(QString name) {
     for (auto it = ItemsVault.begin(); it != ItemsVault.end(); it++) {
         if((*it)->name == name) {

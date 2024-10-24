@@ -46,6 +46,7 @@ void PostProcessorView::setupUI() {
     progressBar->setValue(0);
     progressBar->setVisible(false);
     mainLayout->addWidget(progressBar);
+    postProc.fuckingShit = progressBar;
 
     // Выбор FFID source
     QHBoxLayout* ffidLayout = new QHBoxLayout();
@@ -70,7 +71,7 @@ void PostProcessorView::setupUI() {
     connect(runButton, &QPushButton::clicked, this, &PostProcessorView::onRunButtonClicked);
 }
 
-void PostProcessorView::sendValuesToPostProc() //передача параметров из view в model (контроллер идет нахуй)
+void PostProcessorView::sendValuesToPostProc() //передача параметров из view в model (контроллер идет нахуй) UPD нет, мы оба
 {
     QVector<QString> nmeaNames;
     QVector<QString> ppkNames;
@@ -90,11 +91,25 @@ void PostProcessorView::sendValuesToPostProc() //передача парамет
     }
     if (ffidLineEdit->text().endsWith(".txt")) {
         ffidTimeSourceTxt = ffidLineEdit->text();
-        qDebug() <<ffidTimeSourceTxt <<__FUNCTION__;
+        // qDebug() <<ffidTimeSourceTxt <<__FUNCTION__;
     } else {
         ffidTimeSourceDir = ffidLineEdit->text();
-        qDebug() <<ffidTimeSourceDir <<__FUNCTION__;;
+        // qDebug() <<ffidTimeSourceDir <<__FUNCTION__;;
     }
+
+    // pairItemFile.append(pair);
+    // qDebug() << pair.first << pair.second <<__FUNCTION__ << nmeaPpkLineEdit->text();
+
+    for (int i = 0; i < nmeaPpkLineEdits.size(); i++) {
+        QString itemName = nmeaPpkButtons[i]->text();
+        itemName = itemName.mid(itemName.indexOf("\"")).remove("\""); //вах какой костыль (ну а по-другому особо никак)
+
+        QPair<QString,QString> pairNames(nmeaPpkLineEdits[i]->text(), itemName);
+        // qDebug() << pair<<__FUNCTION__;
+        postProc.pairItemFile.append(pairNames);
+    }
+
+
     if (!ffidTimeSourceTxt.isEmpty()) {
         postProc.ffidTimeSourceTxtFile = ffidTimeSourceTxt;
     } else if (!ffidTimeSourceDir.isEmpty()) {
@@ -112,11 +127,14 @@ void PostProcessorView::chooseScheme() { //выбор съемы и парсин
         schemeLineEdit->setText(fileName);
         postProc.jsonSchemeFile = new QFile(fileName);
         postProc.items = ItemsLoader::readFromJSON(postProc.jsonSchemeFile);
+        postProc.MyVault = new ItemsStorage(); //не особо нужно
 
         //заполняем поля postproc (не помню зачем, но хуже не будет)
         postProc.vectorWithCon.clear();
         postProc.vectorNoCon.clear();
+
         for (FixedItem* i:postProc.items) {
+            postProc.MyVault->SaveItem(i);
             if (i->hasConnection) {
                 postProc.vectorWithCon.append(i);
                 postProc.itemsWithConnection++;
@@ -157,7 +175,7 @@ void PostProcessorView::createConnectionButtons() {
     for (int i = 0; i < namesOfItemsWithConnection.size(); ++i) {
         QPushButton* nmeaPpkButton =
             new QPushButton(QString("Choose file \"%1\"").arg(namesOfItemsWithConnection[i]), this);
-
+        //имя объекта берется из текста на кнопке, потому осторожнее с форматированием (см PostProcessorView::sendValuesToPostProc)
         QLineEdit* nmeaPpkLineEdit = new QLineEdit(this);
         nmeaPpkLineEdit->setReadOnly(true);
 
@@ -176,9 +194,6 @@ void PostProcessorView::createConnectionButtons() {
                 checkReadyToRun();
             }
         });
-        QPair<QString,QString> pair(namesOfItemsWithConnection[i], nmeaPpkLineEdit->text());
-        pairItemFile.append(pair);
-        qDebug() << pair.first << pair.second <<__FUNCTION__ << nmeaPpkLineEdit->text();
     }
 
     mainLayout->addLayout(buttonsLayout, 1);
@@ -215,11 +230,14 @@ void PostProcessorView::checkReadyToRun() {
 void PostProcessorView::onRunButtonClicked() {
 
     // Инициализация прогресс-бара
-    progressBar->setValue(0);
+    progressBar->setValue(1);
     progressBar->setVisible(true);
     sendValuesToPostProc();
     postProc.mainProcess();
-
+    progressBar->setValue(0);
+    hide();
+    // this->close();
+    // delete this;
 
     //мутим ffid-время-дата
     // QVector<SegYReader::Pair> pairs;

@@ -87,6 +87,8 @@ private:
     QVector <SegYReader::Pair> pairs;
     int curSegyFile = 0;
 
+
+    void hideDangerousButtons(); //метод для скрытия опасныъ/неработающих/недоработанных виджетов
 private slots:
     void on_DeleteItemPushButton_clicked();
     void on_AddItemtPushButton_clicked();

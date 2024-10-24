@@ -28,7 +28,7 @@ Connection_Net::Connection_Net(QString IP, int port, QString filename) :
 
 
     socket->connectToHost(QHostAddress(IP), port);
-
+    setWindowTitle(IP + " :" + QString::number(port));
 }
 
 

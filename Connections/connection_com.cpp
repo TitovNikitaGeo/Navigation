@@ -31,7 +31,7 @@ Connection_com::Connection_com(QString COM_port, int ByteRate, QString filename)
             &Connection_com::ReadyRead);
     this->lastRecievedGGA = "empty com";
 
-    this->setWindowTitle(COM_port);
+    setWindowTitle("Port: " + COM_port);
 }
 
 Connection_com::~Connection_com()

@@ -221,17 +221,17 @@ QString P190_creator::createMainRow__new(FixedItem *item, int pointNumber, int t
             type = 'Z';
             SourceID = '1';
             TailBuoyID = ' ';
-            return "";
+            // return "";
         }   else if (item->name == "StreamerTP") {
-            type = 'X';
-            SourceID = '1';
-            TailBuoyID = ' ';
-            return "";
+            // type = 'X';
+            // SourceID = '1';
+            // TailBuoyID = ' ';
+            // return "";
         }   else if (item->name == "ship buoy") {
             type = 'X';
             SourceID = '1';
             TailBuoyID = ' ';
-            return "";
+            // return "";
         }   else {
             return "";
         }

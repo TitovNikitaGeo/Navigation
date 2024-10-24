@@ -86,7 +86,7 @@ StreamerDialog::StreamerDialog(QWidget* parent)
     mainLayout->addWidget(finishButton);
     mainLayout->setAlignment(finishButton, Qt::AlignRight); // Align finish button to the right
     setLayout(mainLayout);
-
+    setWindowTitle("Streamer parameters");
 
 }
 

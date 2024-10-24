@@ -53,7 +53,12 @@ void SegYReader::setFilePath(const QString &newFilePath)
 }
 
 void SegYReader::readTraceHeader(QFile& file) {
-    // Assuming each trace header is 240 bytes long
+    //
+    //
+    //ATTENTION. here is is 1 byte shift for each header. data[158] is 159 byte
+    //
+    //
+    //Assuming each trace header is 240 bytes long
     QByteArray traceHeaderData = file.read(240);
 
     if (traceHeaderData.size() < 240) {
@@ -67,12 +72,17 @@ void SegYReader::readTraceHeader(QFile& file) {
     // uint32_t ffid = (data[12] << 24) | (data[13] << 16) | (data[14] << 8) | data[15];
     uint32_t ffid = data[9] << 16 | data[10] << 8 | data[11];
 
-    uint16_t JulianDay = data[159];
+
+
+    uint16_t JulianDay = data[158]<<8 | data[159];
+    //тут (и вообще везде) сдвиг на
     uint16_t hours = data[161];
     uint16_t minutes = data[163];
     uint16_t seconds = data[165];
 
     uint32_t microseconds = (data[233] << 16) | (data[234]) << 8 | data[235];
+    // qDebug() << microseconds << file.fileName();
+    // exit(123);
     ffids.push_back(ffid);
     times.push_back(QTime(hours, minutes, seconds, microseconds/1000));
     pairs.push_back(Pair(ffid,  QTime(hours, minutes, seconds, microseconds/1000), JulianDay));

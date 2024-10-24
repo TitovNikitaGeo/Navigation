@@ -1,7 +1,10 @@
 #include "logger.h"
 
 Logger::Logger() {
-consoleOutput = false;
+
+    consoleOutput = false;
+    stopLogging = false;
+
 #ifdef QT_DEBUG
     consoleOutput = true;
 #endif
@@ -9,22 +12,42 @@ consoleOutput = false;
     // Создаем окно для вывода логов
     logWindow = new QTextEdit();
     logWindow->setReadOnly(true);  // Окно только для чтения
-    logWindow->setWindowTitle("Log window");
+    logWindow->setWindowTitle("Log");
     logWindow->resize(400,250);
     logWindow->show();            // Показать окно
     logWindow->move(0, 210);
 
+    connect(&logThread, &QThread::started, this, &Logger::run);
+    moveToThread(&logThread);
+    logThread.start();
 }
 
 Logger::~Logger()
 {
     // logStream->flush();
     // logFile->close();
+    stopLogging = true;
+    logThread.quit();
+    logThread.wait();
+
+    if (logFile) {
+        logFile->close();
+        delete logFile;
+    }
+    if (logStream) {
+        delete logStream;
+    }
 }
 
 void Logger::setPath(const QDir &newPath)
 {
     path = newPath;
+}
+
+void Logger::addLogMsg(QString text)
+{
+    LogMessage log(LogLevel::Info, text);
+    logQueue.enqueue(log);
 }
 
 Logger &Logger::instance()
@@ -48,44 +71,59 @@ void Logger::createLogFile()
     QMutexLocker locker(&mutex);
 }
 
+void Logger::appendTextToWindow(QString text)
+{
+    QString curText = text + "\n" + logWindow->toPlainText();
+    QStringList lines = curText.split("\n");
+    if (lines.size() > maxLines) {
+        lines = lines.mid(0, maxLines);
+        logWindow->setText(lines.join("\n"));
+    }
+    logWindow->moveCursor(QTextCursor::Start);
+}
 
-void Logger::logMessage(QObject *caller, LogLevel level = LogLevel::Debug, QString msg = "")
+void Logger::processQueue()
 {
     QMutexLocker locker(&mutex);
-    QString callerName = caller->objectName();
-    QString log = QString("%1 %2\n%3 %4").arg(callerName)
+    while (!logQueue.isEmpty()) {
+        LogMessage log = logQueue.dequeue();
+        logMessage(log);
+    }
+
+}
+
+void Logger::run()
+{
+    while (!stopLogging) {
+        processQueue();
+        // QThread::sleep(1);
+    }
+}
+
+
+void Logger::logMessage(LogMessage log)
+{
+    QMutexLocker locker(&mutex);
+    QString callerName = "";
+    if (log.caller != nullptr) {
+        callerName = log.caller->objectName();
+    }
+    QString logtext = QString("%1 %2\n%3 %4").arg(callerName)
         .arg(QDateTime::currentDateTime().
             toString("yyyy-MM-dd HH:mm:ss"))
-        .arg(logLevelToString(level))
-        .arg(msg);
+        .arg(logLevelToString(log.level))
+        .arg(log.msg);
     if (logFile->isOpen()) {
-        *logStream << log << "/n";
+        *logStream << logtext << "/n";
         logStream->flush();
     }
     if (consoleOutput) {
-        qDebug() << log;
+        qDebug() << logtext;
     }
 
-    logWindow->setPlainText(log + "\n" + logWindow->toPlainText());
+    appendTextToWindow(logtext);
 }
 
-void Logger::logMessage(LogLevel level = LogLevel::Debug, QString msg = "")
-{
-    QMutexLocker locker(&mutex);
-    QString log = QString("%1 %2 %3")
-        .arg(QDateTime::currentDateTime().
-          toString("yyyy-MM-dd HH:mm:ss"))
-        .arg(logLevelToString(level))
-        .arg(msg);
-    if (logFile->isOpen()) {
-        *logStream << log << "\n";
-        logStream->flush();
-    }
-    if (consoleOutput) {
-        qDebug() << log;
-    }
-    logWindow->setPlainText(log + "\n" + logWindow->toPlainText());
-}
 
 QString Logger::logLevelToString(LogLevel level)
 {

@@ -44,6 +44,7 @@ BuoyDialog::BuoyDialog(ItemsStorage* vault, bool needConnection) : MyVault(vault
     mainLayout->addWidget(setButton);
 
     setLayout(mainLayout);
+    setWindowTitle("Buoy parameters");
 }
 
 

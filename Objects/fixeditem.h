@@ -86,7 +86,7 @@ public slots:
     void newNmeaArived(QString msg);
 protected:
     bool amIItemForCalculating = false;
-    FixedItem* ItemForCalculations;
+    FixedItem* ItemForCalculations = nullptr;
     static CircularBuffer sharedCircularBuffer;
 };
 

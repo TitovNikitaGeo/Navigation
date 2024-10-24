@@ -17,7 +17,7 @@ public:
     static double dmsToDecimal(int degrees, int minutes, double seconds);
     static CoordinateData parseLine(const QString &line);
     static bool compareCoordinates(CoordinateData nmea, CoordinateData ppk);
-
+    static QTime getTimeFromPpkLine(const QString &PpkSentence);
 
 signals:
 };

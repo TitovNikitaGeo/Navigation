@@ -9,7 +9,7 @@ FixedItem::FixedItem(double x,double y,double z, QString name) :
     x(x), y(y), z(z), name(name)
 {
     itemType = "Fixed";
-    // qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
+    qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
     // logmsg(itemType+" Item Created");
     CircularBuffer& buffer = FixedItem::sharedCircularBuffer;
 }
@@ -25,8 +25,11 @@ void FixedItem::calcItemCoordinates()
     if (hasConnection && connection) {
         calcIfConnected();
     } else {
-        if (ItemForCalculations == nullptr) {
-            return;
+        if (itemType == "Fixed" && ItemForCalculations == nullptr) {
+            qWarning() << __FUNCTION__ << "some weird shit";
+            exit(-1);
+            return; //сюда мы не должны заходить никогда
+
         } else {
             calcIFNotConnected();
         }
@@ -62,9 +65,16 @@ void FixedItem::calcIFNotConnected()
         // NmeaParser::NmeaGGAData coor = ItemForCalculations->lastGGAData;
     // double azRad = azimuthOfMovement;
     double azRad = sharedCircularBuffer.calculateAzimuth();
+    if (azRad == -1) {
+        azRad = realAzimuthOfTowingRadians - M_PI;
+    }
     if (azRad > 2*M_PI) azRad -= 2*M_PI;
     // qDebug() << qRadiansToDegrees( azRad) << "азимут для рассчета координат"<<__FUNCTION__;
 
+    // qDebug() << name<<__FUNCTION__;
+    // qDebug() << ItemForCalculations->name <<__FUNCTION__;
+    // double x_tmp = ItemForCalculations->x_coor;
+    // double y_tmp = ItemForCalculations->y_coor;
     x_coor = ItemForCalculations->x_coor + (y-ItemForCalculations->y)*qCos(azRad) +
              (x-ItemForCalculations->x)*qSin(azRad);
     y_coor = ItemForCalculations->y_coor - (y-ItemForCalculations->y)*qSin(azRad) +
@@ -81,13 +91,6 @@ void FixedItem::calcIFNotConnected()
     // qDebug() << (M_PI/2 - qAtan2(dy, dx))* (180.0 / M_PI) << qSqrt(dx * dx + dy * dy) << "dist and az by UTM";
     // qDebug() <<"_______________";
     // qDebug() << x_coor << y_coor <<"FixedItem::calcIFNotConnected()";
-
-
-
-
-
-
-
 
     latitude = curGeoCoordinate.latitude();
     longitude = curGeoCoordinate.longitude();

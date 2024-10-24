@@ -16,7 +16,9 @@ NmeaParser::CoordinateData PpkParser::parseLine(const QString &line) {
     CoordinateData result;
 
     // Split the line by spaces (with trimming to handle multiple spaces correctly)
+    if (line.isEmpty()) return result;
     QStringList parts = line.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    if (parts.size() != 28) return result;
     if (parts[0] == "DIR") return result;
 
     // Extract individual values
@@ -68,6 +70,18 @@ bool PpkParser::compareCoordinates(CoordinateData nmea, CoordinateData ppk)
         return false;
     }
     return true;
+}
+
+QTime PpkParser::getTimeFromPpkLine(const QString &PpkSentence)
+{
+    QDateTime result = QDateTime();
+    QStringList parts = PpkSentence.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    // if (parts.size() == 0) return result.time();
+    if (parts.size() != 28) return result.time();
+    if (parts[0] == "DIR") return result.time();
+    QString timeStr = parts[5]; // Combine date and time
+    return QTime::fromString(timeStr, "hh:mm:ss.zz");
+    // return result.time();
 }
 
 

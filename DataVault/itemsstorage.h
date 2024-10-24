@@ -14,6 +14,7 @@ public:
     void SaveItem(FixedItem* NewItem);
     FixedItem* getItem(QString name);
     void DeleteItem(QString Name);
+    void setItemForCalculation(QVector<FixedItem*> &ItemsVault);
 
 
     QVector<FixedItem*> ItemsVault;

@@ -12,6 +12,8 @@
 #include "itemsstorage.h"
 #include "nmeaparser.h"
 #include "itemsloader.h"
+#include "ppkparser.h"
+#include "qprogressbar.h"
 
 class PostProcessor
 {
@@ -35,6 +37,7 @@ public:
     void fillItemsVectors();
     int findNmeaFiles();
 
+    // void calcCoordinatesOneFF()
 
     void setP190(P190_creator *newP190);
     QVector<SegYReader::Pair> pairs;
@@ -42,6 +45,8 @@ public:
     QVector<SegYReader::Pair> preparePairs(QVector<SegYReader::Pair> in);
 
     QStringList findNmeaForSegy(SegYReader::Pair pair, QFile* nmeaFile, int* pos);
+    QStringList findPpkForSegy(SegYReader::Pair pair, QFile* ppkFilem, int* pos);
+
     NmeaParser::CoordinateData calcTruePosition(NmeaParser::CoordinateData first,
         NmeaParser::CoordinateData second, QTime trueTime, QTime firstTime, QTime secondTime);
 
@@ -57,7 +62,7 @@ public:
 
 
 //взаимодействие с интерфейсом PostProcessorView
-    ItemsStorage Vault;
+    // ItemsStorage Vault;
     QVector<FixedItem*> items;
     int itemsWithConnection = 0;
 
@@ -70,6 +75,7 @@ public:
     float percentageP190Creation = 0;
     QVector<QPair<QString, QString>> pairItemFile; // имя объекта - имя файла
 
+    QProgressBar* fuckingShit;
 
 private:
 };

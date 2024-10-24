@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>894</width>
-    <height>553</height>
+    <height>511</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>105</y>
+      <y>65</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -39,7 +39,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>280</y>
+      <y>240</y>
       <width>121</width>
       <height>41</height>
      </rect>
@@ -52,20 +52,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>100</y>
-      <width>131</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>0</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="ZLineEdit">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>130</y>
+      <y>60</y>
       <width>131</width>
       <height>24</height>
      </rect>
@@ -78,7 +65,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>45</y>
+      <y>5</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -94,12 +81,12 @@
    </widget>
    <widget class="QPushButton" name="DeleteItemPushButton">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>280</y>
+      <y>240</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -108,29 +95,11 @@
      <string>Delete Item</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>135</y>
-      <width>91</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Z</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>75</y>
+      <y>35</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -148,7 +117,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>70</y>
+      <y>30</y>
       <width>131</width>
       <height>24</height>
      </rect>
@@ -161,7 +130,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>40</y>
+      <y>0</y>
       <width>131</width>
       <height>24</height>
      </rect>
@@ -176,7 +145,7 @@
       <x>340</x>
       <y>0</y>
       <width>541</width>
-      <height>521</height>
+      <height>471</height>
      </rect>
     </property>
     <widget class="QWidget" name="verticalLayoutWidget">
@@ -185,7 +154,7 @@
        <x>0</x>
        <y>0</y>
        <width>541</width>
-       <height>521</height>
+       <height>471</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout"/>
@@ -195,7 +164,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>160</y>
+      <y>120</y>
       <width>91</width>
       <height>22</height>
      </rect>
@@ -211,7 +180,7 @@
     <property name="geometry">
      <rect>
       <x>80</x>
-      <y>160</y>
+      <y>120</y>
       <width>91</width>
       <height>22</height>
      </rect>
@@ -227,7 +196,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>330</y>
+      <y>290</y>
       <width>261</width>
       <height>191</height>
      </rect>
@@ -237,7 +206,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>190</y>
+      <y>150</y>
       <width>101</width>
       <height>16</height>
      </rect>
@@ -255,7 +224,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>190</y>
+      <y>150</y>
       <width>131</width>
       <height>25</height>
      </rect>
@@ -274,7 +243,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>225</y>
+      <y>185</y>
       <width>101</width>
       <height>16</height>
      </rect>
@@ -292,7 +261,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>220</y>
+      <y>180</y>
       <width>131</width>
       <height>24</height>
      </rect>
@@ -302,7 +271,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>250</y>
+      <y>210</y>
       <width>101</width>
       <height>21</height>
      </rect>
@@ -320,7 +289,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>250</y>
+      <y>210</y>
       <width>131</width>
       <height>24</height>
      </rect>
@@ -350,7 +319,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>160</y>
+      <y>120</y>
       <width>101</width>
       <height>22</height>
      </rect>
@@ -391,14 +360,14 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="StartP190CreationOnlinePB">
     <property name="enabled">
      <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>500</y>
+      <y>450</y>
       <width>41</width>
       <height>24</height>
      </rect>
@@ -407,51 +376,14 @@
      <string>GO</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="boardHeightSpinBox">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>10</y>
-      <width>62</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="decimals">
-     <number>1</number>
-    </property>
-    <property name="maximum">
-     <double>20.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>0.200000000000000</double>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Board Height</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="ReconnectPB">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>460</y>
+      <y>410</y>
       <width>41</width>
       <height>24</height>
      </rect>
@@ -464,10 +396,8 @@
    <zorder>label_4</zorder>
    <zorder>AddItemtPushButton</zorder>
    <zorder>YLineEdit</zorder>
-   <zorder>ZLineEdit</zorder>
    <zorder>label_2</zorder>
    <zorder>DeleteItemPushButton</zorder>
-   <zorder>label_5</zorder>
    <zorder>label_3</zorder>
    <zorder>XLineEdit</zorder>
    <zorder>ItemNameLineEdit</zorder>
@@ -482,10 +412,8 @@
    <zorder>ComboBoxItemType</zorder>
    <zorder>NeedConnectionCB</zorder>
    <zorder>verticalLayoutWidget_2</zorder>
-   <zorder>pushButton</zorder>
-   <zorder>boardHeightSpinBox</zorder>
-   <zorder>label_8</zorder>
-   <zorder>pushButton_2</zorder>
+   <zorder>StartP190CreationOnlinePB</zorder>
+   <zorder>ReconnectPB</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
