@@ -1,4 +1,5 @@
-QT       += core gui network serialport positioning core5compat
+QT       += core gui network serialport positioning location core5compat
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
@@ -29,6 +30,7 @@ SOURCES += \
     DataVault/itemsstorage.cpp \
     Drawing/lordofgraphic.cpp \
     Drawing/sidegraphicview.cpp \
+    Drawing/uberpainter.cpp \
     Fabric/buoydialog.cpp \
     Fabric/fabric.cpp \
     Fabric/streamerdialog.cpp \
@@ -66,6 +68,7 @@ HEADERS += \
     DataVault/structures.h \
     Drawing/lordofgraphic.h \
     Drawing/sidegraphicview.h \
+    Drawing/uberpainter.h \
     Fabric/buoydialog.h \
     Fabric/fabric.h \
     Fabric/streamerdialog.h \

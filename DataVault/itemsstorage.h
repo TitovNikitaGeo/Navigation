@@ -14,11 +14,13 @@ public:
     void SaveItem(FixedItem* NewItem);
     FixedItem* getItem(QString name);
     void DeleteItem(QString Name);
-    void setItemForCalculation(QVector<FixedItem*> &ItemsVault);
+    void setItemForCalculation(QVector<FixedItem*> ItemsVault);
 
 
     QVector<FixedItem*> ItemsVault;
     ~ItemsStorage();
+
+    QMutex mutex;
 };
 
 #endif // OBJECTSVAULT_H

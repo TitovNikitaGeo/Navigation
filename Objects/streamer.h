@@ -18,9 +18,11 @@ private:
     Streamer(QString name, FixedItem *towingPoint, double angleToWired, double wireLength, uint NumChannels, QString chanStep);
 
 public:
+
     explicit Streamer(QObject *parent = nullptr);
     void calcChansCoors();
-
+    // void calcIFConnected();
+    // void calcIFNotConnected();
     void printChansCoor();
     void printPos();
     int checkStreamerCoordinates();
@@ -42,6 +44,7 @@ public:
     double getDistanceCalcCoef() const;
 
     QString channelStep = "1";
+    static double defaultChannelDepth;
 private:
     uint NumChanels;
 
@@ -57,6 +60,7 @@ private:
     double dh;
 
     double distanceCalcCoef;
+
 
 
     ///inner class for channels

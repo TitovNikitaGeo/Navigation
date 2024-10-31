@@ -36,10 +36,10 @@ public:
     ///for scheme
 
     /// for real coordinates
-    double x_coor;
-    double y_coor;
-    double latitude;
-    double longitude;
+    double x_coor = 0;
+    double y_coor = 0;
+    double latitude = 0;
+    double longitude = 0;
     double height;
     double azimuthOfMovement;
     NmeaParser::CoordinateData lastGGAData = {{0,0}, {0,0}, QDateTime(),0};

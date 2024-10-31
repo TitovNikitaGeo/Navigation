@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     hideDangerousButtons(); //прячем неугодное от взгяда солнцеликого клиента
 
 
+
     MyTimer = new QTimer(this);
     connect(MyTimer, &QTimer::timeout, this, &MainWindow::timeToCollectData);
 
@@ -60,9 +61,16 @@ MainWindow::MainWindow(QWidget *parent)
     // connect(ui->boardHeightSpinBox, &QDoubleSpinBox::valueChanged,
     //         coordinator,&Coordinator::boardDepthChanged);
 
+    ///Painter
+    paintingTimer = new QTimer(this);
+    painter = new UberPainter(Vault);
+    ui->verticalLayout->addWidget(painter);
+    connect(paintingTimer, &QTimer::timeout, this, &MainWindow::runPainterRun);
+    paintingTimer->start(1000);
+
     setMenuBar(this->menuBar());
     setWindowTitle("Seismic Navigation");
-
+    // painter->run();
 
 
     ///one path to rule all the files
@@ -93,7 +101,7 @@ MainWindow::~MainWindow()
     delete DrawingAreaTopView;
     delete Vault;
     delete ui;
-    // logger->
+    logger->suicide();
     exit(0);
 }
 
@@ -138,7 +146,7 @@ void MainWindow::on_AddItemtPushButton_clicked()
         ///getting params for towed
         if(ui->ComboBoxWiredWith->count() == 0) {
             QMessageBox msgBox;
-            msgBox.critical(this, "Error","Нет точек крепления");
+            msgBox.critical(this, "Error","No towing point");
             return;
         }
 
@@ -295,31 +303,6 @@ void MainWindow::hideDangerousButtons()
 
 
 
-void MainWindow::on_RBFixed_clicked()
-{
-    ui->ComboBoxItemType->setDisabled(true);
-    ui->ComboBoxWiredWith->setDisabled(true);
-    ui->WireLengthSpinBox->setDisabled(true);
-
-    ui->XLineEdit->setDisabled(false);
-    ui->YLineEdit->setDisabled(false);
-    // ui->ZLineEdit->setDisabled(false);
-}
-
-
-void MainWindow::on_RBTowed_clicked()
-
-{
-    ui->ComboBoxItemType->setDisabled(false);
-    ui->ComboBoxWiredWith->setDisabled(false);
-    ui->WireLengthSpinBox->setDisabled(false);
-
-    ui->XLineEdit->setDisabled(true);
-    ui->YLineEdit->setDisabled(true);
-    // ui->ZLineEdit->setDisabled(true);
-}
-
-
 FixedItem* MainWindow::createFixedItem(FixedItemInfo NewItemInfo) {
     bool needConnection = false;
 
@@ -329,6 +312,7 @@ FixedItem* MainWindow::createFixedItem(FixedItemInfo NewItemInfo) {
 
 
     FixedItem* NewItem = MyFabric->CreateItem(NewItemInfo, needConnection);
+    if (NewItem == nullptr) return nullptr;
 
     ///Saving New Item
     Vault->SaveItem(NewItem);
@@ -425,6 +409,7 @@ Buoy* MainWindow::createBuoyItem(BuoyInfo BuoyItemInfo)
     }
 
     Buoy* NewItem = MyFabric->CreateItem(BuoyItemInfo, needConnection);
+    if (NewItem == nullptr) return nullptr;
     if (QString(BuoyItemInfo.towedInfo.toWhoIsWired->metaObject()->className()) == "Streamer") {
         dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->setEndBuoy(NewItem);
         NewItem->wireLength += dynamic_cast<Streamer*>(Vault->getItem(BuoyItemInfo.towedInfo.toWhoIsWired->name))->getTotalLength();
@@ -461,6 +446,7 @@ Source* MainWindow::createSourceItem(SourceInfo SourceItemInfo) //метод д�
 
 
     Source* NewItem = MyFabric->CreateItem(SourceItemInfo, needConnection);
+    if (NewItem == nullptr) return nullptr;
     ///Saving New Item
     Vault->SaveItem(NewItem);
     ///Saving New Item
@@ -553,13 +539,38 @@ void MainWindow::on_SideViewRB_clicked()
     DrawingAreaSideView->show();
 }
 
+void MainWindow::on_RBFixed_clicked()
+{
+    ui->ComboBoxItemType->setDisabled(true);
+    ui->ComboBoxWiredWith->setDisabled(true);
+    ui->WireLengthSpinBox->setDisabled(true);
 
+    ui->XLineEdit->setDisabled(false);
+    ui->YLineEdit->setDisabled(false);
+    // ui->ZLineEdit->setDisabled(false);
+    ui->ItemNameLineEdit->setText("Fixed");
+}
+
+
+void MainWindow::on_RBTowed_clicked()
+
+{
+    ui->ComboBoxItemType->setDisabled(false);
+    ui->ComboBoxWiredWith->setDisabled(false);
+    ui->WireLengthSpinBox->setDisabled(false);
+
+    ui->XLineEdit->setDisabled(true);
+    ui->YLineEdit->setDisabled(true);
+
+    emit on_ComboBoxItemType_activated(ui->ComboBoxItemType->currentIndex());
+    // ui->ZLineEdit->setDisabled(true);
+}
 
 void MainWindow::on_ComboBoxItemType_activated(int index)
 {
     switch(index) {
     case 0:
-        ui->ItemNameLineEdit->setText("");
+        ui->ItemNameLineEdit->setText("Towed");
         ui->NeedConnectionCB->setChecked(false);
         ui->NeedConnectionCB->setEnabled(true);
         break;
@@ -617,6 +628,13 @@ void MainWindow::on_pushButton_2_clicked()
             it->connection->reconnect();
         }
     }
+}
+
+void MainWindow::runPainterRun()
+{
+    coordinator->calcCoors();
+    painter->run();
+
 }
 
 

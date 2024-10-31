@@ -1,7 +1,7 @@
 #include "fixeditem.h"
 
 double FixedItem::realAzimuthOfTowingRadians = -1;
-CircularBuffer FixedItem::sharedCircularBuffer(3);
+CircularBuffer FixedItem::sharedCircularBuffer(10);
 
 FixedItem::FixedItem() {}
 
@@ -12,6 +12,8 @@ FixedItem::FixedItem(double x,double y,double z, QString name) :
     qDebug() <<itemType<< " Item Created "<<x<<y<<z<<name;
     // logmsg(itemType+" Item Created");
     CircularBuffer& buffer = FixedItem::sharedCircularBuffer;
+
+    this->creationPriority = 0;
 }
 
 FixedItem::~FixedItem() {
@@ -43,7 +45,8 @@ void FixedItem::calcIfConnected()
     latitude = lastGGAData.coordinate.latitude();
     longitude = lastGGAData.coordinate.longitude();
     height = lastGGAData.height;
-    if (amIItemForCalculating) {
+
+    if (amIItemForCalculating || true) {
         sharedCircularBuffer.add(lastGGAData.coordinate);
         // qDebug() << name << "I added to CircBuffer" << lastGGAData.coordinate;
     }
@@ -179,6 +182,6 @@ bool FixedItem::showAzDistToObj(FixedItem *to)
     if (azimuthDegrees < 0) {
         azimuthDegrees += 360.0;
     }
-    qDebug() << "Between " << name << " and " << to->name << dist << "Azimuth = " << azimuthDegrees;
+    qDebug() << "Between " << name << " and " << to->name << dist << "Azimuth = " <<azimuthDegrees;
     return true;
 }

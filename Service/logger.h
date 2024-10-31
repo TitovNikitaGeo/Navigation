@@ -47,6 +47,7 @@ public:
 
     void addLogMsg(QString log);
 
+    void suicide();
 private:
     Logger();
     ~Logger();
@@ -66,13 +67,14 @@ private:
     void appendTextToWindow(QString text);
     QQueue<LogMessage> logQueue;
     bool consoleOutput;
-    QTextEdit* logWindow;    
+    QTextEdit* logWindow;
     int maxLines;
     void processQueue();
 
     //бог знает зачем
     QString logLevelToString(LogLevel level);
 
+    //suicide
 
 signals:
 };

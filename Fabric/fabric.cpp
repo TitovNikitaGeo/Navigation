@@ -15,6 +15,8 @@ FixedItem* Fabric::CreateItem(FixedItemInfo info, bool needConnect)
         Connection* con = createConnection(info.ItemName);
         if (con != nullptr) {
             bindItemConnection(item, con);
+        } else {
+            return nullptr;
         }
     }
 
@@ -26,8 +28,11 @@ TowedItem* Fabric::CreateItem(TowedItemInfo info, bool needConnect)
         info.name, info.toWhoIsWired, info.angleToWired, info.wireLength);
     if (needConnect) {
         Connection* con = createConnection(info.name);
+        if (con == nullptr) return nullptr;
         if (bindItemConnection(item, con)){
             qDebug() << "Fabric::CreateItem";
+        } else {
+            return nullptr;
         }
     }
     return item;
@@ -66,8 +71,9 @@ Buoy* Fabric::CreateItem(BuoyInfo info, bool needConnection)
             info.towedInfo.wireLength, info.AnthenaHeight, info.towingDepth);
         if (needConnection) {
             Connection* con = createConnection(info.towedInfo.name);
+            if (con == nullptr) return nullptr;
             if (bindItemConnection(newBuoy, con)){
-                qDebug() << "Fabric::CreateItem";
+                // qDebug() << "Fabric::CreateItem";
             }
             dialog.selectedStreamer->endBuoy = newBuoy; ///привязываем буй к косе
         }
@@ -81,6 +87,14 @@ Source* Fabric::CreateItem(SourceInfo sourceInfo, bool needConnect)
 {
     TowedItemInfo newInfo = sourceInfo.info;
     Source* newItem = new Source(newInfo.name, newInfo.toWhoIsWired, newInfo.angleToWired, newInfo.wireLength);
+    if (needConnect) {
+        Connection* con = createConnection(newInfo.name);
+        if (con != nullptr) {
+            bindItemConnection(newItem, con);
+        } else {
+            return nullptr;
+        }
+    }
     return newItem;
 }
 
@@ -89,12 +103,12 @@ Connection* Fabric::createConnection(QString itemName)
     Connection* res = nullptr;
     connectionCreator->setLastCreatedFileName(itemName);
     if (connectionCreator->exec() == QDialog::Accepted){
-        qDebug() << "Fabric::createConnection() Accepted";
+        // qDebug() << "Fabric::createConnection() Accepted";
         connectionCreator->close();
         res = connectionCreator->getLastConnection();
         return res;
     } else {
-        qDebug() << "Fabric::createConnection() Rejected";
+        // qDebug() << "Fabric::createConnection() Rejected";
         return nullptr;
     }
 

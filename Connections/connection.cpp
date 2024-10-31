@@ -60,8 +60,8 @@ void Connection::create_file_for_nmea(QString filename){
         box.critical(nullptr, "Error", "File not created");
         return;
     }
-    qDebug() << "File " << filename << "opened in A mode";
-    qDebug() << file->filesystemFileName();
+    // qDebug() << "File " << filename << "opened in A mode";
+    // qDebug() << file->filesystemFileName();
 
     datastream = new QTextStream (file);
     this->filename = filename;

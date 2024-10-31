@@ -12,6 +12,7 @@
 #include "postprocessor.h"
 #include "segyreader.h"
 #include "postprocessorview.h"
+#include "uberpainter.h"
 
 
 #include <QMainWindow>
@@ -67,6 +68,13 @@ private:
     P190_creator* p190Creator;
     MyGraphicView *DrawingAreaTopView;
     SideGraphicView *DrawingAreaSideView;
+
+    QTimer* paintingTimer;
+    UberPainter* painter;
+    //кароч, делал класс рисовальщика положений наших объектов
+    //оказалось, нельзя UI в отельный поток засовывать
+    //придется делать таймер, по которому будет рисование
+
     Fabric* MyFabric;
     ItemsStorage* Vault;
     QTableWidget* tableWithItems;
@@ -104,5 +112,16 @@ private slots:
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
 
+    void runPainterRun();
+
+protected:
+
+    void closeEvent(QCloseEvent *event) override {
+        exit(0);
+        // Здесь можно добавить дополнительный код, если нужно
+        // std::cout << "Window is closing." << std::endl;
+        event->accept();  // Подтверждаем закрытие окна
+
+    }
 };
 #endif // MAINWINDOW_H

@@ -27,9 +27,11 @@ void ItemsStorage::DeleteItem(QString Name) {
     }
 }
 
-void ItemsStorage::setItemForCalculation(QVector<FixedItem *> &ItemsVault)
+void ItemsStorage::setItemForCalculation(QVector<FixedItem *> ItemsVault)
 {
+    // qDebug() << "Вошёл в функцию:" << Q_FUNC_INFO;
     // QVector<FixedItem *> withWhoWeWork;
+    // QMutexLocker locker(&mutex); //возможно тут ломается
     FixedItem* itemForCalculation = nullptr;
     for (auto i: ItemsVault) {
         if (i->itemType == "Fixed") {

@@ -2,7 +2,7 @@
 #define BUOY_H
 
 #include "toweditem.h"
-#include "streamer.h"
+// #include "structures.h"
 
 class Buoy : public TowedItem
 {

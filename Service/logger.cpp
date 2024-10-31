@@ -53,6 +53,9 @@ void Logger::addLogMsg(QString text)
 Logger &Logger::instance()
 {
     static Logger instance;
+    if (!instance.logThread.isRunning()) {
+        instance.logThread.start();
+    }
     return instance;
 }
 
@@ -139,5 +142,10 @@ QString Logger::logLevelToString(LogLevel level)
     default:
         return "Hiring me was an error";
     }
+}
+
+void Logger::suicide()
+{
+    delete this;
 }
 

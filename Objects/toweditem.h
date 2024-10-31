@@ -21,7 +21,7 @@ public:
 
 
     // void calcItemCoordinates();
-    void calcIFNotConnected();
+    void calcIFNotConnected() override;
 
     void printSelfInfo();
 

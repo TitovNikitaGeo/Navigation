@@ -12,27 +12,30 @@ int Coordinator::calcCoors()
                 // qDebug() << item->name << item->hasConnection << "Coordinator::calcCoors()";
                 //сначала те, что имеют точное положение
                 item->getLastGGA();
-                item->getLastRMC();
 
-                if (NmeaParser::isValid(item->lastGGAData) && NmeaParser::isValid(item->lastRMCData)) {
+                if (NmeaParser::isValid(item->lastGGAData)) {
                     item->calcItemCoordinates();
                 }
                 // qDebug() << item->connection->lastRecievedNMEA << "MainWindow::timeToCollectData()";
             }
-            if (item->azimuthOfMovement != -1) {
-                commonDummyAzimuth = item->azimuthOfMovement;
-            }
+            // if (item->azimuthOfMovement != -1) {
+            //     commonDummyAzimuth = item->azimuthOfMovement;
+            // }
         }
+        // qDebug() <<__FUNCTION__<<__LINE__;
+        Vault->setItemForCalculation(Vault->ItemsVault);
+        // qDebug() <<__FUNCTION__<<__LINE__;
 
         for (FixedItem* item: Vault->ItemsVault) { //я вызываю метод предка
             if (item->hasConnection) continue;
             // qDebug() << item->name << item->hasConnection;
             QString className = QString(item->metaObject()->className());
+
             if (className == "Streamer") {
+                item->calcItemCoordinates();
                 Streamer* tmp = dynamic_cast<Streamer*>(item);
-                tmp->calcItemCoordinates();
                 tmp->calcChansCoors();
-                tmp->calcStreamerDepth();
+                // tmp->calcStreamerDepth();s
             } else if(className == "FixedItem") {
                 item->calcItemCoordinates();
             } else if (className == "TowedItem") {

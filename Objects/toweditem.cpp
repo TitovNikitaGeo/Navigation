@@ -11,9 +11,6 @@ TowedItem::TowedItem(QString Name,
     : towingPoint(towingPoint),
     angle(angle), wireLength(wireLength)
 {
-
-
-
     this->name = Name;
 
     this->towingPoint = towingPoint;
@@ -21,9 +18,9 @@ TowedItem::TowedItem(QString Name,
         wireLength += dynamic_cast<Streamer*>(towingPoint)->getTotalLength();
     }
     itemType = "Towed";
-    double angleInRadians = 90 * M_PI/180;
-    x = towingPoint->x * 1 + wireLength*sin(angleInRadians);
-    y = towingPoint->y * -1 + wireLength*cos(angleInRadians);
+    double angleInRadians = 0 * M_PI/180;
+    x = towingPoint->x * 1 - wireLength;
+    y = towingPoint->y;
     z = towingPoint->z;
     qDebug() <<QString(this->metaObject()->className())<< " Item Created "<<x<<y<<z<<name;
 
@@ -41,75 +38,24 @@ void TowedItem::calcIFNotConnected()
 {
     NmeaParser parser;
     double azRad = -1;
-    if (QString(metaObject()->className()) == "Streamer") {
-        Streamer* strm = dynamic_cast<Streamer*>(this);
-        if (strm->endBuoy != nullptr) {
-            strm->realAzimuthOfTowingRadians = M_PI - atan2(strm->towingPoint->x_coor - strm->endBuoy->x_coor,
-                        strm->towingPoint->y_coor - strm->endBuoy->y_coor);
+    if (realAzimuthOfTowingRadians == -1) {
+        double fakeAzOfTowing = (sharedCircularBuffer.calculateAzimuth());
+        if (fakeAzOfTowing > 2*M_PI) fakeAzOfTowing -=2*M_PI;
+        if (fakeAzOfTowing < 0) fakeAzOfTowing +=2*M_PI;
 
-            QGeoCoordinate towingGeoPos = parser.UTMtoGeo(QPointF(strm->towingPoint->x_coor,strm->towingPoint->y_coor));
-            QGeoCoordinate endBuoyGeoPos = parser.UTMtoGeo(QPointF(strm->endBuoy->x_coor,strm->endBuoy->y_coor));
-
-            // qDebug() << towingGeoPos << endBuoyGeoPos;
-            // qDebug() << qDegreesToRadians(towingGeoPos.azimuthTo(endBuoyGeoPos)) << strm->realAzimuthOfTowingRadians <<__FUNCTION__;
-            strm->realAzimuthOfTowingRadians = qDegreesToRadians(towingGeoPos.azimuthTo(endBuoyGeoPos));
-            double dx = this->wireLength * qSin(strm->realAzimuthOfTowingRadians);
-            double dy = this->wireLength * qCos(strm->realAzimuthOfTowingRadians);
-
-            x_coor = towingPoint->x_coor + dx;
-            y_coor = towingPoint->y_coor + dy;
-
-
-            if (strm->realAzimuthOfTowingRadians < 0) {
-                strm->realAzimuthOfTowingRadians += 2*M_PI;
-            } else if (strm->realAzimuthOfTowingRadians >= 2 * M_PI) {
-                strm->realAzimuthOfTowingRadians -= 2 * M_PI;
-            }
-
-            realAzimuthOfTowingRadians = strm->realAzimuthOfTowingRadians;
-            azRad = strm->realAzimuthOfTowingRadians;
-            strm->calcChansCoors();
-        }
-        return;
-    }
-
-    if (towingPoint->itemType == "Buoy") {
-        Buoy* tmp = dynamic_cast<Buoy*>(towingPoint);
-        if (tmp-> hasConnection) {
-            height = tmp->height - tmp->AnthenaHeight - tmp->towingDepth;
-        } else {
-            height = tmp->height - tmp->towingDepth;
-        }
-
-    } else if(QString(towingPoint->metaObject()->className()) == "FixedItem") {
-        height = towingPoint->height - boardHeight; //высота борта больше не захардкожена
+        x_coor = towingPoint->x_coor + (x-towingPoint->x)*qSin(fakeAzOfTowing) + (y-towingPoint->y)*qCos(fakeAzOfTowing);
+        y_coor = towingPoint->y_coor + (x-towingPoint->x)*qCos(fakeAzOfTowing) - (y-towingPoint->y)*qSin(fakeAzOfTowing);
+        // qDebug() << qRadiansToDegrees(fakeAzOfTowing)<< qRadiansToDegrees(sharedCircularBuffer.calculateAzimuth()) << __LINE__;
+        // this->showAzDistToObj(towingPoint);
+        azimuthOfMovement = sharedCircularBuffer.calculateAzimuth();
     } else {
-        height = towingPoint->height;
+        x_coor = towingPoint->x_coor - (y-towingPoint->y)*qSin(realAzimuthOfTowingRadians) +
+                 (x-towingPoint->x)*qCos(realAzimuthOfTowingRadians);
+        y_coor = towingPoint->y_coor + (y-towingPoint->y)*qCos(realAzimuthOfTowingRadians) +
+                 (x-towingPoint->x)*qSin(realAzimuthOfTowingRadians);
+        // qDebug() << realAzimuthOfTowingRadians;
+        this->showAzDistToObj(towingPoint);
     }
-
-    qDebug() << name << towingPoint->name << towingPoint->x_coor<<towingPoint->y_coor;
-    x_coor = towingPoint->x_coor + (y-towingPoint->y)*qCos(realAzimuthOfTowingRadians) +
-             (x-towingPoint->x)*qSin(realAzimuthOfTowingRadians);
-    y_coor = towingPoint->y_coor - (y-towingPoint->y)*qSin(realAzimuthOfTowingRadians) +
-             (x-towingPoint->x)*qCos(realAzimuthOfTowingRadians);
-
-    // qDebug() <<x_coor;
-    double dx = this->wireLength * qSin(realAzimuthOfTowingRadians);
-    double dy = this->wireLength * qCos(realAzimuthOfTowingRadians);
-    x_coor = towingPoint->x_coor + dx;
-    y_coor = towingPoint->y_coor + dy;
-
-
-    if (QString(metaObject()->className()) == "Streamer") {
-        Streamer* strm = dynamic_cast<Streamer*>(this);
-        // qDebug()
-        strm->realAzimuthOfTowingRadians = M_PI + atan2(x_coor - strm->endBuoy->x_coor,
-                                                        y_coor - strm->endBuoy->y_coor);
-        realAzimuthOfTowingRadians = strm->realAzimuthOfTowingRadians;
-    }
-
-    // qDebug() << x_coor << y_coor << "AFTER";
-    // exit(666);
 
     QGeoCoordinate tmp = parser.UTMtoGeo(QPointF(x_coor, y_coor));
     this->latitude = tmp.latitude();

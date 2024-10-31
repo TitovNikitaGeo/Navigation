@@ -122,7 +122,8 @@ void PostProcessorView::sendValuesToPostProc() //передача парамет
 
 void PostProcessorView::chooseScheme() { //выбор съемы и парсинг json файла
     QString documentsPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    QString fileName = QFileDialog::getOpenFileName(this, "Choose scheme", documentsPath + "/Ship_logs/json", "*.json");
+    // QString fileName = QFileDialog::getOpenFileName(this, "Choose scheme", documentsPath + "/Ship_logs/json", "*.json");
+    QString fileName = QFileDialog::getOpenFileName(this, "Choose scheme", documentsPath, "*.json");
     if (!fileName.isEmpty()) {
         schemeLineEdit->setText(fileName);
         postProc.jsonSchemeFile = new QFile(fileName);
@@ -187,7 +188,8 @@ void PostProcessorView::createConnectionButtons() {
 
 
         connect(nmeaPpkButton, &QPushButton::clicked, this, [this, nmeaPpkLineEdit]() {
-            QString navFilesPath = QDir("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/test").absolutePath(); ///TODO: потом заменить на норм место
+            // QString navFilesPath = QDir("C:/Users/sabrahar/Desktop/FINAL/PPK GNSS data/test").absolutePath(); ///TODO: потом заменить на норм место
+            QString navFilesPath =  QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
             QString fileName = QFileDialog::getOpenFileName(this, "Choose NMEA or PPK file", navFilesPath, "*.nmea *.ppk");
             if (!fileName.isEmpty()) {
                 nmeaPpkLineEdit->setText(fileName);
@@ -202,12 +204,15 @@ void PostProcessorView::createConnectionButtons() {
 
 void PostProcessorView::chooseFfidSource() {
     if (segyRadioButton->isChecked()) {
-        QString dirName = QFileDialog::getExistingDirectory(this, "Choose SEGY directory", QString("C:/Users/sabrahar/Desktop/FINAL/"));
+        // QString dirName = QFileDialog::getExistingDirectory(this, "Choose SEGY directory", QString("C:/Users/sabrahar/Desktop/FINAL/"));
+        QString dirName = QFileDialog::getExistingDirectory(this, "Choose SEGY directory", QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+       ;
         if (!dirName.isEmpty()) {
             ffidLineEdit->setText(dirName);
         }
     } else if (txtRadioButton->isChecked()) {
-        QString fileName = QFileDialog::getOpenFileName(this, "Choose TXT file", QString("C:/Users/sabrahar/Desktop/FINAL/"), "*.txt");
+        QString fileName = QFileDialog::getOpenFileName(this, "Choose TXT file",  QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), "*.txt");
+        // QString fileName = QFileDialog::getOpenFileName(this, "Choose TXT file", QString("C:/Users/sabrahar/Desktop/FINAL/"), "*.txt");
         if (!fileName.isEmpty()) {
             ffidLineEdit->setText(fileName);
         }

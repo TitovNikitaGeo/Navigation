@@ -69,7 +69,7 @@ Connection* Connection_creator::createConnection()
     //     return nullptr;
     // }
     QString fileName = this->dirPath.absolutePath()+"/"+lastCreatedFileName;
-    qDebug() << fileName << __FUNCTION__;
+    // qDebug() << fileName << __FUNCTION__;
     if (!fileName.endsWith(".nmea", Qt::CaseInsensitive)) {
         fileName += ".nmea";
     }
